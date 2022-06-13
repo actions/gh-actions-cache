@@ -46,7 +46,7 @@ ARGUMENTS:
 	No Arguments
 
 FLAGS:
-	-R, --repo <[HOST/]owner/repo>		Select another repository
+	-R, --repo <[HOST/]owner/repo>		Select another repository using the [HOST/]OWNER/REPO format
 	-B, --branch <string>			Filter by branch
 	--key <string>				Filter by key
 	--order <string>			Order of caches returned (asc/desc)

@@ -37,8 +37,9 @@ ARGUMENTS:
 	key		cache key which needs to be deleted
 	
 FLAGS:
-	-R, --repo <[HOST/]owner/repo>		Select another repository
+	-R, --repo <[HOST/]owner/repo>		Select another repository using the [HOST/]OWNER/REPO format
 	-B, --branch <string>			Filter by branch
+	--confirm				Confirm deletion without prompting
 
 INHERITED FLAGS
 	--help		Show help for command
