@@ -15,8 +15,8 @@ func init() {
 
 var deleteCmd = &cobra.Command{
 	Use:   "delete",
-	Short: "Print the version number of Hugo",
-	Long:  `All software has versions. This is Hugo's`,
+	Short: "Delete cache by key",
+	Long:  `Delete cache by key`,
 	Run: func(cmd *cobra.Command, args []string) {
 		repo, _ := cmd.Flags().GetString("repo")
 		branch, _ := cmd.Flags().GetString("branch")
@@ -31,7 +31,7 @@ func getDeleteHelp() string {
 gh-actions-cache: Works with GitHub Actions Cache. 
 
 USAGE:
-	gh actions-cache lisy [flags]
+	gh actions-cache delete <key> [flags]
 
 ARGUMENTS:
 	key		cache key which needs to be deleted

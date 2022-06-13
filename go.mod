@@ -1,4 +1,4 @@
-module github.com/t-dedah/gh-actions-cache
+module github.com/actions/gh-actions-cache
 
 go 1.18
 

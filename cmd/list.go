@@ -18,8 +18,8 @@ func init() {
 
 var listCmd = &cobra.Command{
 	Use:   "list",
-	Short: "Print the version number of Hugo",
-	Long:  `All software has versions. This is Hugo's`,
+	Short: "Lists the actions cache",
+	Long:  `Lists the actions cache`,
 	Run: func(cmd *cobra.Command, args []string) {
 		repo, _ := cmd.Flags().GetString("repo")
 		branch, _ := cmd.Flags().GetString("branch")
@@ -40,7 +40,7 @@ func getListHelp() string {
 gh-actions-cache: Works with GitHub Actions Cache. 
 
 USAGE:
-	gh actions-cache lisy [flags]
+	gh actions-cache list [flags]
 
 ARGUMENTS:
 	No Arguments
