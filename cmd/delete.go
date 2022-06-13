@@ -8,8 +8,8 @@ import (
 
 func init() {
 	rootCmd.AddCommand(deleteCmd)
-	rootCmd.Flags().StringP("repo", "R", "", "Select another repository for finding actions cache.")
-	rootCmd.Flags().StringP("branch", "B", "", "Filter by branch")
+	deleteCmd.Flags().StringP("repo", "R", "", "Select another repository for finding actions cache.")
+	deleteCmd.Flags().StringP("branch", "B", "", "Filter by branch")
 	deleteCmd.SetHelpTemplate(getDeleteHelp())
 }
 

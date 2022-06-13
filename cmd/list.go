@@ -8,11 +8,11 @@ import (
 
 func init() {
 	rootCmd.AddCommand(listCmd)
-	rootCmd.Flags().StringP("repo", "R", "", "Select another repository for finding actions cache.")
-	rootCmd.Flags().StringP("branch", "B", "", "Filter by branch")
-	rootCmd.Flags().StringP("key", "", "", "Filter by key")
-	rootCmd.Flags().StringP("order", "", "", "Order of caches returned (asc/desc)")
-	rootCmd.Flags().StringP("sort", "", "", "Sort fetched caches (used/size/created)")
+	listCmd.Flags().StringP("repo", "R", "", "Select another repository for finding actions cache.")
+	listCmd.Flags().StringP("branch", "B", "", "Filter by branch")
+	listCmd.Flags().StringP("key", "", "", "Filter by key")
+	listCmd.Flags().StringP("order", "", "", "Order of caches returned (asc/desc)")
+	listCmd.Flags().StringP("sort", "", "", "Sort fetched caches (used/size/created)")
 	listCmd.SetHelpTemplate(getListHelp())
 }
 
