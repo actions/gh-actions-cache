@@ -13,7 +13,7 @@ func init() {
 	rootCmd.AddCommand(listCmd)
 	listCmd.Flags().StringP("repo", "R", "", "Select another repository for finding actions cache.")
 	listCmd.Flags().StringP("branch", "B", "", "Filter by branch")
-	listCmd.Flags().IntVarP(&limit, "limit", "", 30, "Maximum number of items to fetch (default is 30) (max limit is 100")
+	listCmd.Flags().IntVarP(&limit, "limit", "", 30, "Maximum number of items to fetch (default is 30, max limit is 100)")
 	listCmd.Flags().StringP("key", "", "", "Filter by key")
 	listCmd.Flags().StringP("order", "", "", "Order of caches returned (asc/desc)")
 	listCmd.Flags().StringP("sort", "", "", "Sort fetched caches (used/size/created)")
@@ -70,7 +70,7 @@ ARGUMENTS:
 FLAGS:
 	-R, --repo <[HOST/]owner/repo>		Select another repository using the [HOST/]OWNER/REPO format
 	-B, --branch <string>			Filter by branch
-	-L, --limit <int>			Maximum number of items to fetch (default is 30) (max limit is 100")
+	-L, --limit <int>			Maximum number of items to fetch (default is 30, max limit is 100)
 	--key <string>				Filter by key
 	--order <string>			Order of caches returned (asc/desc)
 	--sort <string>				Sort fetched caches (used/size/created)
