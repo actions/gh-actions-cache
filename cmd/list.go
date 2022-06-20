@@ -25,6 +25,7 @@ var listCmd = &cobra.Command{
 	Short: "Lists the actions cache",
 	Long:  `Lists the actions cache`,
 	Run: func(cmd *cobra.Command, args []string) {
+		COMMAND = "list"
 		r, _ := cmd.Flags().GetString("repo")
 		branch, _ := cmd.Flags().GetString("branch")
 		key, _ := cmd.Flags().GetString("key")
