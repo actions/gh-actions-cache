@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"net/url"
-	"os"
 
 	gh "github.com/cli/go-gh"
 	"github.com/cli/go-gh/pkg/api"
@@ -80,7 +79,7 @@ func getRestClient(repo ghRepo.Repository) (api.RESTClient, error) {
 	opts := api.ClientOptions{
 		Host:    repo.Host(),
 		Headers: map[string]string{"User-Agent": "gh-actions-cache"},
-		Log:     os.Stdout,
+		Log:     nil,
 	}
 	client, err := gh.RESTClient(&opts)
 	if err != nil {
