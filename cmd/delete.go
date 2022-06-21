@@ -25,6 +25,7 @@ var deleteCmd = &cobra.Command{
 	Short: "Delete cache by key",
 	Long:  `Delete cache by key`,
 	Run: func(cmd *cobra.Command, args []string) {
+		COMMAND = "delete"
 		r, _ := cmd.Flags().GetString("repo")
 		branch, _ := cmd.Flags().GetString("branch")
 		confirm, _ := cmd.Flags().GetBool("confirm")
