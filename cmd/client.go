@@ -68,7 +68,7 @@ func deleteCaches(repo ghRepo.Repository, queryParams url.Values) float64 {
 	var apiResults map[string]interface{}
 	err = client.Delete(pathComponent+"?"+queryParams.Encode(), &apiResults)
 	if err != nil {
-		if err.(api.HTTPError).StatusCode == 404 {
+		if err.(api.HTTPError).StatusCode == 404 { //TODO: Figure out how to ensure err is of type HTTPError
 			return 0
 		} else {
 			log.Fatal(err)
