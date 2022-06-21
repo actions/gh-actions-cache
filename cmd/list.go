@@ -75,7 +75,7 @@ func validateInputs(sort string, order string, limit int){
 	}
 
 	if limit < 1{
-		log.Fatal(fmt.Errorf(fmt.Sprintf("%s is not a valid value for limit flag. Allowed values: > 1", limit)))
+		log.Fatal(fmt.Errorf(fmt.Sprintf("%d is not a valid value for limit flag. Allowed values: > 1", limit)))
 	}
 }
 
