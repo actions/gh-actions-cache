@@ -9,7 +9,10 @@ import (
 	ghRepo "github.com/cli/go-gh/pkg/repository"
 )
 
-func parseInputFlags(branch string, limit int, key string, order string, sort string) url.Values {
+const MB_IN_BYTES = 1024 * 1024
+const GB_IN_BYTES = 1024 * 1024 * 1024
+
+func generateQueryParams(branch string, limit int, key string, order string, sort string) url.Values {
 	query := url.Values{}
 	if branch != "" {
 		query.Add("ref", branch)
@@ -32,18 +35,10 @@ func parseInputFlags(branch string, limit int, key string, order string, sort st
 
 func getRepo(r string) (ghRepo.Repository, error) {
 	if r != "" {
-		repo, err := ghRepo.Parse(r)
-		if err != nil {
-			return nil, err
-		}
-		return repo, nil
+		return ghRepo.Parse(r)
 	}
 
-	currentRepo, err := gh.CurrentRepository()
-	if err != nil {
-		return nil, err
-	}
-	return currentRepo, nil
+	return gh.CurrentRepository()
 }
 
 func formatCacheSize(size_in_bytes float64) string {
@@ -56,8 +51,8 @@ func formatCacheSize(size_in_bytes float64) string {
 	}
 
 	if size_in_bytes < 1024*1024*1024 {
-		return fmt.Sprintf("%.2f MB", size_in_bytes/1024/1024)
+		return fmt.Sprintf("%.2f MB", size_in_bytes/MB_IN_BYTES)
 	}
 
-	return fmt.Sprintf("%.2f GB", size_in_bytes/1024/1024/1024)
+	return fmt.Sprintf("%.2f GB", size_in_bytes/GB_IN_BYTES)
 }

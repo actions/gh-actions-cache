@@ -27,7 +27,7 @@ var deleteCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 
-		queryParams := parseInputFlags(branch, 30, "", "", "")
+		queryParams := generateQueryParams(branch, 30, "", "", "")
 		deleteCaches(repo, queryParams)
 	},
 }
