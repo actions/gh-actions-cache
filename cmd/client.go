@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/url"
+	"strings"
 
 	gh "github.com/cli/go-gh"
 	"github.com/cli/go-gh/pkg/api"
@@ -68,7 +69,11 @@ func deleteCaches(repo ghRepo.Repository, queryParams url.Values) float64 {
 	var apiResults map[string]interface{}
 	err = client.Delete(pathComponent+"?"+queryParams.Encode(), &apiResults)
 	if err != nil {
-		log.Fatal(err)
+		if strings.Contains(err.Error(), "404") {
+			return 0
+		} else {
+			log.Fatal(err)
+		}
 	}
 
 	totalDeletedCachesResult := apiResults["total_count"].(float64)
@@ -78,7 +83,7 @@ func deleteCaches(repo ghRepo.Repository, queryParams url.Values) float64 {
 func getRestClient(repo ghRepo.Repository) (api.RESTClient, error) {
 	opts := api.ClientOptions{
 		Host:    repo.Host(),
-		Headers: map[string]string{"User-Agent": fmt.Sprintf("gh-actions-cache/%s/%s", VERSION, COMMAND) },
+		Headers: map[string]string{"User-Agent": fmt.Sprintf("gh-actions-cache/%s/%s", VERSION, COMMAND)},
 	}
 	client, err := gh.RESTClient(&opts)
 	if err != nil {

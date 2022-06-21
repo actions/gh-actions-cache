@@ -81,6 +81,8 @@ var deleteCmd = &cobra.Command{
 					fmt.Print("entries")
 				}
 				fmt.Print(" with key " + key + "\n")
+			} else {
+				fmt.Println("Cache with input key '" + key + "' does not exist")
 			}
 		}
 
