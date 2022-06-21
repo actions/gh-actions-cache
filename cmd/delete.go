@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"unicode/utf8"
 
-
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/TwiN/go-color"
 	ghRepo "github.com/cli/go-gh/pkg/repository"
@@ -61,7 +60,10 @@ var deleteCmd = &cobra.Command{
 				Message: "Are you sure you want to delete the cache entries?",
 				Options: []string{"Delete", "Cancel"},
 			}
-			survey.AskOne(prompt, &choice)
+			err := survey.AskOne(prompt, &choice)
+			if err != nil {
+				fmt.Println("Error occured while taking input from user while trying to delete cache")
+			}
 			if choice == "Delete" {
 				userConfirmation = true
 			} else {
@@ -86,7 +88,6 @@ var deleteCmd = &cobra.Command{
 				fmt.Print(" with key " + key + "\n")
 			}
 		}
-
 
 	},
 }
