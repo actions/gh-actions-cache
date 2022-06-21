@@ -2,12 +2,13 @@ module github.com/actions/gh-actions-cache
 
 go 1.18
 
-require github.com/cli/go-gh v0.0.3
+require (
+	github.com/TwiN/go-color v1.1.0
+	github.com/cli/go-gh v0.0.3
+)
 
 require (
 	github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 // indirect
-	github.com/TwiN/go-color v1.1.0 // indirect
-	github.com/fatih/color v1.13.0 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/mattn/go-colorable v0.1.9 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect

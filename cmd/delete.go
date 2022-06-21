@@ -2,11 +2,13 @@ package cmd
 
 import (
 	"fmt"
+	"net/url"
 	"strconv"
 	"unicode/utf8"
 
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/TwiN/go-color"
+	ghRepo "github.com/cli/go-gh/pkg/repository"
 	"github.com/spf13/cobra"
 )
 
@@ -45,6 +47,13 @@ var deleteCmd = &cobra.Command{
 			return
 		}
 		if !confirm {
+			fmt.Print("\nYou're going to delete " + strconv.Itoa(len(matchedCaches)) + " cache ")
+			if len(matchedCaches) == 1 {
+				fmt.Println("entry")
+			} else {
+				fmt.Println("entries")
+			}
+			fmt.Println()
 			prettyPrintCacheList(matchedCaches)
 			choice := ""
 			prompt := &survey.Select{
@@ -101,4 +110,15 @@ INHERITED FLAGS
 EXAMPLES:
 	$ gh actions-cache delete Linux-node-f5dbf39c9d11eba80242ac13
 `
+}
+
+func getCacheListWithExactMatch(repo ghRepo.Repository, queryParams url.Values) []cacheInfo {
+	listApiResponse := listCaches(repo, queryParams)
+	var exactMatchedKeys []cacheInfo
+	for _, cache := range listApiResponse {
+		if queryParams.Get("key") == cache.Key {
+			exactMatchedKeys = append(exactMatchedKeys, cache)
+		}
+	}
+	return exactMatchedKeys
 }

@@ -66,27 +66,8 @@ func formatCacheSize(size_in_bytes float64) string {
 	return fmt.Sprintf("%.2f GB", size_in_bytes/1024/1024/1024)
 }
 
-func getCacheListWithExactMatch(repo ghRepo.Repository, queryParams url.Values) []cacheInfo {
-
-	listApiResponse := listCaches(repo, queryParams)
-	var exactMatchedKeys []cacheInfo
-	for _, cache := range listApiResponse {
-		if queryParams.Get("key") == cache.Key {
-			exactMatchedKeys = append(exactMatchedKeys, cache)
-		}
-	}
-	return exactMatchedKeys
-}
-
 func prettyPrintCacheList(caches []cacheInfo) {
 	numberOfCaches := len(caches)
-	fmt.Print("\nYou're going to delete " + strconv.Itoa(numberOfCaches) + " cache ")
-	if numberOfCaches == 1 {
-		fmt.Println("entry")
-	} else {
-		fmt.Println("entries")
-	}
-	fmt.Println()
 	for _, cache := range caches {
 		var cacheKey string = trimCacheKeyBasedOnWindowSize(cache.Key)
 
