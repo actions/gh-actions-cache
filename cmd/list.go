@@ -5,6 +5,8 @@ import (
 	"log"
 
 	"github.com/spf13/cobra"
+	"github.com/actions/gh-actions-cache/internal"
+	"github.com/actions/gh-actions-cache/actionsCacheClient"
 )
 
 func init() {
@@ -38,24 +40,29 @@ var listCmd = &cobra.Command{
 		order, _ := cmd.Flags().GetString("order")
 		sort, _ := cmd.Flags().GetString("sort")
 
-		repo, err := getRepo(r)
+		repo, err := internal.GetRepo(r)
 		if err != nil {
 			log.Fatal(err)
 		}
 
 		validateInputs(sort, order, limit)
 
-		if branch == "" && key == "" {
-			totalCacheSize := getCacheUsage(repo)
-			fmt.Printf("Total caches size %s\n\n", formatCacheSize(totalCacheSize))
+		client, err := internal.GetRestClient(repo, "0.0.1", "list")
+		if err != nil {
+			log.Fatal(err)
 		}
 
-		queryParams := generateQueryParams(branch, limit, key, order, sort)
-		caches := listCaches(repo, queryParams)
+		if branch == "" && key == "" {
+			totalCacheSize := actionsCacheClient.GetCacheUsage(repo, client)
+			fmt.Printf("Total caches size %s\n\n", internal.FormatCacheSize(totalCacheSize))
+		}
+
+		queryParams := internal.GenerateQueryParams(branch, limit, key, order, sort)
+		caches := actionsCacheClient.ListCaches(repo, queryParams, client)
 
 		fmt.Printf("Showing %d of %d cache entries in %s/%s\n\n", totalShownCacheEntry(len(caches), limit), len(caches), repo.Owner(), repo.Name())
 		for _, cache := range caches {
-			fmt.Printf("%s\t [%s]\t %s\t %s\n", cache.Key, formatCacheSize(cache.Size), cache.Ref, cache.LastAccessedAt)
+			fmt.Printf("%s\t [%s]\t %s\t %s\n", cache.Key, internal.FormatCacheSize(cache.Size), cache.Ref, cache.LastAccessedAt)
 		}
 	},
 }

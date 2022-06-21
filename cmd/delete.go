@@ -4,6 +4,8 @@ import (
 	"log"
 
 	"github.com/spf13/cobra"
+	"github.com/actions/gh-actions-cache/internal"
+	"github.com/actions/gh-actions-cache/actionsCacheClient"
 )
 
 func init() {
@@ -22,13 +24,18 @@ var deleteCmd = &cobra.Command{
 		r, _ := cmd.Flags().GetString("repo")
 		branch, _ := cmd.Flags().GetString("branch")
 
-		repo, err := getRepo(r)
+		repo, err := internal.GetRepo(r)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		queryParams := generateQueryParams(branch, 30, "", "", "")
-		deleteCaches(repo, queryParams)
+		queryParams := internal.GenerateQueryParams(branch, 30, "", "", "")
+		
+		client, err := internal.GetRestClient(repo, "0.0.1", "delete")
+		if err != nil {
+			log.Fatal(err)
+		}
+		actionsCacheClient.DeleteCaches(repo, queryParams, client)
 	},
 }
 

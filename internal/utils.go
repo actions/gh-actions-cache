@@ -1,4 +1,4 @@
-package cmd
+package internal
 
 import (
 	"fmt"
@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	gh "github.com/cli/go-gh"
+	"github.com/cli/go-gh/pkg/api"
 	ghRepo "github.com/cli/go-gh/pkg/repository"
 )
 
@@ -19,7 +20,15 @@ var SORT_INPUT_TO_QUERY_MAP = map[string]string{
 	"size": "size_in_bytes",
 }
 
-func generateQueryParams(branch string, limit int, key string, order string, sort string) url.Values {
+func GetRestClient(repo ghRepo.Repository, version string, command string) (api.RESTClient, error) {
+	opts := api.ClientOptions{
+		Host:    repo.Host(),
+		Headers: map[string]string{"User-Agent": fmt.Sprintf("gh-actions-cache/%s/%s", version, command)},
+	}
+	return gh.RESTClient(&opts)
+}
+
+func GenerateQueryParams(branch string, limit int, key string, order string, sort string) url.Values {
 	query := url.Values{}
 	if branch != "" {
 		if strings.Contains(branch, "refs"){
@@ -44,7 +53,7 @@ func generateQueryParams(branch string, limit int, key string, order string, sor
 	return query
 }
 
-func getRepo(r string) (ghRepo.Repository, error) {
+func GetRepo(r string) (ghRepo.Repository, error) {
 	if r != "" {
 		return ghRepo.Parse(r)
 	}
@@ -52,7 +61,7 @@ func getRepo(r string) (ghRepo.Repository, error) {
 	return gh.CurrentRepository()
 }
 
-func formatCacheSize(size_in_bytes float64) string {
+func FormatCacheSize(size_in_bytes float64) string {
 	if size_in_bytes < 1024 {
 		return fmt.Sprintf("%.2f B", size_in_bytes)
 	}
