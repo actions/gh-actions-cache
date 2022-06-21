@@ -6,9 +6,9 @@ import (
 	"net/url"
 	"os"
 	"strconv"
-	"time"
 	"strings"
-  
+	"time"
+
 	gh "github.com/cli/go-gh"
 	ghRepo "github.com/cli/go-gh/pkg/repository"
 	"github.com/moby/term"
@@ -19,14 +19,14 @@ const GB_IN_BYTES = 1024 * 1024 * 1024
 
 var SORT_INPUT_TO_QUERY_MAP = map[string]string{
 	"created-at": "created_at",
-	"last-used": "last_accessed_at",
-	"size": "size_in_bytes",
+	"last-used":  "last_accessed_at",
+	"size":       "size_in_bytes",
 }
 
 func generateQueryParams(branch string, limit int, key string, order string, sort string) url.Values {
 	query := url.Values{}
 	if branch != "" {
-		if strings.Contains(branch, "refs"){
+		if strings.Contains(branch, "refs") {
 			query.Add("ref", branch)
 		} else {
 			query.Add("ref", fmt.Sprintf("refs/heads/%s", branch))
@@ -77,8 +77,8 @@ func prettyPrintCacheList(caches []cacheInfo) {
 	for _, cache := range caches {
 		var cacheKey string = trimCacheKeyBasedOnWindowSize(cache.Key)
 
-		var resultRow string = "  " + cacheKey + "     [" + formatCacheSize(cache.Size) + "]     " + cache.Ref[11:] + "     " + lastAccessedHour(cache.LastAccessedAt)
-		fmt.Println(resultRow)
+		var formattedRow string = getFormattedCacheInfo(cacheKey, cache)
+		fmt.Println(formattedRow)
 	}
 	if numberOfCaches > 30 {
 		fmt.Println("...and " + strconv.Itoa(numberOfCaches-30) + " more\n\n")
@@ -114,4 +114,8 @@ func lastAccessedHour(lastAccessedAt string) string {
 		lastAccessedHourStr += " hours ago"
 	}
 	return lastAccessedHourStr
+}
+
+func getFormattedCacheInfo(cacheKey string, cache cacheInfo) string {
+	return "  " + cacheKey + "     [" + formatCacheSize(cache.Size) + "]     " + cache.Ref[11:] + "     " + lastAccessedHour(cache.LastAccessedAt)
 }

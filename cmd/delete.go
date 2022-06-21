@@ -41,6 +41,7 @@ var deleteCmd = &cobra.Command{
 		repo, err := getRepo(r)
 		if err != nil {
 			fmt.Println(err)
+			return
 		}
 
 		var userConfirmation bool = true
@@ -67,6 +68,7 @@ var deleteCmd = &cobra.Command{
 			err := survey.AskOne(prompt, &choice)
 			if err != nil {
 				fmt.Println("Error occured while taking input from user while trying to delete cache")
+				return
 			}
 			userConfirmation = choice == "Delete"
 			fmt.Println()
