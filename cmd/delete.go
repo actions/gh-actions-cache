@@ -31,7 +31,7 @@ var deleteCmd = &cobra.Command{
 		branch, _ := cmd.Flags().GetString("branch")
 		confirm, _ := cmd.Flags().GetBool("confirm")
 		if len(args) == 0 {
-			fmt.Println(getDeleteHelp())
+			fmt.Println("accepts 1 arg(s), received 0")
 			return
 		}
 		key := args[0]
