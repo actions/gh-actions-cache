@@ -40,13 +40,15 @@ var deleteCmd = &cobra.Command{
 		if err != nil {
 			fmt.Println(err)
 		}
+
 		var userConfirmation bool = true
-		var matchedCaches = getCacheListWithExactMatch(repo, queryParams)
-		if len(matchedCaches) == 0 {
-			fmt.Println("Cache with input key '" + key + "' does not exist")
-			return
-		}
+
 		if !confirm {
+			var matchedCaches = getCacheListWithExactMatch(repo, queryParams)
+			if len(matchedCaches) == 0 {
+				fmt.Println("Cache with input key '" + key + "' does not exist")
+				return
+			}
 			fmt.Print("\nYou're going to delete " + strconv.Itoa(len(matchedCaches)) + " cache ")
 			if len(matchedCaches) == 1 {
 				fmt.Println("entry")
@@ -64,17 +66,10 @@ var deleteCmd = &cobra.Command{
 			if err != nil {
 				fmt.Println("Error occured while taking input from user while trying to delete cache")
 			}
-			if choice == "Delete" {
-				userConfirmation = true
-			} else {
-				userConfirmation = false
-			}
+			userConfirmation = choice == "Delete"
 			fmt.Println()
 		}
 		if userConfirmation {
-			if branch != "" {
-				queryParams.Add("ref", branch)
-			}
 			cachesDeleted := deleteCaches(repo, queryParams)
 			if cachesDeleted > 0 {
 				src := "\u2713"
