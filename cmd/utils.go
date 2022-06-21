@@ -22,7 +22,7 @@ var SORT_INPUT_TO_QUERY_MAP = map[string]string{
 func generateQueryParams(branch string, limit int, key string, order string, sort string) url.Values {
 	query := url.Values{}
 	if branch != "" {
-		if strings.Contains(branch, "refs/heads/"){
+		if strings.Contains(branch, "refs"){
 			query.Add("ref", branch)
 		} else {
 			query.Add("ref", fmt.Sprintf("refs/heads/%s", branch))

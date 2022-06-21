@@ -45,8 +45,10 @@ var listCmd = &cobra.Command{
 
 		validateInputs(sort, order, limit)
 
-		totalCacheSize := getCacheUsage(repo)
-		fmt.Printf("Total caches size %s\n\n", formatCacheSize(totalCacheSize))
+		if branch == "" && key == "" {
+			totalCacheSize := getCacheUsage(repo)
+			fmt.Printf("Total caches size %s\n\n", formatCacheSize(totalCacheSize))
+		}
 
 		queryParams := generateQueryParams(branch, limit, key, order, sort)
 		caches := listCaches(repo, queryParams)
