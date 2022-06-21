@@ -35,7 +35,7 @@ var deleteCmd = &cobra.Command{
 		}
 		key := args[0]
 
-		queryParams := parseInputFlags(branch, 30, key, "", "")
+		queryParams := generateQueryParams(branch, 100, key, "", "")
 
 		repo, err := getRepo(r)
 		if err != nil {

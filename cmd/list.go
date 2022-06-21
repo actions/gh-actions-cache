@@ -40,7 +40,7 @@ var listCmd = &cobra.Command{
 		totalCacheSize := getCacheUsage(repo)
 		fmt.Printf("Total caches size %s\n", formatCacheSize(totalCacheSize))
 
-		queryParams := parseInputFlags(branch, limit, key, order, sort)
+		queryParams := generateQueryParams(branch, limit, key, order, sort)
 		caches := listCaches(repo, queryParams)
 
 		fmt.Printf("Showing %d of %d cache entries in %s/%s\n", totalShownCacheEntry(len(caches)), len(caches), repo.Owner(), repo.Name())
