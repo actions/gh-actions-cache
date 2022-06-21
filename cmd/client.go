@@ -78,8 +78,7 @@ func deleteCaches(repo ghRepo.Repository, queryParams url.Values) float64 {
 func getRestClient(repo ghRepo.Repository) (api.RESTClient, error) {
 	opts := api.ClientOptions{
 		Host:    repo.Host(),
-		Headers: map[string]string{"User-Agent": "gh-actions-cache"},
-		Log:     nil,
+		Headers: map[string]string{"User-Agent": fmt.Sprintf("gh-actions-cache/%s/%s", VERSION, COMMAND) },
 	}
 	client, err := gh.RESTClient(&opts)
 	if err != nil {

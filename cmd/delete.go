@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"unicode/utf8"
 
+
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/TwiN/go-color"
 	ghRepo "github.com/cli/go-gh/pkg/repository"
@@ -85,6 +86,7 @@ var deleteCmd = &cobra.Command{
 				fmt.Print(" with key " + key + "\n")
 			}
 		}
+
 
 	},
 }
