@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/url"
 	"strconv"
+	"strings"
 	"unicode/utf8"
 
 	"github.com/AlecAivazis/survey/v2"
@@ -117,7 +118,7 @@ func getCacheListWithExactMatch(repo ghRepo.Repository, queryParams url.Values) 
 	listApiResponse := listCaches(repo, queryParams)
 	var exactMatchedKeys []cacheInfo
 	for _, cache := range listApiResponse {
-		if queryParams.Get("key") == cache.Key {
+		if strings.EqualFold(queryParams.Get("key"), cache.Key) {
 			exactMatchedKeys = append(exactMatchedKeys, cache)
 		}
 	}
