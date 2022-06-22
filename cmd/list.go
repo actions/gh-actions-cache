@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/spf13/cobra"
 	"github.com/actions/gh-actions-cache/internal"
 	"github.com/actions/gh-actions-cache/service"
+	"github.com/spf13/cobra"
 )
 
 func init() {
@@ -36,10 +36,10 @@ func NewCmdList() *cobra.Command {
 			if err != nil {
 				log.Fatal(err)
 			}
-			
+
 			validateInputs(sort, order, limit)
 
-			artifactCache := service.NewArtifactCache(repo ,"list", VERSION)
+			artifactCache := service.NewArtifactCache(repo, "list", VERSION)
 
 			if branch == "" && key == "" {
 				totalCacheSize := artifactCache.GetCacheUsage(repo)
@@ -77,16 +77,16 @@ func displayedEntriesCount(totalCaches int, limit int) int {
 	return limit
 }
 
-func validateInputs(sort string, order string, limit int){
-	if order != "" && order != "asc" && order != "desc"{
+func validateInputs(sort string, order string, limit int) {
+	if order != "" && order != "asc" && order != "desc" {
 		log.Fatal(fmt.Errorf(fmt.Sprintf("%s is not a valid value for order flag. Allowed values: asc/desc", order)))
 	}
 
-	if sort != "" && sort != "last-used" && sort != "size" && sort != "created-at"{
+	if sort != "" && sort != "last-used" && sort != "size" && sort != "created-at" {
 		log.Fatal(fmt.Errorf(fmt.Sprintf("%s is not a valid value for sort flag. Allowed values: last-used/size/created-at", sort)))
 	}
 
-	if limit < 1{
+	if limit < 1 {
 		log.Fatal(fmt.Errorf(fmt.Sprintf("%d is not a valid value for limit flag. Allowed values: > 1", limit)))
 	}
 }

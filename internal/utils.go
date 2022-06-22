@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	gh "github.com/cli/go-gh"
-	"github.com/cli/go-gh/pkg/api"
 	ghRepo "github.com/cli/go-gh/pkg/repository"
 )
 
@@ -16,22 +15,14 @@ const GB_IN_BYTES = 1024 * 1024 * 1024
 
 var SORT_INPUT_TO_QUERY_MAP = map[string]string{
 	"created-at": "created_at",
-	"last-used": "last_accessed_at",
-	"size": "size_in_bytes",
-}
-
-func GetRestClient(repo ghRepo.Repository, version string, command string) (api.RESTClient, error) {
-	opts := api.ClientOptions{
-		Host:    repo.Host(),
-		Headers: map[string]string{"User-Agent": fmt.Sprintf("gh-actions-cache/%s/%s", version, command)},
-	}
-	return gh.RESTClient(&opts)
+	"last-used":  "last_accessed_at",
+	"size":       "size_in_bytes",
 }
 
 func GenerateQueryParams(branch string, limit int, key string, order string, sort string) url.Values {
 	query := url.Values{}
 	if branch != "" {
-		if strings.Contains(branch, "refs"){
+		if strings.Contains(branch, "refs") {
 			query.Add("ref", branch)
 		} else {
 			query.Add("ref", fmt.Sprintf("refs/heads/%s", branch))
