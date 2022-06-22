@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	// "log"
+	"log"
 
 	"github.com/spf13/cobra"
 	// "github.com/actions/gh-actions-cache/internal"
