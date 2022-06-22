@@ -14,6 +14,7 @@ func TestList_WithNoFlag(t *testing.T) {
 	}
 	artifactCache := mock_client.NewMockArtifactCache()
 	cmd := NewCmdList(opts, artifactCache)
-	fmt.Println(cmd)
+	assert.NoError(t, cmd.Execute())
+	// fmt.Println(cmd)
 	assert.Equal(t, "v1.0.0", "v1.0.0")
 }

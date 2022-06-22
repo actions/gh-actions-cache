@@ -7,18 +7,17 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/cli/go-gh/pkg/api"
 	"github.com/actions/gh-actions-cache/internal"
+	gh "github.com/cli/go-gh"
 	"github.com/actions/gh-actions-cache/client"
 )
 
 func init() {
-	opts := api.ClientOptions{
-		Headers: map[string]string{"User-Agent": fmt.Sprintf("gh-actions-cache/%s/%s", "0.0.1", "list")},
-	}
-	artifactCache := client.NewArtifactCache(opts)
-	rootCmd.AddCommand(NewCmdList(opts, artifactCache))
+	defaultRestClient, _ := gh.RESTClient(nil)
+	artifactCache := client.NewArtifactCache(defaultRestClient)
+	rootCmd.AddCommand(NewCmdList(artifactCache))
 }
 
-func NewCmdList(opts api.ClientOptions, artifactCache client.ArtifactCache) *cobra.Command {
+func NewCmdList(artifactCache client.ArtifactCacheService) *cobra.Command {
 	var listCmd = &cobra.Command{
 		Use:   "list",
 		Short: "Lists the actions cache",
@@ -41,14 +40,18 @@ func NewCmdList(opts api.ClientOptions, artifactCache client.ArtifactCache) *cob
 			if err != nil {
 				log.Fatal(err)
 			}
+
+			opts := api.ClientOptions{
+				Headers: 	map[string]string{"User-Agent": fmt.Sprintf("gh-actions-cache/%s/%s", "0.0.1", "list")},
+				Host: 		repo.Host(),
+			}
 			opts.Host = repo.Host()
 
 			validateInputs(sort, order, limit)
 
-			if artifactCache.HttpClient == nil {
-				artifactCache = client.NewArtifactCache(opts)
-			}
-			
+			c, _ := internal.GetRestClient(repo ,"test", "test")
+			artifactCache.SetHttpClient(c)
+
 			if branch == "" && key == "" {
 				totalCacheSize := artifactCache.GetCacheUsage(repo)
 				fmt.Printf("Total caches size %s\n\n", internal.FormatCacheSize(totalCacheSize))

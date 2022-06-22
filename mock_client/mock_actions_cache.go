@@ -13,8 +13,8 @@ type MockArtifactCache struct{
 	HttpClient	api.RESTClient
 }
 
-func NewMockArtifactCache() MockArtifactCache {
-	return MockArtifactCache{nil}
+func NewMockArtifactCache() client.ArtifactCacheService {
+	return &MockArtifactCache{nil}
 }
 
 func (a *MockArtifactCache) GetCacheUsage(repo ghRepo.Repository) float64 {

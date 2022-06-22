@@ -7,7 +7,7 @@ import (
 
 	"github.com/cli/go-gh/pkg/api"
 	ghRepo "github.com/cli/go-gh/pkg/repository"
-	gh "github.com/cli/go-gh"
+	// gh "github.com/cli/go-gh"
 	"github.com/actions/gh-actions-cache/types"
 )
 
@@ -15,21 +15,16 @@ type ArtifactCacheService interface{
     GetCacheUsage(repo ghRepo.Repository) float64
 	ListCaches(repo ghRepo.Repository, queryParams url.Values) []types.CacheInfo
     DeleteCaches(repo ghRepo.Repository, queryParams url.Values) int
+	GetHttpClient() api.RESTClient
+	SetHttpClient(httpClient api.RESTClient)
 }
 
 type ArtifactCache struct{
     HttpClient	api.RESTClient
 }
 
-func NewArtifactCache(opts api.ClientOptions) ArtifactCache {
-	if opts.Host == ""{
-		return ArtifactCache{nil}
-	}
-	client, err := gh.RESTClient(&opts)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return ArtifactCache{client}
+func NewArtifactCache(client api.RESTClient) ArtifactCacheService {
+	return &ArtifactCache{client}
 }
 
 func (a *ArtifactCache) GetCacheUsage(repo ghRepo.Repository) float64 {
@@ -76,4 +71,12 @@ func (a *ArtifactCache) DeleteCaches(repo ghRepo.Repository, queryParams url.Val
 
 	totalDeletedCachesResult := apiResults.TotalCount
 	return totalDeletedCachesResult
+}
+
+func (a *ArtifactCache) GetHttpClient() api.RESTClient{
+	return a.HttpClient
+}
+
+func (a *ArtifactCache) SetHttpClient(httpClient api.RESTClient) {
+	a.HttpClient = httpClient
 }
