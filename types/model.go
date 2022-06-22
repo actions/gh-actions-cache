@@ -1,9 +1,9 @@
 package types
 
 type RepoLevelUsageApiResponse struct {
-	FullName    				string            	`json:"full_name"`
-	ActiveCacheSizeInBytes    	float64            	`json:"active_caches_size_in_bytes"`
-	ActiveCacheCount    		float64            	`json:"active_caches_count"`
+	FullName					string				`json:"full_name"`
+	ActiveCacheSizeInBytes		float64				`json:"active_caches_size_in_bytes"`
+	ActiveCacheCount			float64				`json:"active_caches_count"`
 }
 
 type ListApiResponse struct {
