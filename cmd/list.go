@@ -52,7 +52,7 @@ func NewCmdList() *cobra.Command {
 			totalCaches := listCacheResponse.TotalCount
 			caches := listCacheResponse.ActionsCaches
 
-			fmt.Printf("Showing %d of %d cache entries in %s/%s\n\n", totalShownCacheEntry(len(caches), limit), totalCaches, repo.Owner(), repo.Name())
+			fmt.Printf("Showing %d of %d cache entries in %s/%s\n\n", displayedEntriesCount(len(caches), limit), totalCaches, repo.Owner(), repo.Name())
 			for _, cache := range caches {
 				fmt.Printf("%s\t [%s]\t %s\t %s\n", cache.Key, internal.FormatCacheSize(cache.SizeInBytes), cache.Ref, cache.LastAccessedAt)
 			}
@@ -70,7 +70,7 @@ func NewCmdList() *cobra.Command {
 	return listCmd
 }
 
-func totalShownCacheEntry(totalCaches int, limit int) int {
+func displayedEntriesCount(totalCaches int, limit int) int {
 	if totalCaches < limit {
 		return totalCaches
 	}

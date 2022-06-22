@@ -21,21 +21,16 @@ var deleteCmd = &cobra.Command{
 	Long:  `Delete cache by key`,
 	Run: func(cmd *cobra.Command, args []string) {
 		COMMAND = "delete"
-		// r, _ := cmd.Flags().GetString("repo")
-		// branch, _ := cmd.Flags().GetString("branch")
+		r, _ := cmd.Flags().GetString("repo")
+		branch, _ := cmd.Flags().GetString("branch")
 
-		// repo, err := internal.GetRepo(r)
-		// if err != nil {
-		// 	log.Fatal(err)
-		// }
+		repo, err := getRepo(r)
+		if err != nil {
+			log.Fatal(err)
+		}
 
-		// queryParams := internal.GenerateQueryParams(branch, 30, "", "", "")
-		
-		// client, err := internal.GetRestClient(repo, "0.0.1", "delete")
-		// if err != nil {
-		// 	log.Fatal(err)
-		// }
-		// actionsCacheClient.DeleteCaches(repo, queryParams, client)
+		queryParams := generateQueryParams(branch, 30, "", "", "")
+		deleteCaches(repo, queryParams)
 	},
 }
 
