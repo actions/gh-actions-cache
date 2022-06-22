@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/spf13/cobra"
 )
@@ -18,11 +18,17 @@ var deleteCmd = &cobra.Command{
 	Short: "Delete cache by key",
 	Long:  `Delete cache by key`,
 	Run: func(cmd *cobra.Command, args []string) {
-		repo, _ := cmd.Flags().GetString("repo")
+		COMMAND = "delete"
+		r, _ := cmd.Flags().GetString("repo")
 		branch, _ := cmd.Flags().GetString("branch")
-		fmt.Println("DELETE")
-		fmt.Println(repo)
-		fmt.Println(branch)
+
+		repo, err := getRepo(r)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		queryParams := generateQueryParams(branch, 30, "", "", "")
+		deleteCaches(repo, queryParams)
 	},
 }
 
