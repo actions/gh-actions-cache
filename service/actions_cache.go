@@ -1,4 +1,4 @@
-package client
+package service
 
 import (
 	"fmt"
@@ -7,24 +7,27 @@ import (
 
 	"github.com/cli/go-gh/pkg/api"
 	ghRepo "github.com/cli/go-gh/pkg/repository"
-	// gh "github.com/cli/go-gh"
+	gh "github.com/cli/go-gh"
 	"github.com/actions/gh-actions-cache/types"
 )
 
 type ArtifactCacheService interface{
     GetCacheUsage(repo ghRepo.Repository) float64
-	ListCaches(repo ghRepo.Repository, queryParams url.Values) []types.CacheInfo
+	ListCaches(repo ghRepo.Repository, queryParams url.Values) types.ListApiResponse
     DeleteCaches(repo ghRepo.Repository, queryParams url.Values) int
-	GetHttpClient() api.RESTClient
-	SetHttpClient(httpClient api.RESTClient)
 }
 
 type ArtifactCache struct{
     HttpClient	api.RESTClient
 }
 
-func NewArtifactCache(client api.RESTClient) ArtifactCacheService {
-	return &ArtifactCache{client}
+func NewArtifactCache(repo ghRepo.Repository, command string, version string) ArtifactCacheService {
+	opts := api.ClientOptions{
+		Host:    repo.Host(),
+		Headers: map[string]string{"User-Agent": fmt.Sprintf("gh-actions-cache/%s/%s", version, command)},
+	}
+	restClient, _ := gh.RESTClient(&opts)
+	return &ArtifactCache{restClient}
 }
 
 func (a *ArtifactCache) GetCacheUsage(repo ghRepo.Repository) float64 {
@@ -35,11 +38,10 @@ func (a *ArtifactCache) GetCacheUsage(repo ghRepo.Repository) float64 {
 		log.Fatal(err)
 	}
 
-	cacheSizeResult := apiResults.ActiveCacheSizeInBytes
-	return cacheSizeResult
+	return apiResults.ActiveCacheSizeInBytes
 }
 
-func (a *ArtifactCache) ListCaches(repo ghRepo.Repository, queryParams url.Values) []types.CacheInfo {
+func (a *ArtifactCache) ListCaches(repo ghRepo.Repository, queryParams url.Values) types.ListApiResponse {
 	pathComponent := fmt.Sprintf("repos/%s/%s/actions/caches", repo.Owner(), repo.Name())
 	var apiResults types.ListApiResponse
 	err := a.HttpClient.Get(pathComponent+"?"+queryParams.Encode(), &apiResults)
@@ -47,18 +49,7 @@ func (a *ArtifactCache) ListCaches(repo ghRepo.Repository, queryParams url.Value
 		log.Fatal(err)
 	}
 
-	actionsCachesResult := apiResults.ActionsCaches
-
-	var caches []types.CacheInfo
-	for _, item := range actionsCachesResult {
-		caches = append(caches, types.CacheInfo{
-			Key:            item.Key,
-			Ref:            item.Ref,
-			LastAccessedAt: item.LastAccessedAt,
-			Size:           item.SizeInBytes,
-		})
-	}
-	return caches
+	return apiResults
 }
 
 func (a *ArtifactCache) DeleteCaches(repo ghRepo.Repository, queryParams url.Values) int {
@@ -69,14 +60,5 @@ func (a *ArtifactCache) DeleteCaches(repo ghRepo.Repository, queryParams url.Val
 		log.Fatal(err)
 	}
 
-	totalDeletedCachesResult := apiResults.TotalCount
-	return totalDeletedCachesResult
-}
-
-func (a *ArtifactCache) GetHttpClient() api.RESTClient{
-	return a.HttpClient
-}
-
-func (a *ArtifactCache) SetHttpClient(httpClient api.RESTClient) {
-	a.HttpClient = httpClient
+	return apiResults.TotalCount
 }

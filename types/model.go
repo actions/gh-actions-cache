@@ -1,16 +1,9 @@
 package types
 
-type CacheInfo struct {
-	Key            string
-	Ref            string
-	LastAccessedAt string
-	Size           float64
-}
-
 type RepoLevelUsageApiResponse struct {
-	FullName    				string            `json:"full_name"`
-	ActiveCacheSizeInBytes    	float64            `json:"active_caches_size_in_bytes"`
-	ActiveCacheCount    		float64            `json:"active_caches_count"`
+	FullName    				string            	`json:"full_name"`
+	ActiveCacheSizeInBytes    	float64            	`json:"active_caches_size_in_bytes"`
+	ActiveCacheCount    		float64            	`json:"active_caches_count"`
 }
 
 type ListApiResponse struct {

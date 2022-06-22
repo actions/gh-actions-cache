@@ -5,19 +5,15 @@ import (
 	"log"
 
 	"github.com/spf13/cobra"
-	"github.com/cli/go-gh/pkg/api"
 	"github.com/actions/gh-actions-cache/internal"
-	gh "github.com/cli/go-gh"
-	"github.com/actions/gh-actions-cache/client"
+	"github.com/actions/gh-actions-cache/service"
 )
 
 func init() {
-	defaultRestClient, _ := gh.RESTClient(nil)
-	artifactCache := client.NewArtifactCache(defaultRestClient)
-	rootCmd.AddCommand(NewCmdList(artifactCache))
+	rootCmd.AddCommand(NewCmdList())
 }
 
-func NewCmdList(artifactCache client.ArtifactCacheService) *cobra.Command {
+func NewCmdList() *cobra.Command {
 	var listCmd = &cobra.Command{
 		Use:   "list",
 		Short: "Lists the actions cache",
@@ -40,17 +36,10 @@ func NewCmdList(artifactCache client.ArtifactCacheService) *cobra.Command {
 			if err != nil {
 				log.Fatal(err)
 			}
-
-			opts := api.ClientOptions{
-				Headers: 	map[string]string{"User-Agent": fmt.Sprintf("gh-actions-cache/%s/%s", "0.0.1", "list")},
-				Host: 		repo.Host(),
-			}
-			opts.Host = repo.Host()
-
+			
 			validateInputs(sort, order, limit)
 
-			c, _ := internal.GetRestClient(repo ,"test", "test")
-			artifactCache.SetHttpClient(c)
+			artifactCache := service.NewArtifactCache(repo ,"list", VERSION)
 
 			if branch == "" && key == "" {
 				totalCacheSize := artifactCache.GetCacheUsage(repo)
@@ -58,11 +47,14 @@ func NewCmdList(artifactCache client.ArtifactCacheService) *cobra.Command {
 			}
 
 			queryParams := internal.GenerateQueryParams(branch, limit, key, order, sort)
-			caches := artifactCache.ListCaches(repo, queryParams)
+			listCacheResponse := artifactCache.ListCaches(repo, queryParams)
 
-			fmt.Printf("Showing %d of %d cache entries in %s/%s\n\n", totalShownCacheEntry(len(caches), limit), len(caches), repo.Owner(), repo.Name())
+			totalCaches := listCacheResponse.TotalCount
+			caches := listCacheResponse.ActionsCaches
+
+			fmt.Printf("Showing %d of %d cache entries in %s/%s\n\n", totalShownCacheEntry(len(caches), limit), totalCaches, repo.Owner(), repo.Name())
 			for _, cache := range caches {
-				fmt.Printf("%s\t [%s]\t %s\t %s\n", cache.Key, internal.FormatCacheSize(cache.Size), cache.Ref, cache.LastAccessedAt)
+				fmt.Printf("%s\t [%s]\t %s\t %s\n", cache.Key, internal.FormatCacheSize(cache.SizeInBytes), cache.Ref, cache.LastAccessedAt)
 			}
 		},
 	}
