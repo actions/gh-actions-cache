@@ -22,7 +22,7 @@ var SORT_INPUT_TO_QUERY_MAP = map[string]string{
 func generateQueryParams(branch string, limit int, key string, order string, sort string) url.Values {
 	query := url.Values{}
 	if branch != "" {
-		if strings.Contains(branch, "refs"){
+		if strings.HasPrefix(branch, "refs/"){
 			query.Add("ref", branch)
 		} else {
 			query.Add("ref", fmt.Sprintf("refs/heads/%s", branch))
@@ -57,11 +57,11 @@ func formatCacheSize(size_in_bytes float64) string {
 		return fmt.Sprintf("%.2f B", size_in_bytes)
 	}
 
-	if size_in_bytes < 1024*1024 {
+	if size_in_bytes < MB_IN_BYTES {
 		return fmt.Sprintf("%.2f KB", size_in_bytes/1024)
 	}
 
-	if size_in_bytes < 1024*1024*1024 {
+	if size_in_bytes < GB_IN_BYTES {
 		return fmt.Sprintf("%.2f MB", size_in_bytes/MB_IN_BYTES)
 	}
 

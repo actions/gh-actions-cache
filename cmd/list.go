@@ -53,14 +53,14 @@ var listCmd = &cobra.Command{
 		queryParams := generateQueryParams(branch, limit, key, order, sort)
 		caches := listCaches(repo, queryParams)
 
-		fmt.Printf("Showing %d of %d cache entries in %s/%s\n\n", totalShownCacheEntry(len(caches), limit), len(caches), repo.Owner(), repo.Name())
+		fmt.Printf("Showing %d of %d cache entries in %s/%s\n\n", displayedEntriesCount(len(caches), limit), len(caches), repo.Owner(), repo.Name())
 		for _, cache := range caches {
 			fmt.Printf("%s\t [%s]\t %s\t %s\n", cache.Key, formatCacheSize(cache.Size), cache.Ref, cache.LastAccessedAt)
 		}
 	},
 }
 
-func totalShownCacheEntry(totalCaches int, limit int) int {
+func displayedEntriesCount(totalCaches int, limit int) int {
 	if totalCaches < limit {
 		return totalCaches
 	}
