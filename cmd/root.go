@@ -17,6 +17,7 @@ var rootCmd = &cobra.Command{
 }
 
 func Execute() {
+	addCommandsToRoot()
 	err := rootCmd.Execute()
 	if err != nil {
 		os.Exit(1)
@@ -25,6 +26,10 @@ func Execute() {
 
 func init() {
 	rootCmd.SetHelpTemplate(getRootHelp())
+}
+
+func addCommandsToRoot() {
+	rootCmd.AddCommand(NewCmdList())
 }
 
 func getRootHelp() string {
