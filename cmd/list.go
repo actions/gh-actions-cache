@@ -42,12 +42,12 @@ func NewCmdList() *cobra.Command {
 			artifactCache := service.NewArtifactCache(repo, "list", VERSION)
 
 			if branch == "" && key == "" {
-				totalCacheSize := artifactCache.GetCacheUsage(repo)
+				totalCacheSize := artifactCache.GetCacheUsage()
 				fmt.Printf("Total caches size %s\n\n", internal.FormatCacheSize(totalCacheSize))
 			}
 
 			queryParams := internal.GenerateQueryParams(branch, limit, key, order, sort)
-			listCacheResponse := artifactCache.ListCaches(repo, queryParams)
+			listCacheResponse := artifactCache.ListCaches(queryParams)
 
 			totalCaches := listCacheResponse.TotalCount
 			caches := listCacheResponse.ActionsCaches
@@ -86,8 +86,8 @@ func validateInputs(sort string, order string, limit int) {
 		log.Fatal(fmt.Errorf(fmt.Sprintf("%s is not a valid value for sort flag. Allowed values: last-used/size/created-at", sort)))
 	}
 
-	if limit < 1 {
-		log.Fatal(fmt.Errorf(fmt.Sprintf("%d is not a valid value for limit flag. Allowed values: > 1", limit)))
+	if limit < 1 || limit > 100 {
+		log.Fatal(fmt.Errorf(fmt.Sprintf("%d is not a valid value for limit flag. Allowed values: 1-100", limit)))
 	}
 }
 

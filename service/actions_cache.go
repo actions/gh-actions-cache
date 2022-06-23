@@ -5,20 +5,21 @@ import (
 	"log"
 	"net/url"
 
+	"github.com/actions/gh-actions-cache/types"
+	gh "github.com/cli/go-gh"
 	"github.com/cli/go-gh/pkg/api"
 	ghRepo "github.com/cli/go-gh/pkg/repository"
-	gh "github.com/cli/go-gh"
-	"github.com/actions/gh-actions-cache/types"
 )
 
-type ArtifactCacheService interface{
-    GetCacheUsage(repo ghRepo.Repository) float64
-	ListCaches(repo ghRepo.Repository, queryParams url.Values) types.ListApiResponse
-    DeleteCaches(repo ghRepo.Repository, queryParams url.Values) int
+type ArtifactCacheService interface {
+	GetCacheUsage() float64
+	ListCaches(queryParams url.Values) types.ListApiResponse
+	DeleteCaches(queryParams url.Values) int
 }
 
-type ArtifactCache struct{
-    HttpClient	api.RESTClient
+type ArtifactCache struct {
+	HttpClient api.RESTClient
+	repo       ghRepo.Repository
 }
 
 func NewArtifactCache(repo ghRepo.Repository, command string, version string) ArtifactCacheService {
@@ -26,12 +27,15 @@ func NewArtifactCache(repo ghRepo.Repository, command string, version string) Ar
 		Host:    repo.Host(),
 		Headers: map[string]string{"User-Agent": fmt.Sprintf("gh-actions-cache/%s/%s", version, command)},
 	}
-	restClient, _ := gh.RESTClient(&opts)
-	return &ArtifactCache{restClient}
+	restClient, err := gh.RESTClient(&opts)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return &ArtifactCache{HttpClient: restClient, repo: repo}
 }
 
-func (a *ArtifactCache) GetCacheUsage(repo ghRepo.Repository) float64 {
-	pathComponent := fmt.Sprintf("repos/%s/%s/actions/cache/usage", repo.Owner(), repo.Name())
+func (a *ArtifactCache) GetCacheUsage() float64 {
+	pathComponent := fmt.Sprintf("repos/%s/%s/actions/cache/usage", a.repo.Owner(), a.repo.Name())
 	var apiResults types.RepoLevelUsageApiResponse
 	err := a.HttpClient.Get(pathComponent, &apiResults)
 	if err != nil {
@@ -41,8 +45,8 @@ func (a *ArtifactCache) GetCacheUsage(repo ghRepo.Repository) float64 {
 	return apiResults.ActiveCacheSizeInBytes
 }
 
-func (a *ArtifactCache) ListCaches(repo ghRepo.Repository, queryParams url.Values) types.ListApiResponse {
-	pathComponent := fmt.Sprintf("repos/%s/%s/actions/caches", repo.Owner(), repo.Name())
+func (a *ArtifactCache) ListCaches(queryParams url.Values) types.ListApiResponse {
+	pathComponent := fmt.Sprintf("repos/%s/%s/actions/caches", a.repo.Owner(), a.repo.Name())
 	var apiResults types.ListApiResponse
 	err := a.HttpClient.Get(pathComponent+"?"+queryParams.Encode(), &apiResults)
 	if err != nil {
@@ -52,8 +56,8 @@ func (a *ArtifactCache) ListCaches(repo ghRepo.Repository, queryParams url.Value
 	return apiResults
 }
 
-func (a *ArtifactCache) DeleteCaches(repo ghRepo.Repository, queryParams url.Values) int {
-	pathComponent := fmt.Sprintf("repos/%s/%s/actions/caches", repo.Owner(), repo.Name())
+func (a *ArtifactCache) DeleteCaches(queryParams url.Values) int {
+	pathComponent := fmt.Sprintf("repos/%s/%s/actions/caches", a.repo.Owner(), a.repo.Name())
 	var apiResults types.DeleteApiResponse
 	err := a.HttpClient.Delete(pathComponent+"?"+queryParams.Encode(), &apiResults)
 	if err != nil {
