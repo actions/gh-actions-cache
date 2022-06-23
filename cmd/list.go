@@ -26,7 +26,6 @@ func NewCmdList() *cobra.Command {
 	var listCmd = &cobra.Command {
 		Use:   "list",
 		Short: "Lists the actions cache",
-		Long:  `Lists the actions cache`,
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) != 0 {
 				fmt.Printf("Invalid argument(s). Expected 0 received %d\n", len(args))

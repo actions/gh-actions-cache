@@ -13,7 +13,6 @@ var COMMAND string = ""
 var rootCmd = &cobra.Command{
 	Use:   "gh-actions-cache",
 	Short: "Works with GitHub Actions Cache. ",
-	Long:  `Works with GitHub Actions Cache.`,
 }
 
 func Execute() {
