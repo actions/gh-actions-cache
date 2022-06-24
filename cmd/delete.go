@@ -30,8 +30,8 @@ var deleteCmd = &cobra.Command{
 		r, _ := cmd.Flags().GetString("repo")
 		branch, _ := cmd.Flags().GetString("branch")
 		confirm, _ := cmd.Flags().GetBool("confirm")
-		if len(args) == 0 {
-			fmt.Println("accepts 1 arg(s), received 0")
+		if len(args) != 1 {
+			fmt.Println("accepts 1 arg(s), received " + strconv.Itoa(len(args)))
 			return
 		}
 		key := args[0]
