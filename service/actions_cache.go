@@ -34,18 +34,18 @@ func NewArtifactCache(repo ghRepo.Repository, command string, version string) Ar
 	return &ArtifactCache{HttpClient: restClient, repo: repo}
 }
 
-func (a *ArtifactCache) GetCacheUsage() float64 {
+func (a *ArtifactCache) GetCacheUsage() (float64, error) {
 	pathComponent := fmt.Sprintf("repos/%s/%s/actions/cache/usage", a.repo.Owner(), a.repo.Name())
 	var apiResults types.RepoLevelUsageApiResponse
 	err := a.HttpClient.Get(pathComponent, &apiResults)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
-	return apiResults.ActiveCacheSizeInBytes
+	return apiResults.ActiveCacheSizeInBytes, nil
 }
 
-func (a *ArtifactCache) ListCaches(queryParams url.Values) types.ListApiResponse {
+func (a *ArtifactCache) ListCaches(queryParams url.Values) (types.ListApiResponse, error) {
 	pathComponent := fmt.Sprintf("repos/%s/%s/actions/caches", a.repo.Owner(), a.repo.Name())
 	var apiResults types.ListApiResponse
 	err := a.HttpClient.Get(pathComponent+"?"+queryParams.Encode(), &apiResults)
@@ -53,10 +53,10 @@ func (a *ArtifactCache) ListCaches(queryParams url.Values) types.ListApiResponse
 		log.Fatal(err)
 	}
 
-	return apiResults
+	return apiResults, nil
 }
 
-func (a *ArtifactCache) DeleteCaches(queryParams url.Values) int {
+func (a *ArtifactCache) DeleteCaches(queryParams url.Values) (int, error) {
 	pathComponent := fmt.Sprintf("repos/%s/%s/actions/caches", a.repo.Owner(), a.repo.Name())
 	var apiResults types.DeleteApiResponse
 	err := a.HttpClient.Delete(pathComponent+"?"+queryParams.Encode(), &apiResults)
@@ -64,5 +64,5 @@ func (a *ArtifactCache) DeleteCaches(queryParams url.Values) int {
 		log.Fatal(err)
 	}
 
-	return apiResults.TotalCount
+	return apiResults.TotalCount, nil
 }
