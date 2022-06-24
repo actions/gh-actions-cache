@@ -26,7 +26,7 @@ var SORT_INPUT_TO_QUERY_MAP = map[string]string{
 func generateQueryParams(branch string, limit int, key string, order string, sort string) url.Values {
 	query := url.Values{}
 	if branch != "" {
-		if strings.HasPrefix(branch, "refs/"){
+		if strings.HasPrefix(branch, "refs/") {
 			query.Add("ref", branch)
 		} else {
 			query.Add("ref", fmt.Sprintf("refs/heads/%s", branch))
@@ -117,5 +117,5 @@ func lastAccessedHour(lastAccessedAt string) string {
 }
 
 func getFormattedCacheInfo(cacheKey string, cache cacheInfo) string {
-	return "  " + cacheKey + "     [" + formatCacheSize(cache.Size) + "]     " + cache.Ref[11:] + "     " + lastAccessedHour(cache.LastAccessedAt)
+	return fmt.Sprintf(" %s\t[%s]\t%s\t%s", cacheKey, formatCacheSize(cache.Size), cache.Ref[11:], lastAccessedHour(cache.LastAccessedAt))
 }
