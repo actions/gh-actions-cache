@@ -47,7 +47,7 @@ func NewCmdList() *cobra.Command {
 				fmt.Printf("Total caches size %s\n\n", internal.FormatCacheSize(totalCacheSize))
 			}
 
-			queryParams := internal.GenerateQueryParams(f.branch, f.limit, f.key, f.order, f.sort)
+			queryParams := internal.GenerateQueryParams(f.branch, f.limit, f.key, f.order, f.sort, 1)
 			listCacheResponse := artifactCache.ListCaches(queryParams)
 
 			totalCaches := listCacheResponse.TotalCount

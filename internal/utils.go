@@ -19,7 +19,7 @@ var SORT_INPUT_TO_QUERY_MAP = map[string]string{
 	"size":       "size_in_bytes",
 }
 
-func GenerateQueryParams(branch string, limit int, key string, order string, sort string) url.Values {
+func GenerateQueryParams(branch string, limit int, key string, order string, sort string, page int) url.Values {
 	query := url.Values{}
 	if branch != "" {
 		if strings.HasPrefix(branch, "refs/") {
@@ -39,6 +39,9 @@ func GenerateQueryParams(branch string, limit int, key string, order string, sor
 	}
 	if sort != "" {
 		query.Add("sort", SORT_INPUT_TO_QUERY_MAP[sort])
+	}
+	if page > 1 {
+		query.Add("page", strconv.Itoa(page))
 	}
 
 	return query
