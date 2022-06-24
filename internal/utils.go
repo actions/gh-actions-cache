@@ -1,4 +1,4 @@
-package cmd
+package internal
 
 import (
 	"fmt"
@@ -15,14 +15,14 @@ const GB_IN_BYTES = 1024 * 1024 * 1024
 
 var SORT_INPUT_TO_QUERY_MAP = map[string]string{
 	"created-at": "created_at",
-	"last-used": "last_accessed_at",
-	"size": "size_in_bytes",
+	"last-used":  "last_accessed_at",
+	"size":       "size_in_bytes",
 }
 
-func generateQueryParams(branch string, limit int, key string, order string, sort string) url.Values {
+func GenerateQueryParams(branch string, limit int, key string, order string, sort string, page int) url.Values {
 	query := url.Values{}
 	if branch != "" {
-		if strings.HasPrefix(branch, "refs/"){
+		if strings.HasPrefix(branch, "refs/") {
 			query.Add("ref", branch)
 		} else {
 			query.Add("ref", fmt.Sprintf("refs/heads/%s", branch))
@@ -40,11 +40,14 @@ func generateQueryParams(branch string, limit int, key string, order string, sor
 	if sort != "" {
 		query.Add("sort", SORT_INPUT_TO_QUERY_MAP[sort])
 	}
+	if page > 1 {
+		query.Add("page", strconv.Itoa(page))
+	}
 
 	return query
 }
 
-func getRepo(r string) (ghRepo.Repository, error) {
+func GetRepo(r string) (ghRepo.Repository, error) {
 	if r != "" {
 		return ghRepo.Parse(r)
 	}
@@ -52,7 +55,7 @@ func getRepo(r string) (ghRepo.Repository, error) {
 	return gh.CurrentRepository()
 }
 
-func formatCacheSize(size_in_bytes float64) string {
+func FormatCacheSize(size_in_bytes float64) string {
 	if size_in_bytes < 1024 {
 		return fmt.Sprintf("%.2f B", size_in_bytes)
 	}

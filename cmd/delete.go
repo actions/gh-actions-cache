@@ -1,9 +1,9 @@
 package cmd
 
 import (
-	"log"
-
 	"github.com/spf13/cobra"
+	// "github.com/actions/gh-actions-cache/internal"
+	// "github.com/actions/gh-actions-cache/client"
 )
 
 func init() {
@@ -19,16 +19,16 @@ var deleteCmd = &cobra.Command{
 	Long:  `Delete cache by key`,
 	Run: func(cmd *cobra.Command, args []string) {
 		COMMAND = "delete"
-		r, _ := cmd.Flags().GetString("repo")
-		branch, _ := cmd.Flags().GetString("branch")
+		// r, _ := cmd.Flags().GetString("repo")
+		// branch, _ := cmd.Flags().GetString("branch")
 
-		repo, err := getRepo(r)
-		if err != nil {
-			log.Fatal(err)
-		}
+		// repo, err := getRepo(r)
+		// if err != nil {
+		// 	log.Fatal(err)
+		// }
 
-		queryParams := generateQueryParams(branch, 30, "", "", "")
-		deleteCaches(repo, queryParams)
+		// queryParams := generateQueryParams(branch, 30, "", "", "")
+		// deleteCaches(repo, queryParams)
 	},
 }
 
