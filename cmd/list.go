@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"fmt"
-	"log"
+	"errors"
 
 	"github.com/actions/gh-actions-cache/internal"
 	"github.com/actions/gh-actions-cache/service"
@@ -26,29 +26,37 @@ func NewCmdList() *cobra.Command {
 	var listCmd = &cobra.Command {
 		Use:   "list",
 		Short: "Lists the actions cache",
-		Run: func(cmd *cobra.Command, args []string) {
+		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) != 0 {
-				fmt.Printf("Invalid argument(s). Expected 0 received %d\n", len(args))
-				fmt.Println(getListHelp())
-				return
+				return errors.New(fmt.Sprintf("Invalid argument(s). Expected 0 received %d", len(args)))
 			}
 
 			repo, err := internal.GetRepo(f.repo)
 			if err != nil {
-				log.Fatal(err)
+				return err
 			}
 
-			validateInputs(f)
+			err = validateInputs(f)
+
+			if err != nil {
+				return err
+			}
 
 			artifactCache := service.NewArtifactCache(repo, COMMAND, VERSION)
 
 			if f.branch == "" && f.key == "" {
-				totalCacheSize := artifactCache.GetCacheUsage()
+				totalCacheSize, err := artifactCache.GetCacheUsage()
+				if err != nil {
+					return err
+				}
 				fmt.Printf("Total caches size %s\n\n", internal.FormatCacheSize(totalCacheSize))
 			}
 
 			queryParams := internal.GenerateQueryParams(f.branch, f.limit, f.key, f.order, f.sort, 1)
-			listCacheResponse := artifactCache.ListCaches(queryParams)
+			listCacheResponse,err := artifactCache.ListCaches(queryParams)
+			if err != nil {
+				return err
+			}
 
 			totalCaches := listCacheResponse.TotalCount
 			caches := listCacheResponse.ActionsCaches
@@ -57,6 +65,7 @@ func NewCmdList() *cobra.Command {
 			for _, cache := range caches {
 				fmt.Printf("%s\t [%s]\t %s\t %s\n", cache.Key, internal.FormatCacheSize(cache.SizeInBytes), cache.Ref, cache.LastAccessedAt)
 			}
+			return nil
 		},
 	}
 
@@ -78,18 +87,19 @@ func displayedEntriesCount(totalCaches int, limit int) int {
 	return limit
 }
 
-func validateInputs(input InputFlags) {
+func validateInputs(input InputFlags) error {
 	if input.order != "" && input.order != "asc" && input.order != "desc" {
-		log.Fatal(fmt.Errorf(fmt.Sprintf("%s is not a valid value for order flag. Allowed values: asc/desc", input.order)))
+		return errors.New(fmt.Sprintf("%s is not a valid value for order flag. Allowed values: asc/desc", input.order))
 	}
 
 	if input.sort != "" && input.sort != "last-used" && input.sort != "size" && input.sort != "created-at" {
-		log.Fatal(fmt.Errorf(fmt.Sprintf("%s is not a valid value for sort flag. Allowed values: last-used/size/created-at", input.sort)))
+		return  errors.New(fmt.Sprintf("%s is not a valid value for sort flag. Allowed values: last-used/size/created-at", input.sort))
 	}
 
 	if input.limit < 1 || input.limit > 100 {
-		log.Fatal(fmt.Errorf(fmt.Sprintf("%d is not a valid value for limit flag. Allowed values: 1-100", input.limit)))
+		return errors.New(fmt.Sprintf("%d is not a valid value for limit flag. Allowed values: 1-100", input.limit))
 	}
+	return nil
 }
 
 func getListHelp() string {

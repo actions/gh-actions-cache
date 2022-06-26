@@ -12,9 +12,9 @@ import (
 )
 
 type ArtifactCacheService interface {
-	GetCacheUsage() float64
-	ListCaches(queryParams url.Values) types.ListApiResponse
-	DeleteCaches(queryParams url.Values) int
+	GetCacheUsage() (float64, error)
+	ListCaches(queryParams url.Values) (types.ListApiResponse, error)
+	DeleteCaches(queryParams url.Values) (int, error)
 }
 
 type ArtifactCache struct {
@@ -39,7 +39,7 @@ func (a *ArtifactCache) GetCacheUsage() (float64, error) {
 	var apiResults types.RepoLevelUsageApiResponse
 	err := a.HttpClient.Get(pathComponent, &apiResults)
 	if err != nil {
-		return nil, err
+		return -1, err
 	}
 
 	return apiResults.ActiveCacheSizeInBytes, nil
@@ -50,7 +50,7 @@ func (a *ArtifactCache) ListCaches(queryParams url.Values) (types.ListApiRespons
 	var apiResults types.ListApiResponse
 	err := a.HttpClient.Get(pathComponent+"?"+queryParams.Encode(), &apiResults)
 	if err != nil {
-		log.Fatal(err)
+		return types.ListApiResponse{}, err
 	}
 
 	return apiResults, nil
@@ -61,7 +61,7 @@ func (a *ArtifactCache) DeleteCaches(queryParams url.Values) (int, error) {
 	var apiResults types.DeleteApiResponse
 	err := a.HttpClient.Delete(pathComponent+"?"+queryParams.Encode(), &apiResults)
 	if err != nil {
-		log.Fatal(err)
+		return -1, err
 	}
 
 	return apiResults.TotalCount, nil
