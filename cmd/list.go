@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/actions/gh-actions-cache/internal"
@@ -28,7 +27,7 @@ func NewCmdList() *cobra.Command {
 		Short: "Lists the actions cache",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) != 0 {
-				return errors.New(fmt.Sprintf("Invalid argument(s). Expected 0 received %d", len(args)))
+				return fmt.Errorf(fmt.Sprintf("Invalid argument(s). Expected 0 received %d", len(args)))
 			}
 
 			repo, err := internal.GetRepo(f.repo)
@@ -89,15 +88,15 @@ func displayedEntriesCount(totalCaches int, limit int) int {
 
 func validateInputs(input InputFlags) error {
 	if input.order != "" && input.order != "asc" && input.order != "desc" {
-		return errors.New(fmt.Sprintf("%s is not a valid value for order flag. Allowed values: asc/desc", input.order))
+		return fmt.Errorf(fmt.Sprintf("%s is not a valid value for order flag. Allowed values: asc/desc", input.order))
 	}
 
 	if input.sort != "" && input.sort != "last-used" && input.sort != "size" && input.sort != "created-at" {
-		return errors.New(fmt.Sprintf("%s is not a valid value for sort flag. Allowed values: last-used/size/created-at", input.sort))
+		return fmt.Errorf(fmt.Sprintf("%s is not a valid value for sort flag. Allowed values: last-used/size/created-at", input.sort))
 	}
 
 	if input.limit < 1 || input.limit > 100 {
-		return errors.New(fmt.Sprintf("%d is not a valid value for limit flag. Allowed values: 1-100", input.limit))
+		return fmt.Errorf(fmt.Sprintf("%d is not a valid value for limit flag. Allowed values: 1-100", input.limit))
 	}
 	return nil
 }

@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"errors"
+	"fmt"
 	"testing"
 
 	"github.com/actions/gh-actions-cache/internal"
@@ -17,7 +17,7 @@ func TestListWithIncorrectArguments(t *testing.T) {
 	err := cmd.Execute()
 
 	assert.NotNil(t, err)
-	assert.Equal(t, err, errors.New("Invalid argument(s). Expected 0 received 1"))
+	assert.Equal(t, err, fmt.Errorf("Invalid argument(s). Expected 0 received 1"))
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
@@ -29,7 +29,7 @@ func TestListWithIncorrectRepo(t *testing.T) {
 	err := cmd.Execute()
 
 	assert.NotNil(t, err)
-	assert.Equal(t, err, errors.New("expected the \"[HOST/]OWNER/REPO\" format, got \"testOrg/testRepo/123/123\""))
+	assert.Equal(t, err, fmt.Errorf("expected the \"[HOST/]OWNER/REPO\" format, got \"testOrg/testRepo/123/123\""))
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
@@ -41,7 +41,7 @@ func TestListWithNegativeLimit(t *testing.T) {
 	err := cmd.Execute()
 
 	assert.NotNil(t, err)
-	assert.Equal(t, err, errors.New("-1 is not a valid value for limit flag. Allowed values: 1-100"))
+	assert.Equal(t, err, fmt.Errorf("-1 is not a valid value for limit flag. Allowed values: 1-100"))
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
@@ -53,7 +53,7 @@ func TestListWithIncorrectLimit(t *testing.T) {
 	err := cmd.Execute()
 
 	assert.NotNil(t, err)
-	assert.Equal(t, err, errors.New("101 is not a valid value for limit flag. Allowed values: 1-100"))
+	assert.Equal(t, err, fmt.Errorf("101 is not a valid value for limit flag. Allowed values: 1-100"))
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
@@ -65,7 +65,7 @@ func TestListWithIncorrectOrder(t *testing.T) {
 	err := cmd.Execute()
 
 	assert.NotNil(t, err)
-	assert.Equal(t, err, errors.New("incorrectOrderValue is not a valid value for order flag. Allowed values: asc/desc"))
+	assert.Equal(t, err, fmt.Errorf("incorrectOrderValue is not a valid value for order flag. Allowed values: asc/desc"))
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
@@ -77,7 +77,7 @@ func TestListWithIncorrectSort(t *testing.T) {
 	err := cmd.Execute()
 
 	assert.NotNil(t, err)
-	assert.Equal(t, err, errors.New("incorrectSortValue is not a valid value for sort flag. Allowed values: last-used/size/created-at"))
+	assert.Equal(t, err, fmt.Errorf("incorrectSortValue is not a valid value for sort flag. Allowed values: last-used/size/created-at"))
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
