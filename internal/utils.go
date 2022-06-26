@@ -1,4 +1,4 @@
-package cmd
+package internal
 
 import (
 	"fmt"
@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/actions/gh-actions-cache/types"
 	gh "github.com/cli/go-gh"
 	ghRepo "github.com/cli/go-gh/pkg/repository"
 	"github.com/moby/term"
@@ -23,7 +24,7 @@ var SORT_INPUT_TO_QUERY_MAP = map[string]string{
 	"size":       "size_in_bytes",
 }
 
-func generateQueryParams(branch string, limit int, key string, order string, sort string) url.Values {
+func GenerateQueryParams(branch string, limit int, key string, order string, sort string, page int) url.Values {
 	query := url.Values{}
 	if branch != "" {
 		if strings.HasPrefix(branch, "refs/") {
@@ -44,11 +45,14 @@ func generateQueryParams(branch string, limit int, key string, order string, sor
 	if sort != "" {
 		query.Add("sort", SORT_INPUT_TO_QUERY_MAP[sort])
 	}
+	if page > 1 {
+		query.Add("page", strconv.Itoa(page))
+	}
 
 	return query
 }
 
-func getRepo(r string) (ghRepo.Repository, error) {
+func GetRepo(r string) (ghRepo.Repository, error) {
 	if r != "" {
 		return ghRepo.Parse(r)
 	}
@@ -56,7 +60,7 @@ func getRepo(r string) (ghRepo.Repository, error) {
 	return gh.CurrentRepository()
 }
 
-func formatCacheSize(size_in_bytes float64) string {
+func FormatCacheSize(size_in_bytes float64) string {
 	if size_in_bytes < 1024 {
 		return fmt.Sprintf("%.2f B", size_in_bytes)
 	}
@@ -72,7 +76,7 @@ func formatCacheSize(size_in_bytes float64) string {
 	return fmt.Sprintf("%.2f GB", size_in_bytes/GB_IN_BYTES)
 }
 
-func prettyPrintCacheList(caches []cacheInfo) {
+func PrettyPrintCacheList(caches []types.ActionsCache) {
 	numberOfCaches := len(caches)
 	for _, cache := range caches {
 		var formattedRow string = getFormattedCacheInfo(cache)
@@ -125,7 +129,7 @@ func lastAccessedTime(lastAccessedAt string) string {
 	return lastAccessedTimeStr
 }
 
-func getFormattedCacheInfo(cache cacheInfo) string {
+func getFormattedCacheInfo(cache types.ActionsCache) string {
 	cacheKey := trimCacheKeyBasedOnWindowSize(cache.Key)
-	return fmt.Sprintf(" %s\t [%s]\t %s\t %s", cacheKey, formatCacheSize(cache.Size), cache.Ref, lastAccessedTime(cache.LastAccessedAt))
+	return fmt.Sprintf(" %s\t [%s]\t %s\t %s", cacheKey, FormatCacheSize(cache.SizeInBytes), cache.Ref, lastAccessedTime(cache.LastAccessedAt))
 }

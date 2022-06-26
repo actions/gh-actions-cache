@@ -4,60 +4,63 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/actions/gh-actions-cache/internal"
+	"github.com/actions/gh-actions-cache/service"
+	"github.com/actions/gh-actions-cache/types"
 	"github.com/spf13/cobra"
 )
 
-func init() {
-	rootCmd.AddCommand(listCmd)
-	listCmd.Flags().StringP("repo", "R", "", "Select another repository for finding actions cache.")
-	listCmd.Flags().StringP("branch", "B", "", "Filter by branch")
-	listCmd.Flags().IntP("limit", "", 30, "Maximum number of items to fetch (default is 30, max limit is 100)")
-	listCmd.Flags().StringP("key", "", "", "Filter by key")
-	listCmd.Flags().StringP("order", "", "", "Order of caches returned (asc/desc)")
-	listCmd.Flags().StringP("sort", "", "", "Sort fetched caches (last-used/size/created-at)")
+func NewCmdList() *cobra.Command {
+	COMMAND = "list"
+
+	f := types.InputFlags{}
+
+	var listCmd = &cobra.Command{
+		Use:   "list",
+		Short: "Lists the actions cache",
+		Run: func(cmd *cobra.Command, args []string) {
+			if len(args) != 0 {
+				fmt.Printf("Invalid argument(s). Expected 0 received %d\n", len(args))
+				fmt.Println(getListHelp())
+				return
+			}
+
+			repo, err := internal.GetRepo(f.Repo)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			validateInputs(f)
+
+			artifactCache := service.NewArtifactCache(repo, COMMAND, VERSION)
+
+			if f.Branch == "" && f.Key == "" {
+				totalCacheSize := artifactCache.GetCacheUsage()
+				fmt.Printf("Total caches size %s\n\n", internal.FormatCacheSize(totalCacheSize))
+			}
+
+			queryParams := internal.GenerateQueryParams(f.Branch, f.Limit, f.Key, f.Order, f.Sort, 1)
+			listCacheResponse := artifactCache.ListCaches(queryParams)
+
+			totalCaches := listCacheResponse.TotalCount
+			caches := listCacheResponse.ActionsCaches
+
+			fmt.Printf("Showing %d of %d cache entries in %s/%s\n\n", displayedEntriesCount(len(caches), f.Limit), totalCaches, repo.Owner(), repo.Name())
+			for _, cache := range caches {
+				fmt.Printf("%s\t [%s]\t %s\t %s\n", cache.Key, internal.FormatCacheSize(cache.SizeInBytes), cache.Ref, cache.LastAccessedAt)
+			}
+		},
+	}
+
+	listCmd.Flags().StringVarP(&f.Repo, "repo", "R", "", "Select another repository for finding actions cache.")
+	listCmd.Flags().StringVarP(&f.Branch, "branch", "B", "", "Filter by branch")
+	listCmd.Flags().IntVarP(&f.Limit, "limit", "", 30, "Maximum number of items to fetch (default is 30, max limit is 100)")
+	listCmd.Flags().StringVarP(&f.Key, "key", "", "", "Filter by key")
+	listCmd.Flags().StringVarP(&f.Order, "order", "", "", "Order of caches returned (asc/desc)")
+	listCmd.Flags().StringVarP(&f.Sort, "sort", "", "", "Sort fetched caches (last-used/size/created-at)")
 	listCmd.SetHelpTemplate(getListHelp())
-}
 
-var listCmd = &cobra.Command{
-	Use:   "list",
-	Short: "Lists the actions cache",
-	Long:  `Lists the actions cache`,
-	Run: func(cmd *cobra.Command, args []string) {
-		COMMAND = "list"
-
-		if len(args) != 0 {
-			fmt.Printf("Invalid argument(s). Expected 0 received %d\n", len(args))
-			fmt.Println(getListHelp())
-			return
-		}
-
-		r, _ := cmd.Flags().GetString("repo")
-		branch, _ := cmd.Flags().GetString("branch")
-		limit, _ := cmd.Flags().GetInt("limit")
-		key, _ := cmd.Flags().GetString("key")
-		order, _ := cmd.Flags().GetString("order")
-		sort, _ := cmd.Flags().GetString("sort")
-
-		repo, err := getRepo(r)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		validateInputs(sort, order, limit)
-
-		if branch == "" && key == "" {
-			totalCacheSize := getCacheUsage(repo)
-			fmt.Printf("Total caches size %s\n\n", formatCacheSize(totalCacheSize))
-		}
-
-		queryParams := generateQueryParams(branch, limit, key, order, sort)
-		caches := listCaches(repo, queryParams)
-
-		fmt.Printf("Showing %d of %d cache entries in %s/%s\n\n", displayedEntriesCount(len(caches), limit), len(caches), repo.Owner(), repo.Name())
-		for _, cache := range caches {
-			fmt.Printf("%s\t [%s]\t %s\t %s\n", cache.Key, formatCacheSize(cache.Size), cache.Ref, cache.LastAccessedAt)
-		}
-	},
+	return listCmd
 }
 
 func displayedEntriesCount(totalCaches int, limit int) int {
@@ -67,17 +70,17 @@ func displayedEntriesCount(totalCaches int, limit int) int {
 	return limit
 }
 
-func validateInputs(sort string, order string, limit int){
-	if order != "" && order != "asc" && order != "desc"{
-		log.Fatal(fmt.Errorf(fmt.Sprintf("%s is not a valid value for order flag. Allowed values: asc/desc", order)))
+func validateInputs(input types.InputFlags) {
+	if input.Order != "" && input.Order != "asc" && input.Order != "desc" {
+		log.Fatal(fmt.Errorf(fmt.Sprintf("%s is not a valid value for order flag. Allowed values: asc/desc", input.Order)))
 	}
 
-	if sort != "" && sort != "last-used" && sort != "size" && sort != "created-at"{
-		log.Fatal(fmt.Errorf(fmt.Sprintf("%s is not a valid value for sort flag. Allowed values: last-used/size/created-at", sort)))
+	if input.Sort != "" && input.Sort != "last-used" && input.Sort != "size" && input.Sort != "created-at" {
+		log.Fatal(fmt.Errorf(fmt.Sprintf("%s is not a valid value for sort flag. Allowed values: last-used/size/created-at", input.Sort)))
 	}
 
-	if limit < 1{
-		log.Fatal(fmt.Errorf(fmt.Sprintf("%d is not a valid value for limit flag. Allowed values: > 1", limit)))
+	if input.Limit < 1 || input.Limit > 100 {
+		log.Fatal(fmt.Errorf(fmt.Sprintf("%d is not a valid value for limit flag. Allowed values: 1-100", input.Limit)))
 	}
 }
 

@@ -7,15 +7,16 @@ import (
 )
 
 const VERSION = "0.0.1"
+
 var COMMAND string = ""
 
 var rootCmd = &cobra.Command{
 	Use:   "gh-actions-cache",
 	Short: "Works with GitHub Actions Cache. ",
-	Long:  `Works with GitHub Actions Cache.`,
 }
 
 func Execute() {
+	addCommandsToRoot()
 	err := rootCmd.Execute()
 	if err != nil {
 		os.Exit(1)
@@ -24,6 +25,10 @@ func Execute() {
 
 func init() {
 	rootCmd.SetHelpTemplate(getRootHelp())
+}
+
+func addCommandsToRoot() {
+	rootCmd.AddCommand(NewCmdList())
 }
 
 func getRootHelp() string {
