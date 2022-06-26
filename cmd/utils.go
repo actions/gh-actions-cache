@@ -102,20 +102,31 @@ func trimCacheKeyBasedOnWindowSize(key string) string {
 	return cacheKey
 }
 
-func lastAccessedHour(lastAccessedAt string) string {
+func lastAccessedTime(lastAccessedAt string) string {
 	var now time.Time = time.Now()
-	lastAccessedTime, _ := time.Parse(time.RFC3339, lastAccessedAt)
+	lastAccessedTs, _ := time.Parse(time.RFC3339, lastAccessedAt)
 
-	diff := now.Sub(lastAccessedTime)
-	lastAccessedHourStr := "Used " + strconv.FormatFloat(diff.Hours(), 'f', 0, 64)
-	if diff.Hours() < 2 {
-		lastAccessedHourStr += " hour ago"
-	} else {
-		lastAccessedHourStr += " hours ago"
+	diff := now.Sub(lastAccessedTs)
+
+	var lastAccessedTimeStr string = ""
+	if diff.Minutes() < 1 {
+		lastAccessedTimeStr = "Used less than a minute ago"
+	} else if diff.Minutes() == 1 {
+		lastAccessedTimeStr = "Used 1 minute ago"
+	} else if diff.Minutes() < 60 {
+		lastAccessedTimeStr = fmt.Sprintf("Used %d minutes ago", int(diff.Minutes()))
+	} else if diff.Minutes() < 120 {
+		lastAccessedTimeStr = "Used 1 hour ago"
+	} else if diff.Hours() < 24 {
+		lastAccessedTimeStr = fmt.Sprintf("Used %d hours ago", int(diff.Hours()))
+	} else if diff.Hours() >= 24 && diff.Hours() < 48 {
+		lastAccessedTimeStr = "Used 1 day ago"
+	} else if diff.Hours() >= 48 {
+		lastAccessedTimeStr = fmt.Sprintf("Used %d days ago", int(diff.Hours()/24))
 	}
-	return lastAccessedHourStr
+	return lastAccessedTimeStr
 }
 
 func getFormattedCacheInfo(cacheKey string, cache cacheInfo) string {
-	return fmt.Sprintf(" %s\t[%s]\t%s\t%s", cacheKey, formatCacheSize(cache.Size), cache.Ref[11:], lastAccessedHour(cache.LastAccessedAt))
+	return fmt.Sprintf(" %s\t [%s]\t %s\t %s", cacheKey, formatCacheSize(cache.Size), cache.Ref, lastAccessedTime(cache.LastAccessedAt))
 }
