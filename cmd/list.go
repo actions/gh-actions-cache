@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"fmt"
 	"errors"
+	"fmt"
 
 	"github.com/actions/gh-actions-cache/internal"
 	"github.com/actions/gh-actions-cache/service"
@@ -23,7 +23,7 @@ func NewCmdList() *cobra.Command {
 
 	f := InputFlags{}
 
-	var listCmd = &cobra.Command {
+	var listCmd = &cobra.Command{
 		Use:   "list",
 		Short: "Lists the actions cache",
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -53,7 +53,7 @@ func NewCmdList() *cobra.Command {
 			}
 
 			queryParams := internal.GenerateQueryParams(f.branch, f.limit, f.key, f.order, f.sort, 1)
-			listCacheResponse,err := artifactCache.ListCaches(queryParams)
+			listCacheResponse, err := artifactCache.ListCaches(queryParams)
 			if err != nil {
 				return err
 			}
@@ -93,7 +93,7 @@ func validateInputs(input InputFlags) error {
 	}
 
 	if input.sort != "" && input.sort != "last-used" && input.sort != "size" && input.sort != "created-at" {
-		return  errors.New(fmt.Sprintf("%s is not a valid value for sort flag. Allowed values: last-used/size/created-at", input.sort))
+		return errors.New(fmt.Sprintf("%s is not a valid value for sort flag. Allowed values: last-used/size/created-at", input.sort))
 	}
 
 	if input.limit < 1 || input.limit > 100 {

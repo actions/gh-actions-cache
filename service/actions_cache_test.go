@@ -1,14 +1,12 @@
 package service
 
 import (
-	"fmt"
-	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-	"github.com/actions/gh-actions-cache/types"
-	"gopkg.in/h2non/gock.v1"
 	"github.com/actions/gh-actions-cache/internal"
+	"github.com/actions/gh-actions-cache/types"
+	"github.com/stretchr/testify/assert"
+	"gopkg.in/h2non/gock.v1"
 )
 
 const VERSION string = "0.0.1"
@@ -25,16 +23,15 @@ func TestGetCacheUsage_CorrectRepo(t *testing.T) {
 			"active_caches_count": 12
 		}`)
 
-
 	repo, err := internal.GetRepo("testOrg/testRepo")
 	assert.Nil(t, err)
 
 	artifactCache := NewArtifactCache(repo, "list", VERSION)
 	totalCacheSize, err := artifactCache.GetCacheUsage()
 
-	assert.Equal(t, totalCacheSize ,float64(291205))
+	assert.Equal(t, totalCacheSize, float64(291205))
 	assert.Nil(t, err)
-	assert.True(t, gock.IsDone(), printPendingMocks(gock.Pending()))
+	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
 func TestGetCacheUsage_IncorrectRepo(t *testing.T) {
@@ -55,8 +52,8 @@ func TestGetCacheUsage_IncorrectRepo(t *testing.T) {
 	totalCacheSize, err := artifactCache.GetCacheUsage()
 
 	assert.NotNil(t, err)
-	assert.Equal(t, totalCacheSize ,float64(-1))
-	assert.True(t, gock.IsDone(), printPendingMocks(gock.Pending()))
+	assert.Equal(t, totalCacheSize, float64(-1))
+	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
 func TestListCaches_Success(t *testing.T) {
@@ -79,7 +76,6 @@ func TestListCaches_Success(t *testing.T) {
 				}]
 			}`)
 
-
 	repo, err := internal.GetRepo("testOrg/testRepo")
 	assert.Nil(t, err)
 
@@ -89,10 +85,10 @@ func TestListCaches_Success(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.NotNil(t, listCacheResponse)
-	assert.Equal(t, listCacheResponse.TotalCount ,1)
-	assert.Equal(t, len(listCacheResponse.ActionsCaches) ,1)
-	assert.Equal(t, listCacheResponse.ActionsCaches[0].Id ,29)
-	assert.True(t, gock.IsDone(), printPendingMocks(gock.Pending()))
+	assert.Equal(t, listCacheResponse.TotalCount, 1)
+	assert.Equal(t, len(listCacheResponse.ActionsCaches), 1)
+	assert.Equal(t, listCacheResponse.ActionsCaches[0].Id, 29)
+	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
 func TestListCaches_Failure(t *testing.T) {
@@ -106,7 +102,6 @@ func TestListCaches_Failure(t *testing.T) {
 			"documentation_url": "https://docs.github.com/rest/reference/actions#get-github-actions-cache-list-for-a-repository"
 		}`)
 
-
 	repo, err := internal.GetRepo("testOrg/testRepo")
 	assert.Nil(t, err)
 
@@ -115,8 +110,8 @@ func TestListCaches_Failure(t *testing.T) {
 	listCacheResponse, err := artifactCache.ListCaches(queryParams)
 
 	assert.NotNil(t, err)
-	assert.Equal(t, listCacheResponse ,types.ListApiResponse{})
-	assert.True(t, gock.IsDone(), printPendingMocks(gock.Pending()))
+	assert.Equal(t, listCacheResponse, types.ListApiResponse{})
+	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
 func TestDeleteCaches_Success(t *testing.T) {
@@ -139,7 +134,6 @@ func TestDeleteCaches_Success(t *testing.T) {
 				}]
 			}`)
 
-
 	repo, err := internal.GetRepo("testOrg/testRepo")
 	assert.Nil(t, err)
 
@@ -148,8 +142,8 @@ func TestDeleteCaches_Success(t *testing.T) {
 	deletedCache, err := artifactCache.DeleteCaches(queryParams)
 
 	assert.Nil(t, err)
-	assert.Equal(t, deletedCache ,1)
-	assert.True(t, gock.IsDone(), printPendingMocks(gock.Pending()))
+	assert.Equal(t, deletedCache, 1)
+	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
 func TestDeleteCaches_Failure(t *testing.T) {
@@ -163,7 +157,6 @@ func TestDeleteCaches_Failure(t *testing.T) {
 			"documentation_url": "https://docs.github.com/rest/reference/actions#get-github-actions-cache-list-for-a-repository"
 		}`)
 
-
 	repo, err := internal.GetRepo("testOrg/testRepo")
 	assert.Nil(t, err)
 
@@ -172,14 +165,6 @@ func TestDeleteCaches_Failure(t *testing.T) {
 	deletedCache, err := artifactCache.DeleteCaches(queryParams)
 
 	assert.NotNil(t, err)
-	assert.Equal(t, deletedCache ,-1)
-	assert.True(t, gock.IsDone(), printPendingMocks(gock.Pending()))
-}
-
-func printPendingMocks(mocks []gock.Mock) string {
-	paths := []string{}
-	for _, mock := range mocks {
-		paths = append(paths, mock.Request().URLStruct.String())
-	}
-	return fmt.Sprintf("%d unmatched mocks: %s", len(paths), strings.Join(paths, ", "))
+	assert.Equal(t, deletedCache, -1)
+	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }

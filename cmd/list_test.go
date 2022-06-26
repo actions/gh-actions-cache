@@ -1,10 +1,10 @@
 package cmd
+
 import (
-	"fmt"
 	"errors"
-	"strings"
 	"testing"
 
+	"github.com/actions/gh-actions-cache/internal"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/h2non/gock.v1"
 )
@@ -18,7 +18,7 @@ func TestListWithIncorrectArguments(t *testing.T) {
 
 	assert.NotNil(t, err)
 	assert.Equal(t, err, errors.New("Invalid argument(s). Expected 0 received 1"))
-	assert.True(t, gock.IsDone(), printPendingMocks(gock.Pending()))
+	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
 func TestListWithIncorrectRepo(t *testing.T) {
@@ -30,57 +30,55 @@ func TestListWithIncorrectRepo(t *testing.T) {
 
 	assert.NotNil(t, err)
 	assert.Equal(t, err, errors.New("expected the \"[HOST/]OWNER/REPO\" format, got \"testOrg/testRepo/123/123\""))
-	assert.True(t, gock.IsDone(), printPendingMocks(gock.Pending()))
+	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
 func TestListWithNegativeLimit(t *testing.T) {
 	t.Cleanup(gock.Off)
 
 	cmd := NewCmdList()
-	cmd.SetArgs([]string{"--limit",  "-1"})
+	cmd.SetArgs([]string{"--limit", "-1"})
 	err := cmd.Execute()
-	fmt.Println(err)
 
 	assert.NotNil(t, err)
 	assert.Equal(t, err, errors.New("-1 is not a valid value for limit flag. Allowed values: 1-100"))
-	assert.True(t, gock.IsDone(), printPendingMocks(gock.Pending()))
+	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
 func TestListWithIncorrectLimit(t *testing.T) {
 	t.Cleanup(gock.Off)
 
 	cmd := NewCmdList()
-	cmd.SetArgs([]string{"--limit",  "101"})
+	cmd.SetArgs([]string{"--limit", "101"})
 	err := cmd.Execute()
-	fmt.Println(err)
 
 	assert.NotNil(t, err)
 	assert.Equal(t, err, errors.New("101 is not a valid value for limit flag. Allowed values: 1-100"))
-	assert.True(t, gock.IsDone(), printPendingMocks(gock.Pending()))
+	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
 func TestListWithIncorrectOrder(t *testing.T) {
 	t.Cleanup(gock.Off)
 
 	cmd := NewCmdList()
-	cmd.SetArgs([]string{"--order",  "incorrectOrderValue"})
+	cmd.SetArgs([]string{"--order", "incorrectOrderValue"})
 	err := cmd.Execute()
 
 	assert.NotNil(t, err)
 	assert.Equal(t, err, errors.New("incorrectOrderValue is not a valid value for order flag. Allowed values: asc/desc"))
-	assert.True(t, gock.IsDone(), printPendingMocks(gock.Pending()))
+	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
 func TestListWithIncorrectSort(t *testing.T) {
 	t.Cleanup(gock.Off)
 
 	cmd := NewCmdList()
-	cmd.SetArgs([]string{"--sort",  "incorrectSortValue"})
+	cmd.SetArgs([]string{"--sort", "incorrectSortValue"})
 	err := cmd.Execute()
 
 	assert.NotNil(t, err)
 	assert.Equal(t, err, errors.New("incorrectSortValue is not a valid value for sort flag. Allowed values: last-used/size/created-at"))
-	assert.True(t, gock.IsDone(), printPendingMocks(gock.Pending()))
+	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
 func TestListWithIncorrectRepoForGetCacheUsage(t *testing.T) {
@@ -94,11 +92,11 @@ func TestListWithIncorrectRepoForGetCacheUsage(t *testing.T) {
 		}`)
 
 	cmd := NewCmdList()
-	cmd.SetArgs([]string{"--repo",  "testOrg/wrongRepo"})
+	cmd.SetArgs([]string{"--repo", "testOrg/wrongRepo"})
 	err := cmd.Execute()
 
 	assert.NotNil(t, err)
-	assert.True(t, gock.IsDone(), printPendingMocks(gock.Pending()))
+	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
 func TestListWithIncorrectRepoForListCaches(t *testing.T) {
@@ -111,7 +109,7 @@ func TestListWithIncorrectRepoForListCaches(t *testing.T) {
 			"active_caches_size_in_bytes": 291205,
 			"active_caches_count": 12
 		}`)
-	
+
 	gock.New("https://api.github.com").
 		Get("/repos/testOrg/testRepo/actions/caches").
 		Reply(404).
@@ -121,11 +119,11 @@ func TestListWithIncorrectRepoForListCaches(t *testing.T) {
 		}`)
 
 	cmd := NewCmdList()
-	cmd.SetArgs([]string{"--repo",  "testOrg/testRepo"})
+	cmd.SetArgs([]string{"--repo", "testOrg/testRepo"})
 	err := cmd.Execute()
 
 	assert.NotNil(t, err)
-	assert.True(t, gock.IsDone(), printPendingMocks(gock.Pending()))
+	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
 func TestListSuccess(t *testing.T) {
@@ -138,8 +136,8 @@ func TestListSuccess(t *testing.T) {
 			"active_caches_size_in_bytes": 2432967,
 			"active_caches_count": 1
 		}`)
-	
-		gock.New("https://api.github.com").
+
+	gock.New("https://api.github.com").
 		Get("/repos/testOrg/testRepo/actions/caches").
 		Reply(200).
 		JSON(`{
@@ -157,17 +155,9 @@ func TestListSuccess(t *testing.T) {
 			}`)
 
 	cmd := NewCmdList()
-	cmd.SetArgs([]string{"--repo",  "testOrg/testRepo"})
+	cmd.SetArgs([]string{"--repo", "testOrg/testRepo"})
 	err := cmd.Execute()
-	
-	assert.Nil(t, err)
-	assert.True(t, gock.IsDone(), printPendingMocks(gock.Pending()))
-}
 
-func printPendingMocks(mocks []gock.Mock) string {
-	paths := []string{}
-	for _, mock := range mocks {
-		paths = append(paths, mock.Request().URLStruct.String())
-	}
-	return fmt.Sprintf("%d unmatched mocks: %s", len(paths), strings.Join(paths, ", "))
+	assert.Nil(t, err)
+	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }

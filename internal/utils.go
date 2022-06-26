@@ -8,6 +8,7 @@ import (
 
 	gh "github.com/cli/go-gh"
 	ghRepo "github.com/cli/go-gh/pkg/repository"
+	"gopkg.in/h2non/gock.v1"
 )
 
 const MB_IN_BYTES = 1024 * 1024
@@ -69,4 +70,12 @@ func FormatCacheSize(size_in_bytes float64) string {
 	}
 
 	return fmt.Sprintf("%.2f GB", size_in_bytes/GB_IN_BYTES)
+}
+
+func PrintPendingMocks(mocks []gock.Mock) string {
+	paths := []string{}
+	for _, mock := range mocks {
+		paths = append(paths, mock.Request().URLStruct.String())
+	}
+	return fmt.Sprintf("%d unmatched mocks: %s", len(paths), strings.Join(paths, ", "))
 }
