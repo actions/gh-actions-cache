@@ -24,7 +24,6 @@ func NewCmdDelete() *cobra.Command {
 		Use:   "delete",
 		Short: "Delete cache by key",
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Println()
 			var sb strings.Builder
 			if len(args) != 1 {
 				fmt.Printf("accepts 1 arg(s), received %d\n", len(args))
@@ -40,7 +39,7 @@ func NewCmdDelete() *cobra.Command {
 				return
 			}
 			artifactCache := service.NewArtifactCache(repo, COMMAND, VERSION)
-			queryParams := internal.GenerateQueryParams(f.Branch, 100, f.Key, f.Order, f.Sort, 1)
+			queryParams := internal.GenerateQueryParams(f.Branch, 100, key, f.Order, f.Sort, 1)
 
 			if !f.Confirm {
 				var matchedCaches = getCacheListWithExactMatch(repo, queryParams, key, artifactCache)
