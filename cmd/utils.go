@@ -75,13 +75,11 @@ func formatCacheSize(size_in_bytes float64) string {
 func prettyPrintCacheList(caches []cacheInfo) {
 	numberOfCaches := len(caches)
 	for _, cache := range caches {
-		var cacheKey string = trimCacheKeyBasedOnWindowSize(cache.Key)
-
-		var formattedRow string = getFormattedCacheInfo(cacheKey, cache)
+		var formattedRow string = getFormattedCacheInfo(cache)
 		fmt.Println(formattedRow)
 	}
 	if numberOfCaches > 30 {
-		fmt.Println("...and " + strconv.Itoa(numberOfCaches-30) + " more\n\n")
+		fmt.Printf("...and %d  more\n\n", numberOfCaches-30)
 	}
 	fmt.Println()
 }
@@ -127,6 +125,7 @@ func lastAccessedTime(lastAccessedAt string) string {
 	return lastAccessedTimeStr
 }
 
-func getFormattedCacheInfo(cacheKey string, cache cacheInfo) string {
+func getFormattedCacheInfo(cache cacheInfo) string {
+	cacheKey := trimCacheKeyBasedOnWindowSize(cache.Key)
 	return fmt.Sprintf(" %s\t [%s]\t %s\t %s", cacheKey, formatCacheSize(cache.Size), cache.Ref, lastAccessedTime(cache.LastAccessedAt))
 }

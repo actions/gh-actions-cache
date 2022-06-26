@@ -30,8 +30,10 @@ var deleteCmd = &cobra.Command{
 		r, _ := cmd.Flags().GetString("repo")
 		branch, _ := cmd.Flags().GetString("branch")
 		confirm, _ := cmd.Flags().GetBool("confirm")
+		fmt.Println()
+		var sb strings.Builder
 		if len(args) != 1 {
-			fmt.Println("accepts 1 arg(s), received " + strconv.Itoa(len(args)))
+			fmt.Printf("accepts 1 arg(s), received %d\n", len(args))
 			return
 		}
 		key := args[0]
@@ -47,16 +49,15 @@ var deleteCmd = &cobra.Command{
 		if !confirm {
 			var matchedCaches = getCacheListWithExactMatch(repo, queryParams, key)
 			if len(matchedCaches) == 0 {
-				fmt.Println("Cache with input key '" + key + "' does not exist")
+				fmt.Printf("Cache with input key '%s' does not exist\n", key)
 				return
 			}
-			fmt.Print("\nYou're going to delete " + strconv.Itoa(len(matchedCaches)) + " cache ")
+			fmt.Printf("You're going to delete %d cache ", len(matchedCaches))
 			if len(matchedCaches) == 1 {
-				fmt.Println("entry")
+				fmt.Printf("entry\n\n")
 			} else {
-				fmt.Println("entries")
+				fmt.Printf("entries\n\n")
 			}
-			fmt.Println()
 			prettyPrintCacheList(matchedCaches)
 			choice := ""
 			prompt := &survey.Select{
@@ -75,19 +76,27 @@ var deleteCmd = &cobra.Command{
 			cachesDeleted := deleteCaches(repo, queryParams)
 			if cachesDeleted > 0 {
 				src := "\u2713"
-				r, _ := utf8.DecodeRuneInString(src)
-				fmt.Print(color.Colorize(color.Red, string(r)) + " Deleted " + strconv.FormatFloat(cachesDeleted, 'f', 0, 64) + " cache ")
+				tick, _ := utf8.DecodeRuneInString(src)
+				redTick := color.Colorize(color.Red, string(tick))
+				sb.WriteString(redTick)
+				sb.WriteString(" Deleted ")
+				sb.WriteString(strconv.FormatFloat(cachesDeleted, 'f', 0, 64))
+				sb.WriteString(" cache ")
 				if cachesDeleted == 1 {
-					fmt.Print("entry")
+					sb.WriteString("entry")
 				} else {
-					fmt.Print("entries")
+					sb.WriteString("entries")
 				}
-				fmt.Print(" with key " + key + "\n")
+				sb.WriteString(" with key ")
+				sb.WriteString(key)
 			} else {
-				fmt.Println("Cache with input key '" + key + "' does not exist")
+				sb.WriteString("Cache with input key '")
+				sb.WriteString(key)
+				sb.WriteString("' does not exist")
 			}
 		}
-
+		fmt.Println(sb.String())
+		sb.Reset()
 	},
 }
 
