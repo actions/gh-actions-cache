@@ -45,7 +45,7 @@ var deleteCmd = &cobra.Command{
 		}
 
 		if !confirm {
-			var matchedCaches = getCacheListWithExactMatch(repo, queryParams)
+			var matchedCaches = getCacheListWithExactMatch(repo, queryParams, key)
 			if len(matchedCaches) == 0 {
 				fmt.Println("Cache with input key '" + key + "' does not exist")
 				return
@@ -114,11 +114,11 @@ EXAMPLES:
 `
 }
 
-func getCacheListWithExactMatch(repo ghRepo.Repository, queryParams url.Values) []cacheInfo {
+func getCacheListWithExactMatch(repo ghRepo.Repository, queryParams url.Values, key string) []cacheInfo {
 	listApiResponse := listCaches(repo, queryParams)
 	var exactMatchedKeys []cacheInfo
 	for _, cache := range listApiResponse {
-		if strings.EqualFold(queryParams.Get("key"), cache.Key) {
+		if strings.EqualFold(key, cache.Key) {
 			exactMatchedKeys = append(exactMatchedKeys, cache)
 		}
 	}
