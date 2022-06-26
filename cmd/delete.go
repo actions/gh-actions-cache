@@ -44,8 +44,6 @@ var deleteCmd = &cobra.Command{
 			return
 		}
 
-		var userConfirmation bool = true
-
 		if !confirm {
 			var matchedCaches = getCacheListWithExactMatch(repo, queryParams)
 			if len(matchedCaches) == 0 {
@@ -70,10 +68,10 @@ var deleteCmd = &cobra.Command{
 				fmt.Println("Error occured while taking input from user while trying to delete cache")
 				return
 			}
-			userConfirmation = choice == "Delete"
+			confirm = choice == "Delete"
 			fmt.Println()
 		}
-		if userConfirmation {
+		if confirm {
 			cachesDeleted := deleteCaches(repo, queryParams)
 			if cachesDeleted > 0 {
 				src := "\u2713"
