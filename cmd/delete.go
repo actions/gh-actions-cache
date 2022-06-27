@@ -21,7 +21,6 @@ func NewCmdDelete() *cobra.Command {
 		Use:   "delete",
 		Short: "Delete cache by key",
 		Run: func(cmd *cobra.Command, args []string) {
-			var sb strings.Builder
 			if len(args) != 1 {
 				fmt.Printf("accepts 1 arg(s), received %d\n", len(args))
 				return
@@ -63,6 +62,7 @@ func NewCmdDelete() *cobra.Command {
 				fmt.Println()
 			}
 			if f.Confirm {
+				var sb strings.Builder
 				cachesDeleted := artifactCache.DeleteCaches(queryParams)
 				if cachesDeleted > 0 {
 					sb.WriteString(internal.RedTick())
@@ -81,9 +81,9 @@ func NewCmdDelete() *cobra.Command {
 					sb.WriteString(key)
 					sb.WriteString("' does not exist")
 				}
+				fmt.Println(sb.String())
+				sb.Reset()
 			}
-			fmt.Println(sb.String())
-			sb.Reset()
 		},
 	}
 	deleteCmd.Flags().StringVarP(&f.Repo, "repo", "R", "", "Select another repository for finding actions cache.")
