@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"math"
 	"net/url"
 	"strconv"
 	"strings"
@@ -31,15 +32,13 @@ func NewCmdDelete() *cobra.Command {
 			}
 			key := args[0]
 
-			// queryParams := generateQueryParams(branch, 100, key, "", "")
-
 			repo, err := internal.GetRepo(f.Repo)
 			if err != nil {
 				fmt.Println(err)
 				return
 			}
 			artifactCache := service.NewArtifactCache(repo, COMMAND, VERSION)
-			queryParams := internal.GenerateQueryParams(f.Branch, 100, key, f.Order, f.Sort, 1)
+			queryParams := internal.GenerateQueryParams(f.Branch, 100, key, "", "", 1)
 
 			if !f.Confirm {
 				var matchedCaches = getCacheListWithExactMatch(repo, queryParams, key, artifactCache)
@@ -127,8 +126,17 @@ EXAMPLES:
 
 func getCacheListWithExactMatch(repo ghRepo.Repository, queryParams url.Values, key string, artifactCache service.ArtifactCacheService) []types.ActionsCache {
 	listApiResponse := artifactCache.ListCaches(queryParams)
+	caches := listApiResponse.ActionsCaches
+	totalCaches := listApiResponse.TotalCount
+	if totalCaches > 100 {
+		for page := 2; page <= int(math.Ceil(float64(listApiResponse.TotalCount)/100)); page++ {
+			queryParams = internal.GenerateQueryParams(queryParams["ref"][0], 100, key, "", "", page)
+			listApiResponse = artifactCache.ListCaches(queryParams)
+			caches = append(caches, listApiResponse.ActionsCaches...)
+		}
+	}
 	var exactMatchedKeys []types.ActionsCache
-	for _, cache := range listApiResponse.ActionsCaches {
+	for _, cache := range caches {
 		if strings.EqualFold(key, cache.Key) {
 			exactMatchedKeys = append(exactMatchedKeys, cache)
 		}
