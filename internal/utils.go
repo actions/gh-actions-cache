@@ -8,7 +8,9 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode/utf8"
 
+	"github.com/TwiN/go-color"
 	"github.com/actions/gh-actions-cache/service"
 	"github.com/actions/gh-actions-cache/types"
 	gh "github.com/cli/go-gh"
@@ -150,4 +152,11 @@ func ListAllCaches(queryParams url.Values, key string, artifactCache service.Art
 		}
 	}
 	return caches
+}
+
+func RedTick() string {
+	src := "\u2713"
+	tick, _ := utf8.DecodeRuneInString(src)
+	redTick := color.Colorize(color.Red, string(tick))
+	return redTick
 }

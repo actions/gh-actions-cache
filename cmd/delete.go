@@ -5,10 +5,8 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
-	"unicode/utf8"
 
 	"github.com/AlecAivazis/survey/v2"
-	"github.com/TwiN/go-color"
 	"github.com/actions/gh-actions-cache/internal"
 	"github.com/actions/gh-actions-cache/service"
 	"github.com/actions/gh-actions-cache/types"
@@ -67,10 +65,7 @@ func NewCmdDelete() *cobra.Command {
 			if f.Confirm {
 				cachesDeleted := artifactCache.DeleteCaches(queryParams)
 				if cachesDeleted > 0 {
-					src := "\u2713"
-					tick, _ := utf8.DecodeRuneInString(src)
-					redTick := color.Colorize(color.Red, string(tick))
-					sb.WriteString(redTick)
+					sb.WriteString(internal.RedTick())
 					sb.WriteString(" Deleted ")
 					sb.WriteString(strconv.Itoa(cachesDeleted))
 					sb.WriteString(" cache ")
