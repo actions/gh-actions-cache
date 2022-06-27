@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"math"
 	"net/url"
 	"strconv"
 	"strings"
@@ -13,7 +12,6 @@ import (
 	"github.com/actions/gh-actions-cache/internal"
 	"github.com/actions/gh-actions-cache/service"
 	"github.com/actions/gh-actions-cache/types"
-	ghRepo "github.com/cli/go-gh/pkg/repository"
 	"github.com/spf13/cobra"
 )
 
@@ -41,7 +39,7 @@ func NewCmdDelete() *cobra.Command {
 			queryParams := internal.GenerateQueryParams(f.Branch, 100, key, "", "", 1)
 
 			if !f.Confirm {
-				var matchedCaches = getCacheListWithExactMatch(repo, queryParams, key, artifactCache)
+				var matchedCaches = getCacheListWithExactMatch(queryParams, key, artifactCache)
 				if len(matchedCaches) == 0 {
 					fmt.Printf("Cache with input key '%s' does not exist\n", key)
 					return
@@ -124,17 +122,8 @@ EXAMPLES:
 `
 }
 
-func getCacheListWithExactMatch(repo ghRepo.Repository, queryParams url.Values, key string, artifactCache service.ArtifactCacheService) []types.ActionsCache {
-	listApiResponse := artifactCache.ListCaches(queryParams)
-	caches := listApiResponse.ActionsCaches
-	totalCaches := listApiResponse.TotalCount
-	if totalCaches > 100 {
-		for page := 2; page <= int(math.Ceil(float64(listApiResponse.TotalCount)/100)); page++ {
-			queryParams.Set("page", strconv.Itoa(page))
-			listApiResponse = artifactCache.ListCaches(queryParams)
-			caches = append(caches, listApiResponse.ActionsCaches...)
-		}
-	}
+func getCacheListWithExactMatch(queryParams url.Values, key string, artifactCache service.ArtifactCacheService) []types.ActionsCache {
+	caches := internal.ListAllCaches(queryParams, key, artifactCache)
 	var exactMatchedKeys []types.ActionsCache
 	for _, cache := range caches {
 		if strings.EqualFold(key, cache.Key) {

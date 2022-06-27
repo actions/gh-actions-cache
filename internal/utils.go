@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/actions/gh-actions-cache/service"
 	"github.com/actions/gh-actions-cache/types"
 	gh "github.com/cli/go-gh"
 	ghRepo "github.com/cli/go-gh/pkg/repository"
@@ -135,4 +136,18 @@ func lastAccessedTime(lastAccessedAt string) string {
 func getFormattedCacheInfo(cache types.ActionsCache) string {
 	cacheKey := trimCacheKeyBasedOnWindowSize(cache.Key)
 	return fmt.Sprintf(" %s\t [%s]\t %s\t %s", cacheKey, FormatCacheSize(cache.SizeInBytes), cache.Ref, lastAccessedTime(cache.LastAccessedAt))
+}
+
+func ListAllCaches(queryParams url.Values, key string, artifactCache service.ArtifactCacheService) []types.ActionsCache {
+	listApiResponse := artifactCache.ListCaches(queryParams)
+	caches := listApiResponse.ActionsCaches
+	totalCaches := listApiResponse.TotalCount
+	if totalCaches > 100 {
+		for page := 2; page <= int(math.Ceil(float64(listApiResponse.TotalCount)/100)); page++ {
+			queryParams.Set("page", strconv.Itoa(page))
+			listApiResponse = artifactCache.ListCaches(queryParams)
+			caches = append(caches, listApiResponse.ActionsCaches...)
+		}
+	}
+	return caches
 }
