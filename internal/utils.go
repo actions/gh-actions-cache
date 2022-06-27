@@ -7,7 +7,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"time"
 	"unicode/utf8"
 
 	"github.com/TwiN/go-color"
@@ -15,6 +14,7 @@ import (
 	gh "github.com/cli/go-gh"
 	ghRepo "github.com/cli/go-gh/pkg/repository"
 	"github.com/moby/term"
+	"github.com/nleeper/goment"
 )
 
 const MB_IN_BYTES = 1024 * 1024
@@ -114,28 +114,8 @@ func trimCacheKeyBasedOnWindowSize(key string) string {
 }
 
 func lastAccessedTime(lastAccessedAt string) string {
-	var now time.Time = time.Now()
-	lastAccessedTs, _ := time.Parse(time.RFC3339, lastAccessedAt)
-
-	diff := now.Sub(lastAccessedTs)
-
-	var lastAccessedTimeStr string = ""
-	if diff.Minutes() < 1 {
-		lastAccessedTimeStr = "Used less than a minute ago"
-	} else if diff.Minutes() == 1 {
-		lastAccessedTimeStr = "Used 1 minute ago"
-	} else if diff.Minutes() < 60 {
-		lastAccessedTimeStr = fmt.Sprintf("Used %d minutes ago", int(diff.Minutes()))
-	} else if diff.Minutes() < 120 {
-		lastAccessedTimeStr = "Used 1 hour ago"
-	} else if diff.Hours() < 24 {
-		lastAccessedTimeStr = fmt.Sprintf("Used %d hours ago", int(diff.Hours()))
-	} else if diff.Hours() >= 24 && diff.Hours() < 48 {
-		lastAccessedTimeStr = "Used 1 day ago"
-	} else if diff.Hours() >= 48 {
-		lastAccessedTimeStr = fmt.Sprintf("Used %d days ago", int(diff.Hours()/24))
-	}
-	return lastAccessedTimeStr
+	lastAccessed, _ := goment.New(lastAccessedAt)
+	return fmt.Sprintf("Used %s", lastAccessed.FromNow())
 }
 
 func getFormattedCacheInfo(cache types.ActionsCache) string {
