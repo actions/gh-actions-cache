@@ -87,9 +87,13 @@ func PrettyPrintCacheList(caches []types.ActionsCache) {
 
 }
 func PrettyPrintTrimmedCacheList(caches []types.ActionsCache) {
-	PrettyPrintCacheList(caches)
-	if len(caches) > 30 {
-		fmt.Printf("... and %d more\n\n", len(caches) - 30)
+	length := len(caches)
+	limit := 30
+	if length > limit {
+		PrettyPrintCacheList(caches[:limit])
+		fmt.Printf("... and %d more\n\n", length-limit)
+	} else {
+		PrettyPrintCacheList(caches[:length])
 	}
 	fmt.Print("\n")
 }
