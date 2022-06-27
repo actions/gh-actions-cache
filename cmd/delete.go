@@ -130,7 +130,7 @@ func getCacheListWithExactMatch(repo ghRepo.Repository, queryParams url.Values, 
 	totalCaches := listApiResponse.TotalCount
 	if totalCaches > 100 {
 		for page := 2; page <= int(math.Ceil(float64(listApiResponse.TotalCount)/100)); page++ {
-			queryParams = internal.GenerateQueryParams(queryParams["ref"][0], 100, key, "", "", page)
+			queryParams.Set("page", strconv.Itoa(page))
 			listApiResponse = artifactCache.ListCaches(queryParams)
 			caches = append(caches, listApiResponse.ActionsCaches...)
 		}
