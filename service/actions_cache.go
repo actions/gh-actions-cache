@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"net/url"
@@ -61,7 +62,8 @@ func (a *ArtifactCache) DeleteCaches(queryParams url.Values) int {
 	var apiResults types.DeleteApiResponse
 	err := a.HttpClient.Delete(pathComponent+"?"+queryParams.Encode(), &apiResults)
 	if err != nil {
-		if err.(api.HTTPError).StatusCode == 404 { //TODO: Figure out how to ensure err is of type HTTPError
+		var httpError api.HTTPError
+		if errors.As(err, &httpError) && httpError.StatusCode == 404 {
 			return 0
 		} else {
 			log.Fatal(err)
