@@ -77,15 +77,18 @@ func FormatCacheSize(size_in_bytes float64) string {
 }
 
 func PrettyPrintCacheList(caches []types.ActionsCache) {
-	numberOfCaches := len(caches)
 	for _, cache := range caches {
 		var formattedRow string = getFormattedCacheInfo(cache)
 		fmt.Println(formattedRow)
 	}
-	if numberOfCaches > 30 {
-		fmt.Printf("...and %d  more\n\n", numberOfCaches-30)
+
+}
+func PrettyPrintTrimmedCacheList(caches []types.ActionsCache) {
+	PrettyPrintCacheList(caches)
+	if len(caches) > 30 {
+		fmt.Printf("... and %d more\n\n", len(caches))
 	}
-	fmt.Println()
+	fmt.Print("\n")
 }
 
 func trimCacheKeyBasedOnWindowSize(key string) string {

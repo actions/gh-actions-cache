@@ -52,7 +52,7 @@ func NewCmdDelete() *cobra.Command {
 				} else {
 					fmt.Printf("entries\n\n")
 				}
-				internal.PrettyPrintCacheList(matchedCaches)
+				internal.PrettyPrintTrimmedCacheList(matchedCaches)
 				choice := ""
 				prompt := &survey.Select{
 					Message: "Are you sure you want to delete the cache entries?",
