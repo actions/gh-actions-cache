@@ -79,11 +79,17 @@ func FormatCacheSize(size_in_bytes float64) string {
 }
 
 func PrettyPrintCacheList(caches []types.ActionsCache) {
+	fd := os.Stdin.Fd()
+	ws, _ := term.GetWinsize(fd)
+	width := math.Min(float64(ws.Width), 120)
+	keyWidth := int(math.Floor(0.35 * width))
+	sizeWidth := int(math.Floor(0.20 * width))
+	refWidth := int(math.Floor(0.20 * width))
+	timeWidth := int(math.Floor(0.20 * width))
 	for _, cache := range caches {
-		var formattedRow string = getFormattedCacheInfo(cache)
+		var formattedRow string = getFormattedCacheInfo(cache, keyWidth, sizeWidth, refWidth, timeWidth)
 		fmt.Println(formattedRow)
 	}
-
 }
 func PrettyPrintTrimmedCacheList(caches []types.ActionsCache) {
 	length := len(caches)
@@ -97,30 +103,26 @@ func PrettyPrintTrimmedCacheList(caches []types.ActionsCache) {
 	fmt.Print("\n")
 }
 
-func trimCacheKeyBasedOnWindowSize(key string) string {
-	var cacheKey string
-	fd := os.Stdin.Fd()
-	ws, _ := term.GetWinsize(fd)
-	var cacheKeyWidth int = int(math.Max(10, float64(ws.Width)-60))
-	if len(key) > int(cacheKeyWidth) {
-		cacheKey = key[:cacheKeyWidth] + "..."
-	} else {
-		cacheKey = key
-		for i := 0; i < 5; i++ {
-			key += " "
-		}
-	}
-	return cacheKey
-}
-
 func lastAccessedTime(lastAccessedAt string) string {
 	lastAccessed, _ := goment.New(lastAccessedAt)
 	return fmt.Sprintf("Used %s", lastAccessed.FromNow())
 }
 
-func getFormattedCacheInfo(cache types.ActionsCache) string {
-	cacheKey := trimCacheKeyBasedOnWindowSize(cache.Key)
-	return fmt.Sprintf(" %s\t [%s]\t %s\t %s", cacheKey, FormatCacheSize(cache.SizeInBytes), cache.Ref, lastAccessedTime(cache.LastAccessedAt))
+func trimOrPad(value string, maxSize int) string {
+	if len(value) >= maxSize {
+		value = value[:maxSize-3] + "..."
+	} else {
+		value = value + strings.Repeat(" ", maxSize-len(value))
+	}
+	return value
+}
+
+func getFormattedCacheInfo(cache types.ActionsCache, keyWidth int, sizeWidth int, refWidth int, timeWidth int) string {
+	key := trimOrPad(cache.Key, keyWidth)
+	size := trimOrPad(fmt.Sprintf("[%s]", FormatCacheSize(cache.SizeInBytes)), sizeWidth)
+	ref := trimOrPad(cache.Ref, refWidth)
+	time := trimOrPad(lastAccessedTime(cache.LastAccessedAt), timeWidth)
+	return fmt.Sprintf(" %s %s %s %s", key, size, ref, time)
 }
 
 func RedTick() string {
