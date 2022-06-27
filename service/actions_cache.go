@@ -4,7 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"math"
 	"net/url"
+	"strconv"
 
 	"github.com/actions/gh-actions-cache/types"
 	gh "github.com/cli/go-gh"
@@ -70,4 +72,19 @@ func (a *ArtifactCache) DeleteCaches(queryParams url.Values) int {
 		}
 	}
 	return apiResults.TotalCount
+}
+
+func ListAllCaches(queryParams url.Values, key string, artifactCache ArtifactCacheService) []types.ActionsCache {
+	var listApiResponse types.ListApiResponse
+	listApiResponse = artifactCache.ListCaches(queryParams)
+	caches := listApiResponse.ActionsCaches
+	totalCaches := listApiResponse.TotalCount
+	if totalCaches > 100 {
+		for page := 2; page <= int(math.Ceil(float64(listApiResponse.TotalCount)/100)); page++ {
+			queryParams.Set("page", strconv.Itoa(page))
+			listApiResponse = artifactCache.ListCaches(queryParams)
+			caches = append(caches, listApiResponse.ActionsCaches...)
+		}
+	}
+	return caches
 }

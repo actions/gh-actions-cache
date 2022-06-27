@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 	"net/url"
-	"strconv"
 	"strings"
 
 	"github.com/AlecAivazis/survey/v2"
@@ -37,16 +36,12 @@ func NewCmdDelete() *cobra.Command {
 
 			if !f.Confirm {
 				var matchedCaches = getCacheListWithExactMatch(queryParams, key, artifactCache)
-				if len(matchedCaches) == 0 {
+				matchedCachesLen := len(matchedCaches)
+				if matchedCachesLen == 0 {
 					fmt.Printf("Cache with input key '%s' does not exist\n", key)
 					return
 				}
-				fmt.Printf("You're going to delete %d cache ", len(matchedCaches))
-				if len(matchedCaches) == 1 {
-					fmt.Printf("entry\n\n")
-				} else {
-					fmt.Printf("entries\n\n")
-				}
+				fmt.Printf("You're going to delete %s", internal.PrintOneOrMore(matchedCachesLen, "cache entry\n\n", "cache entries\n\n"))
 				internal.PrettyPrintTrimmedCacheList(matchedCaches)
 				choice := ""
 				prompt := &survey.Select{
@@ -67,13 +62,7 @@ func NewCmdDelete() *cobra.Command {
 				if cachesDeleted > 0 {
 					sb.WriteString(internal.RedTick())
 					sb.WriteString(" Deleted ")
-					sb.WriteString(strconv.Itoa(cachesDeleted))
-					sb.WriteString(" cache ")
-					if cachesDeleted == 1 {
-						sb.WriteString("entry")
-					} else {
-						sb.WriteString("entries")
-					}
+					sb.WriteString(internal.PrintOneOrMore(cachesDeleted, "cache entry", "cache entries"))
 					sb.WriteString(" with key ")
 					sb.WriteString(key)
 				} else {
@@ -82,7 +71,6 @@ func NewCmdDelete() *cobra.Command {
 					sb.WriteString("' does not exist")
 				}
 				fmt.Println(sb.String())
-				sb.Reset()
 			}
 		},
 	}
@@ -118,7 +106,7 @@ EXAMPLES:
 }
 
 func getCacheListWithExactMatch(queryParams url.Values, key string, artifactCache service.ArtifactCacheService) []types.ActionsCache {
-	caches := internal.ListAllCaches(queryParams, key, artifactCache)
+	caches := service.ListAllCaches(queryParams, key, artifactCache)
 	var exactMatchedKeys []types.ActionsCache
 	for _, cache := range caches {
 		if strings.EqualFold(key, cache.Key) {

@@ -11,7 +11,6 @@ import (
 	"unicode/utf8"
 
 	"github.com/TwiN/go-color"
-	"github.com/actions/gh-actions-cache/service"
 	"github.com/actions/gh-actions-cache/types"
 	gh "github.com/cli/go-gh"
 	ghRepo "github.com/cli/go-gh/pkg/repository"
@@ -144,23 +143,16 @@ func getFormattedCacheInfo(cache types.ActionsCache) string {
 	return fmt.Sprintf(" %s\t [%s]\t %s\t %s", cacheKey, FormatCacheSize(cache.SizeInBytes), cache.Ref, lastAccessedTime(cache.LastAccessedAt))
 }
 
-func ListAllCaches(queryParams url.Values, key string, artifactCache service.ArtifactCacheService) []types.ActionsCache {
-	listApiResponse := artifactCache.ListCaches(queryParams)
-	caches := listApiResponse.ActionsCaches
-	totalCaches := listApiResponse.TotalCount
-	if totalCaches > 100 {
-		for page := 2; page <= int(math.Ceil(float64(listApiResponse.TotalCount)/100)); page++ {
-			queryParams.Set("page", strconv.Itoa(page))
-			listApiResponse = artifactCache.ListCaches(queryParams)
-			caches = append(caches, listApiResponse.ActionsCaches...)
-		}
-	}
-	return caches
-}
-
 func RedTick() string {
 	src := "\u2713"
 	tick, _ := utf8.DecodeRuneInString(src)
 	redTick := color.Colorize(color.Red, string(tick))
 	return redTick
+}
+
+func PrintOneOrMore(count int, singularStr string, pluralStr string) string {
+	if count == 1 {
+		return fmt.Sprintf("%d %s", count, singularStr)
+	}
+	return fmt.Sprintf("%d %s", count, pluralStr)
 }
