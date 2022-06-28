@@ -46,9 +46,7 @@ func NewCmdList() *cobra.Command {
 			caches := listCacheResponse.ActionsCaches
 
 			fmt.Printf("Showing %d of %d cache entries in %s/%s\n\n", displayedEntriesCount(len(caches), f.Limit), totalCaches, repo.Owner(), repo.Name())
-			for _, cache := range caches {
-				fmt.Printf("%s\t [%s]\t %s\t %s\n", cache.Key, internal.FormatCacheSize(cache.SizeInBytes), cache.Ref, cache.LastAccessedAt)
-			}
+			internal.PrettyPrintCacheList(caches)
 		},
 	}
 
