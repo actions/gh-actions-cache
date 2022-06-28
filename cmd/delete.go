@@ -59,9 +59,9 @@ func NewCmdDelete() *cobra.Command {
 			if f.Confirm {
 				cachesDeleted := artifactCache.DeleteCaches(queryParams)
 				if cachesDeleted > 0 {
-					fmt.Printf("%s Deleted %s with key %s", internal.RedTick(), internal.PrintSingularOrPlural(cachesDeleted, "cache entry", "cache entries"), key)
+					fmt.Printf("%s Deleted %s with key '%s'\n", internal.RedTick(), internal.PrintSingularOrPlural(cachesDeleted, "cache entry", "cache entries"), key)
 				} else {
-					fmt.Printf("Cache with input key '%s' does not exist", key)
+					fmt.Printf("Cache with input key '%s' does not exist\n", key)
 				}
 			}
 		},
@@ -98,7 +98,7 @@ EXAMPLES:
 }
 
 func getCacheListWithExactMatch(queryParams url.Values, key string, artifactCache service.ArtifactCacheService) []types.ActionsCache {
-	caches := service.ListAllCaches(queryParams, key, artifactCache)
+	caches := artifactCache.ListAllCaches(queryParams, key)
 	var exactMatchedKeys []types.ActionsCache
 	for _, cache := range caches {
 		if strings.EqualFold(key, cache.Key) {

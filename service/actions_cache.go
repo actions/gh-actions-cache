@@ -18,6 +18,7 @@ type ArtifactCacheService interface {
 	GetCacheUsage() float64
 	ListCaches(queryParams url.Values) types.ListApiResponse
 	DeleteCaches(queryParams url.Values) int
+	ListAllCaches(queryParams url.Values, key string) []types.ActionsCache
 }
 
 type ArtifactCache struct {
@@ -74,15 +75,15 @@ func (a *ArtifactCache) DeleteCaches(queryParams url.Values) int {
 	return apiResults.TotalCount
 }
 
-func ListAllCaches(queryParams url.Values, key string, artifactCache ArtifactCacheService) []types.ActionsCache {
+func (a *ArtifactCache) ListAllCaches(queryParams url.Values, key string) []types.ActionsCache {
 	var listApiResponse types.ListApiResponse
-	listApiResponse = artifactCache.ListCaches(queryParams)
+	listApiResponse = a.ListCaches(queryParams)
 	caches := listApiResponse.ActionsCaches
 	totalCaches := listApiResponse.TotalCount
 	if totalCaches > 100 {
 		for page := 2; page <= int(math.Ceil(float64(listApiResponse.TotalCount)/100)); page++ {
 			queryParams.Set("page", strconv.Itoa(page))
-			listApiResponse = artifactCache.ListCaches(queryParams)
+			listApiResponse = a.ListCaches(queryParams)
 			caches = append(caches, listApiResponse.ActionsCaches...)
 		}
 	}
