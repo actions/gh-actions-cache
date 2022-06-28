@@ -81,9 +81,9 @@ func FormatCacheSize(size_in_bytes float64) string {
 func PrettyPrintCacheList(caches []types.ActionsCache) {
 	fd := os.Stdin.Fd()
 	ws, _ := term.GetWinsize(fd)
-	width := math.Min(float64(ws.Width), 120)
-	keyWidth := int(math.Floor(0.35 * width))
-	sizeWidth := int(math.Floor(0.20 * width))
+	width := math.Min(float64(ws.Width), 180)
+	keyWidth := int(math.Floor(0.30 * width))
+	sizeWidth := int(math.Floor(0.12 * width))
 	refWidth := int(math.Floor(0.20 * width))
 	timeWidth := int(math.Floor(0.20 * width))
 	for _, cache := range caches {
@@ -109,7 +109,7 @@ func lastAccessedTime(lastAccessedAt string) string {
 }
 
 func trimOrPad(value string, maxSize int) string {
-	if len(value) >= maxSize {
+	if len(value) > maxSize {
 		value = value[:maxSize-3] + "..."
 	} else {
 		value = value + strings.Repeat(" ", maxSize-len(value))
@@ -122,7 +122,7 @@ func getFormattedCacheInfo(cache types.ActionsCache, keyWidth int, sizeWidth int
 	size := trimOrPad(fmt.Sprintf("[%s]", FormatCacheSize(cache.SizeInBytes)), sizeWidth)
 	ref := trimOrPad(cache.Ref, refWidth)
 	time := trimOrPad(lastAccessedTime(cache.LastAccessedAt), timeWidth)
-	return fmt.Sprintf(" %s %s %s %s", key, size, ref, time)
+	return fmt.Sprintf(" %s    %s    %s    %s", key, size, ref, time)
 }
 
 func RedTick() string {
