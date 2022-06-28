@@ -13,7 +13,6 @@ import (
 	"github.com/actions/gh-actions-cache/types"
 	gh "github.com/cli/go-gh"
 	ghRepo "github.com/cli/go-gh/pkg/repository"
-	"gopkg.in/h2non/gock.v1"
 	"github.com/moby/term"
 	"github.com/nleeper/goment"
 )
@@ -77,14 +76,6 @@ func FormatCacheSize(size_in_bytes float64) string {
 	}
 
 	return fmt.Sprintf("%.2f GB", size_in_bytes/GB_IN_BYTES)
-}
-
-func PrintPendingMocks(mocks []gock.Mock) string {
-	paths := []string{}
-	for _, mock := range mocks {
-		paths = append(paths, mock.Request().URLStruct.String())
-	}
-	return fmt.Sprintf("%d unmatched mocks: %s", len(paths), strings.Join(paths, ", "))
 }
 
 func PrettyPrintCacheList(caches []types.ActionsCache) {

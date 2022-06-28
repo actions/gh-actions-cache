@@ -35,7 +35,7 @@ func NewCmdList() *cobra.Command {
 
 			artifactCache := service.NewArtifactCache(repo, COMMAND, VERSION)
 
-			if f.branch == "" && f.key == "" {
+			if f.Branch == "" && f.Key == "" {
 				totalCacheSize, err := artifactCache.GetCacheUsage()
 				if err != nil {
 					return err
@@ -43,7 +43,7 @@ func NewCmdList() *cobra.Command {
 				fmt.Printf("Total caches size %s\n\n", internal.FormatCacheSize(totalCacheSize))
 			}
 
-			queryParams := internal.GenerateQueryParams(f.branch, f.limit, f.key, f.order, f.sort, 1)
+			queryParams := internal.GenerateQueryParams(f.Branch, f.Limit, f.Key, f.Order, f.Sort, 1)
 			listCacheResponse, err := artifactCache.ListCaches(queryParams)
 			if err != nil {
 				return err
@@ -54,7 +54,7 @@ func NewCmdList() *cobra.Command {
 
 			fmt.Printf("Showing %d of %d cache entries in %s/%s\n\n", displayedEntriesCount(len(caches), f.Limit), totalCaches, repo.Owner(), repo.Name())
 			internal.PrettyPrintCacheList(caches)
-      return nil
+      		return nil
 		},
 	}
 
@@ -77,16 +77,16 @@ func displayedEntriesCount(totalCaches int, limit int) int {
 }
 
 func validateInputs(input types.InputFlags) error {
-	if input.order != "" && input.order != "asc" && input.order != "desc" {
-		return fmt.Errorf(fmt.Sprintf("%s is not a valid value for order flag. Allowed values: asc/desc", input.order))
+	if input.Order != "" && input.Order != "asc" && input.Order != "desc" {
+		return fmt.Errorf(fmt.Sprintf("%s is not a valid value for order flag. Allowed values: asc/desc", input.Order))
 	}
 
-	if input.sort != "" && input.sort != "last-used" && input.sort != "size" && input.sort != "created-at" {
-		return fmt.Errorf(fmt.Sprintf("%s is not a valid value for sort flag. Allowed values: last-used/size/created-at", input.sort))
+	if input.Sort != "" && input.Sort != "last-used" && input.Sort != "size" && input.Sort != "created-at" {
+		return fmt.Errorf(fmt.Sprintf("%s is not a valid value for sort flag. Allowed values: last-used/size/created-at", input.Sort))
 	}
 
-	if input.limit < 1 || input.limit > 100 {
-		return fmt.Errorf(fmt.Sprintf("%d is not a valid value for limit flag. Allowed values: 1-100", input.limit))
+	if input.Limit < 1 || input.Limit > 100 {
+		return fmt.Errorf(fmt.Sprintf("%d is not a valid value for limit flag. Allowed values: 1-100", input.Limit))
 	}
 	return nil
 }

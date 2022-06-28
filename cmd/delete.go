@@ -17,29 +17,30 @@ func NewCmdDelete() *cobra.Command {
 	f := types.InputFlags{}
 
 	var deleteCmd = &cobra.Command{
-		Use:   "delete",
+		Use:   "delete <key>",
 		Short: "Delete cache by key",
-		Run: func(cmd *cobra.Command, args []string) {
+		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) != 1 {
-				fmt.Printf("accepts 1 arg(s), received %d\n", len(args))
-				return
+				return fmt.Errorf(fmt.Sprintf("accepts 1 arg(s), received %d", len(args)))
 			}
 			key := args[0]
 
 			repo, err := internal.GetRepo(f.Repo)
 			if err != nil {
-				fmt.Println(err)
-				return
+				return err
 			}
+
 			artifactCache := service.NewArtifactCache(repo, COMMAND, VERSION)
 			queryParams := internal.GenerateQueryParams(f.Branch, 100, key, "", "", 1)
 
 			if !f.Confirm {
-				var matchedCaches = getCacheListWithExactMatch(queryParams, key, artifactCache)
+				matchedCaches, err := getCacheListWithExactMatch(queryParams, key, artifactCache)
+				if err != nil {
+					return err
+				}
 				matchedCachesLen := len(matchedCaches)
 				if matchedCachesLen == 0 {
-					fmt.Printf("Cache with input key '%s' does not exist\n", key)
-					return
+					return fmt.Errorf(fmt.Sprintf("Cache with input key '%s' does not exist", key))
 				}
 				fmt.Printf("You're going to delete %s", internal.PrintSingularOrPlural(matchedCachesLen, "cache entry\n\n", "cache entries\n\n"))
 				internal.PrettyPrintTrimmedCacheList(matchedCaches)
@@ -48,22 +49,26 @@ func NewCmdDelete() *cobra.Command {
 					Message: "Are you sure you want to delete the cache entries?",
 					Options: []string{"Delete", "Cancel"},
 				}
-				err := survey.AskOne(prompt, &choice)
+				err = survey.AskOne(prompt, &choice)
 				if err != nil {
-					fmt.Println("Error occured while taking input from user while trying to delete cache")
-					return
+					return fmt.Errorf(fmt.Sprintf("Error occured while taking input from user while trying to delete cache"))
 				}
 				f.Confirm = choice == "Delete"
 				fmt.Println()
 			}
 			if f.Confirm {
-				cachesDeleted := artifactCache.DeleteCaches(queryParams)
+				cachesDeleted, err := artifactCache.DeleteCaches(queryParams)
+				if err != nil {
+					return err
+				}
+
 				if cachesDeleted > 0 {
 					fmt.Printf("%s Deleted %s with key '%s'\n", internal.RedTick(), internal.PrintSingularOrPlural(cachesDeleted, "cache entry", "cache entries"), key)
 				} else {
 					fmt.Printf("Cache with input key '%s' does not exist\n", key)
 				}
 			}
+			return nil
 		},
 	}
 	deleteCmd.Flags().StringVarP(&f.Repo, "repo", "R", "", "Select another repository for finding actions cache.")
@@ -97,13 +102,16 @@ EXAMPLES:
 `
 }
 
-func getCacheListWithExactMatch(queryParams url.Values, key string, artifactCache service.ArtifactCacheService) []types.ActionsCache {
-	caches := artifactCache.ListAllCaches(queryParams, key)
+func getCacheListWithExactMatch(queryParams url.Values, key string, artifactCache service.ArtifactCacheService) ([]types.ActionsCache, error) {
+	caches, err := artifactCache.ListAllCaches(queryParams, key)
+	if err != nil {
+		return nil, err
+	}
 	var exactMatchedKeys []types.ActionsCache
 	for _, cache := range caches {
 		if strings.EqualFold(key, cache.Key) {
 			exactMatchedKeys = append(exactMatchedKeys, cache)
 		}
 	}
-	return exactMatchedKeys
+	return exactMatchedKeys, nil
 }

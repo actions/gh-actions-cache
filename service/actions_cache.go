@@ -1,7 +1,6 @@
 package service
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"math"
@@ -64,25 +63,28 @@ func (a *ArtifactCache) DeleteCaches(queryParams url.Values) (int, error) {
 	pathComponent := fmt.Sprintf("repos/%s/%s/actions/caches", a.repo.Owner(), a.repo.Name())
 	var apiResults types.DeleteApiResponse
 	err := a.HttpClient.Delete(pathComponent+"?"+queryParams.Encode(), &apiResults)
-
-  var httpError api.HTTPError
-  if errors.As(err, &httpError) && httpError.StatusCode == 404 {
-    return 0, nil
-  } else {
-    return -1, err
-  }
+ 	if err != nil {
+		return 0, err
+	}
 	return apiResults.TotalCount, nil
 }
 
 func (a *ArtifactCache) ListAllCaches(queryParams url.Values, key string) ([]types.ActionsCache, error) {
 	var listApiResponse types.ListApiResponse
-	listApiResponse = a.ListCaches(queryParams)
+	listApiResponse, err := a.ListCaches(queryParams)
+	if err != nil {
+		return nil, err
+	}
+
 	caches := listApiResponse.ActionsCaches
 	totalCaches := listApiResponse.TotalCount
 	if totalCaches > 100 {
 		for page := 2; page <= int(math.Ceil(float64(listApiResponse.TotalCount)/100)); page++ {
 			queryParams.Set("page", strconv.Itoa(page))
-			listApiResponse = a.ListCaches(queryParams)
+			listApiResponse, err := a.ListCaches(queryParams)
+			if err != nil {
+				return nil, err
+			}
 			caches = append(caches, listApiResponse.ActionsCaches...)
 		}
 	}
