@@ -41,7 +41,7 @@ func NewCmdDelete() *cobra.Command {
 					fmt.Printf("Cache with input key '%s' does not exist\n", key)
 					return
 				}
-				fmt.Printf("You're going to delete %s", internal.PrintOneOrMore(matchedCachesLen, "cache entry\n\n", "cache entries\n\n"))
+				fmt.Printf("You're going to delete %s", internal.PrintSingularOrPlural(matchedCachesLen, "cache entry\n\n", "cache entries\n\n"))
 				internal.PrettyPrintTrimmedCacheList(matchedCaches)
 				choice := ""
 				prompt := &survey.Select{
@@ -57,20 +57,12 @@ func NewCmdDelete() *cobra.Command {
 				fmt.Println()
 			}
 			if f.Confirm {
-				var sb strings.Builder
 				cachesDeleted := artifactCache.DeleteCaches(queryParams)
 				if cachesDeleted > 0 {
-					sb.WriteString(internal.RedTick())
-					sb.WriteString(" Deleted ")
-					sb.WriteString(internal.PrintOneOrMore(cachesDeleted, "cache entry", "cache entries"))
-					sb.WriteString(" with key ")
-					sb.WriteString(key)
+					fmt.Printf("%s Deleted %s with key %s", internal.RedTick(), internal.PrintSingularOrPlural(cachesDeleted, "cache entry", "cache entries"), key)
 				} else {
-					sb.WriteString("Cache with input key '")
-					sb.WriteString(key)
-					sb.WriteString("' does not exist")
+					fmt.Printf("Cache with input key '%s' does not exist", key)
 				}
-				fmt.Println(sb.String())
 			}
 		},
 	}

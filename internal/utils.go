@@ -132,7 +132,7 @@ func RedTick() string {
 	return redTick
 }
 
-func PrintOneOrMore(count int, singularStr string, pluralStr string) string {
+func PrintSingularOrPlural(count int, singularStr string, pluralStr string) string {
 	if count == 1 {
 		return fmt.Sprintf("%d %s", count, singularStr)
 	}
