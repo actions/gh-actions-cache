@@ -29,6 +29,7 @@ func init() {
 
 func addCommandsToRoot() {
 	rootCmd.AddCommand(NewCmdList())
+	rootCmd.AddCommand(NewCmdDelete())
 }
 
 func getRootHelp() string {

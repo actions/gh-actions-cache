@@ -5,22 +5,14 @@ import (
 
 	"github.com/actions/gh-actions-cache/internal"
 	"github.com/actions/gh-actions-cache/service"
+	"github.com/actions/gh-actions-cache/types"
 	"github.com/spf13/cobra"
 )
-
-type InputFlags struct {
-	repo   string
-	branch string
-	limit  int
-	key    string
-	order  string
-	sort   string
-}
 
 func NewCmdList() *cobra.Command {
 	COMMAND = "list"
 
-	f := InputFlags{}
+	f := types.InputFlags{}
 
 	var listCmd = &cobra.Command{
 		Use:   "list",
@@ -30,7 +22,7 @@ func NewCmdList() *cobra.Command {
 				return fmt.Errorf(fmt.Sprintf("Invalid argument(s). Expected 0 received %d", len(args)))
 			}
 
-			repo, err := internal.GetRepo(f.repo)
+			repo, err := internal.GetRepo(f.Repo)
 			if err != nil {
 				return err
 			}
@@ -60,20 +52,18 @@ func NewCmdList() *cobra.Command {
 			totalCaches := listCacheResponse.TotalCount
 			caches := listCacheResponse.ActionsCaches
 
-			fmt.Printf("Showing %d of %d cache entries in %s/%s\n\n", displayedEntriesCount(len(caches), f.limit), totalCaches, repo.Owner(), repo.Name())
-			for _, cache := range caches {
-				fmt.Printf("%s\t [%s]\t %s\t %s\n", cache.Key, internal.FormatCacheSize(cache.SizeInBytes), cache.Ref, cache.LastAccessedAt)
-			}
-			return nil
+			fmt.Printf("Showing %d of %d cache entries in %s/%s\n\n", displayedEntriesCount(len(caches), f.Limit), totalCaches, repo.Owner(), repo.Name())
+			internal.PrettyPrintCacheList(caches)
+      return nil
 		},
 	}
 
-	listCmd.Flags().StringVarP(&f.repo, "repo", "R", "", "Select another repository for finding actions cache.")
-	listCmd.Flags().StringVarP(&f.branch, "branch", "B", "", "Filter by branch")
-	listCmd.Flags().IntVarP(&f.limit, "limit", "", 30, "Maximum number of items to fetch (default is 30, max limit is 100)")
-	listCmd.Flags().StringVarP(&f.key, "key", "", "", "Filter by key")
-	listCmd.Flags().StringVarP(&f.order, "order", "", "", "Order of caches returned (asc/desc)")
-	listCmd.Flags().StringVarP(&f.sort, "sort", "", "", "Sort fetched caches (last-used/size/created-at)")
+	listCmd.Flags().StringVarP(&f.Repo, "repo", "R", "", "Select another repository for finding actions cache.")
+	listCmd.Flags().StringVarP(&f.Branch, "branch", "B", "", "Filter by branch")
+	listCmd.Flags().IntVarP(&f.Limit, "limit", "", 30, "Maximum number of items to fetch (default is 30, max limit is 100)")
+	listCmd.Flags().StringVarP(&f.Key, "key", "", "", "Filter by key")
+	listCmd.Flags().StringVarP(&f.Order, "order", "", "", "Order of caches returned (asc/desc)")
+	listCmd.Flags().StringVarP(&f.Sort, "sort", "", "", "Sort fetched caches (last-used/size/created-at)")
 	listCmd.SetHelpTemplate(getListHelp())
 
 	return listCmd
@@ -86,7 +76,7 @@ func displayedEntriesCount(totalCaches int, limit int) int {
 	return limit
 }
 
-func validateInputs(input InputFlags) error {
+func validateInputs(input types.InputFlags) error {
 	if input.order != "" && input.order != "asc" && input.order != "desc" {
 		return fmt.Errorf(fmt.Sprintf("%s is not a valid value for order flag. Allowed values: asc/desc", input.order))
 	}
