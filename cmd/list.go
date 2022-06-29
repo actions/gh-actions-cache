@@ -14,7 +14,7 @@ func NewCmdList() *cobra.Command {
 
 	f := types.InputFlags{}
 
-	var listCmd = &cobra.Command{
+	var listCmd = &cobra.Command {
 		Use:   "list",
 		Short: "Lists the actions cache",
 		RunE: func(cmd *cobra.Command, args []string) error {
