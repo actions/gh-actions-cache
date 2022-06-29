@@ -2,13 +2,19 @@ package internal
 
 import (
 	"fmt"
+	"math"
 	"net/url"
+	"os"
 	"strconv"
 	"strings"
+	"unicode/utf8"
 
+	"github.com/TwiN/go-color"
+	"github.com/actions/gh-actions-cache/types"
 	gh "github.com/cli/go-gh"
 	ghRepo "github.com/cli/go-gh/pkg/repository"
-	"gopkg.in/h2non/gock.v1"
+	"github.com/moby/term"
+	"github.com/nleeper/goment"
 )
 
 const MB_IN_BYTES = 1024 * 1024
@@ -72,10 +78,63 @@ func FormatCacheSize(size_in_bytes float64) string {
 	return fmt.Sprintf("%.2f GB", size_in_bytes/GB_IN_BYTES)
 }
 
-func PrintPendingMocks(mocks []gock.Mock) string {
-	paths := []string{}
-	for _, mock := range mocks {
-		paths = append(paths, mock.Request().URLStruct.String())
+func PrettyPrintCacheList(caches []types.ActionsCache) {
+	fd := os.Stdin.Fd()
+	ws, _ := term.GetWinsize(fd)
+	width := math.Min(float64(ws.Width), 180)
+	keyWidth := int(math.Max(math.Floor(0.30 * width), 6))
+	sizeWidth := int(math.Max(math.Floor(0.12 * width), 3))
+	refWidth := int(math.Max(math.Floor(0.20 * width), 4))
+	timeWidth := int(math.Max(math.Floor(0.20 * width), 4))
+	for _, cache := range caches {
+		var formattedRow string = getFormattedCacheInfo(cache, keyWidth, sizeWidth, refWidth, timeWidth)
+		fmt.Println(formattedRow)
 	}
-	return fmt.Sprintf("%d unmatched mocks: %s", len(paths), strings.Join(paths, ", "))
+}
+func PrettyPrintTrimmedCacheList(caches []types.ActionsCache) {
+	length := len(caches)
+	limit := 30
+	if length > limit {
+		PrettyPrintCacheList(caches[:limit])
+		fmt.Printf("... and %d more\n\n", length-limit)
+	} else {
+		PrettyPrintCacheList(caches[:length])
+	}
+	fmt.Print("\n")
+}
+
+func lastAccessedTime(lastAccessedAt string) string {
+	lastAccessed, _ := goment.New(lastAccessedAt)
+	return fmt.Sprintf("Used %s", lastAccessed.FromNow())
+}
+
+func trimOrPad(value string, maxSize int) string {
+	if len(value) > maxSize {
+		value = value[:maxSize-3] + "..."
+	} else {
+		value = value + strings.Repeat(" ", maxSize-len(value))
+	}
+	return value
+}
+
+func getFormattedCacheInfo(cache types.ActionsCache, keyWidth int, sizeWidth int, refWidth int, timeWidth int) string {
+	key := trimOrPad(cache.Key, keyWidth)
+	size := trimOrPad(fmt.Sprintf("[%s]", FormatCacheSize(cache.SizeInBytes)), sizeWidth)
+	ref := trimOrPad(cache.Ref, refWidth)
+	time := trimOrPad(lastAccessedTime(cache.LastAccessedAt), timeWidth)
+	return fmt.Sprintf(" %s    %s    %s    %s", key, size, ref, time)
+}
+
+func RedTick() string {
+	src := "\u2713"
+	tick, _ := utf8.DecodeRuneInString(src)
+	redTick := color.Colorize(color.Red, string(tick))
+	return redTick
+}
+
+func PrintSingularOrPlural(count int, singularStr string, pluralStr string) string {
+	if count == 1 {
+		return fmt.Sprintf("%d %s", count, singularStr)
+	}
+	return fmt.Sprintf("%d %s", count, pluralStr)
 }

@@ -3,7 +3,9 @@ package service
 import (
 	"fmt"
 	"log"
+	"math"
 	"net/url"
+	"strconv"
 
 	"github.com/actions/gh-actions-cache/types"
 	gh "github.com/cli/go-gh"
@@ -15,6 +17,7 @@ type ArtifactCacheService interface {
 	GetCacheUsage() (float64, error)
 	ListCaches(queryParams url.Values) (types.ListApiResponse, error)
 	DeleteCaches(queryParams url.Values) (int, error)
+	ListAllCaches(queryParams url.Values, key string) ([]types.ActionsCache, error)
 }
 
 type ArtifactCache struct {
@@ -60,9 +63,30 @@ func (a *ArtifactCache) DeleteCaches(queryParams url.Values) (int, error) {
 	pathComponent := fmt.Sprintf("repos/%s/%s/actions/caches", a.repo.Owner(), a.repo.Name())
 	var apiResults types.DeleteApiResponse
 	err := a.HttpClient.Delete(pathComponent+"?"+queryParams.Encode(), &apiResults)
+ 	if err != nil {
+		return 0, err
+	}
+	return apiResults.TotalCount, nil
+}
+
+func (a *ArtifactCache) ListAllCaches(queryParams url.Values, key string) ([]types.ActionsCache, error) {
+	var listApiResponse types.ListApiResponse
+	listApiResponse, err := a.ListCaches(queryParams)
 	if err != nil {
-		return -1, err
+		return nil, err
 	}
 
-	return apiResults.TotalCount, nil
+	caches := listApiResponse.ActionsCaches
+	totalCaches := listApiResponse.TotalCount
+	if totalCaches > 100 {
+		for page := 2; page <= int(math.Ceil(float64(listApiResponse.TotalCount)/100)); page++ {
+			queryParams.Set("page", strconv.Itoa(page))
+			listApiResponse, err := a.ListCaches(queryParams)
+			if err != nil {
+				return nil, err
+			}
+			caches = append(caches, listApiResponse.ActionsCaches...)
+		}
+	}
+	return caches, nil
 }

@@ -18,7 +18,7 @@ func TestGetCacheUsage_CorrectRepo(t *testing.T) {
 		Get("/repos/testOrg/testRepo/actions/cache/usage").
 		Reply(200).
 		JSON(`{
-			"full_name": "t-dedah/vipul-bugbash",
+			"full_name": "testOrg/testRepo",
 			"active_caches_size_in_bytes": 291205,
 			"active_caches_count": 12
 		}`)
@@ -165,6 +165,6 @@ func TestDeleteCaches_Failure(t *testing.T) {
 	deletedCache, err := artifactCache.DeleteCaches(queryParams)
 
 	assert.NotNil(t, err)
-	assert.Equal(t, deletedCache, -1)
+	assert.Equal(t, deletedCache, 0)
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }

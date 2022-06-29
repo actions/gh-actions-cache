@@ -5,24 +5,16 @@ import (
 
 	"github.com/actions/gh-actions-cache/internal"
 	"github.com/actions/gh-actions-cache/service"
+	"github.com/actions/gh-actions-cache/types"
 	"github.com/spf13/cobra"
 )
-
-type InputFlags struct {
-	repo   string
-	branch string
-	limit  int
-	key    string
-	order  string
-	sort   string
-}
 
 func NewCmdList() *cobra.Command {
 	COMMAND = "list"
 
-	f := InputFlags{}
+	f := types.InputFlags{}
 
-	var listCmd = &cobra.Command{
+	var listCmd = &cobra.Command {
 		Use:   "list",
 		Short: "Lists the actions cache",
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -30,7 +22,7 @@ func NewCmdList() *cobra.Command {
 				return fmt.Errorf(fmt.Sprintf("Invalid argument(s). Expected 0 received %d", len(args)))
 			}
 
-			repo, err := internal.GetRepo(f.repo)
+			repo, err := internal.GetRepo(f.Repo)
 			if err != nil {
 				return err
 			}
@@ -43,15 +35,14 @@ func NewCmdList() *cobra.Command {
 
 			artifactCache := service.NewArtifactCache(repo, COMMAND, VERSION)
 
-			if f.branch == "" && f.key == "" {
+			if f.Branch == "" && f.Key == "" {
 				totalCacheSize, err := artifactCache.GetCacheUsage()
-				if err != nil {
-					return err
+				if err == nil {
+					fmt.Printf("Total caches size %s\n\n", internal.FormatCacheSize(totalCacheSize))
 				}
-				fmt.Printf("Total caches size %s\n\n", internal.FormatCacheSize(totalCacheSize))
 			}
 
-			queryParams := internal.GenerateQueryParams(f.branch, f.limit, f.key, f.order, f.sort, 1)
+			queryParams := internal.GenerateQueryParams(f.Branch, f.Limit, f.Key, f.Order, f.Sort, 1)
 			listCacheResponse, err := artifactCache.ListCaches(queryParams)
 			if err != nil {
 				return err
@@ -60,20 +51,18 @@ func NewCmdList() *cobra.Command {
 			totalCaches := listCacheResponse.TotalCount
 			caches := listCacheResponse.ActionsCaches
 
-			fmt.Printf("Showing %d of %d cache entries in %s/%s\n\n", displayedEntriesCount(len(caches), f.limit), totalCaches, repo.Owner(), repo.Name())
-			for _, cache := range caches {
-				fmt.Printf("%s\t [%s]\t %s\t %s\n", cache.Key, internal.FormatCacheSize(cache.SizeInBytes), cache.Ref, cache.LastAccessedAt)
-			}
-			return nil
+			fmt.Printf("Showing %d of %d cache entries in %s/%s\n\n", displayedEntriesCount(len(caches), f.Limit), totalCaches, repo.Owner(), repo.Name())
+			internal.PrettyPrintCacheList(caches)
+      		return nil
 		},
 	}
 
-	listCmd.Flags().StringVarP(&f.repo, "repo", "R", "", "Select another repository for finding actions cache.")
-	listCmd.Flags().StringVarP(&f.branch, "branch", "B", "", "Filter by branch")
-	listCmd.Flags().IntVarP(&f.limit, "limit", "", 30, "Maximum number of items to fetch (default is 30, max limit is 100)")
-	listCmd.Flags().StringVarP(&f.key, "key", "", "", "Filter by key")
-	listCmd.Flags().StringVarP(&f.order, "order", "", "", "Order of caches returned (asc/desc)")
-	listCmd.Flags().StringVarP(&f.sort, "sort", "", "", "Sort fetched caches (last-used/size/created-at)")
+	listCmd.Flags().StringVarP(&f.Repo, "repo", "R", "", "Select another repository for finding actions cache.")
+	listCmd.Flags().StringVarP(&f.Branch, "branch", "B", "", "Filter by branch")
+	listCmd.Flags().IntVarP(&f.Limit, "limit", "", 30, "Maximum number of items to fetch (default is 30, max limit is 100)")
+	listCmd.Flags().StringVarP(&f.Key, "key", "", "", "Filter by key")
+	listCmd.Flags().StringVarP(&f.Order, "order", "", "", "Order of caches returned (asc/desc)")
+	listCmd.Flags().StringVarP(&f.Sort, "sort", "", "", "Sort fetched caches (last-used/size/created-at)")
 	listCmd.SetHelpTemplate(getListHelp())
 
 	return listCmd
@@ -86,17 +75,17 @@ func displayedEntriesCount(totalCaches int, limit int) int {
 	return limit
 }
 
-func validateInputs(input InputFlags) error {
-	if input.order != "" && input.order != "asc" && input.order != "desc" {
-		return fmt.Errorf(fmt.Sprintf("%s is not a valid value for order flag. Allowed values: asc/desc", input.order))
+func validateInputs(input types.InputFlags) error {
+	if input.Order != "" && input.Order != "asc" && input.Order != "desc" {
+		return fmt.Errorf(fmt.Sprintf("%s is not a valid value for order flag. Allowed values: asc/desc", input.Order))
 	}
 
-	if input.sort != "" && input.sort != "last-used" && input.sort != "size" && input.sort != "created-at" {
-		return fmt.Errorf(fmt.Sprintf("%s is not a valid value for sort flag. Allowed values: last-used/size/created-at", input.sort))
+	if input.Sort != "" && input.Sort != "last-used" && input.Sort != "size" && input.Sort != "created-at" {
+		return fmt.Errorf(fmt.Sprintf("%s is not a valid value for sort flag. Allowed values: last-used/size/created-at", input.Sort))
 	}
 
-	if input.limit < 1 || input.limit > 100 {
-		return fmt.Errorf(fmt.Sprintf("%d is not a valid value for limit flag. Allowed values: 1-100", input.limit))
+	if input.Limit < 1 || input.Limit > 100 {
+		return fmt.Errorf(fmt.Sprintf("%d is not a valid value for limit flag. Allowed values: 1-100", input.Limit))
 	}
 	return nil
 }
