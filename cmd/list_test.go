@@ -37,7 +37,7 @@ func TestListWithNegativeLimit(t *testing.T) {
 	t.Cleanup(gock.Off)
 
 	cmd := NewCmdList()
-	cmd.SetArgs([]string{"--limit", "-1"})
+	cmd.SetArgs([]string{"--limit", "-1","--repo", "testOrg/testRepo"})
 	err := cmd.Execute()
 
 	assert.NotNil(t, err)
@@ -49,7 +49,7 @@ func TestListWithIncorrectLimit(t *testing.T) {
 	t.Cleanup(gock.Off)
 
 	cmd := NewCmdList()
-	cmd.SetArgs([]string{"--limit", "101"})
+	cmd.SetArgs([]string{"--limit", "101", "--repo", "testOrg/testRepo"})
 	err := cmd.Execute()
 
 	assert.NotNil(t, err)
@@ -61,7 +61,7 @@ func TestListWithIncorrectOrder(t *testing.T) {
 	t.Cleanup(gock.Off)
 
 	cmd := NewCmdList()
-	cmd.SetArgs([]string{"--order", "incorrectOrderValue"})
+	cmd.SetArgs([]string{"--order", "incorrectOrderValue", "--repo", "testOrg/testRepo"})
 	err := cmd.Execute()
 
 	assert.NotNil(t, err)
@@ -73,7 +73,7 @@ func TestListWithIncorrectSort(t *testing.T) {
 	t.Cleanup(gock.Off)
 
 	cmd := NewCmdList()
-	cmd.SetArgs([]string{"--sort", "incorrectSortValue"})
+	cmd.SetArgs([]string{"--sort", "incorrectSortValue", "--repo", "testOrg/testRepo"})
 	err := cmd.Execute()
 
 	assert.NotNil(t, err)
