@@ -37,10 +37,9 @@ func NewCmdList() *cobra.Command {
 
 			if f.Branch == "" && f.Key == "" {
 				totalCacheSize, err := artifactCache.GetCacheUsage()
-				if err != nil {
-					return err
+				if err == nil {
+					fmt.Printf("Total caches size %s\n\n", internal.FormatCacheSize(totalCacheSize))
 				}
-				fmt.Printf("Total caches size %s\n\n", internal.FormatCacheSize(totalCacheSize))
 			}
 
 			queryParams := internal.GenerateQueryParams(f.Branch, f.Limit, f.Key, f.Order, f.Sort, 1)
