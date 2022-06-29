@@ -126,38 +126,38 @@ func TestListWithIncorrectRepoForListCaches(t *testing.T) {
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
-// func TestListSuccess(t *testing.T) {
-// 	t.Cleanup(gock.Off)
-// 	gock.New("https://api.github.com").
-// 		Get("/repos/testOrg/testRepo/actions/cache/usage").
-// 		Reply(200).
-// 		JSON(`{
-// 			"full_name": "t-dedah/vipul-bugbash",
-// 			"active_caches_size_in_bytes": 2432967,
-// 			"active_caches_count": 1
-// 		}`)
+func TestListSuccess(t *testing.T) {
+	t.Cleanup(gock.Off)
+	gock.New("https://api.github.com").
+		Get("/repos/testOrg/testRepo/actions/cache/usage").
+		Reply(200).
+		JSON(`{
+			"full_name": "t-dedah/vipul-bugbash",
+			"active_caches_size_in_bytes": 2432967,
+			"active_caches_count": 1
+		}`)
 
-// 	gock.New("https://api.github.com").
-// 		Get("/repos/testOrg/testRepo/actions/caches").
-// 		Reply(200).
-// 		JSON(`{
-// 			"total_count": 1,
-// 			"actions_caches": [
-// 				{
-// 					"id": 29,
-// 					"ref": "refs/heads/master",
-// 					"key": "Linux-build-cache-node-modules-3fd22dd3a926d576e2562e8b76a5ff157cd3b986f3d44195acfe7efa6bc05919-8",
-// 					"version": "7fcda33c1e1d849a13bcc06f49b9ab64efc01ca9dabe4d7a8d0d387feef4fc88",
-// 					"last_accessed_at": "2022-06-22T20:32:45.550000000Z",
-// 					"created_at": "2022-06-22T20:32:45.550000000Z",
-// 					"size_in_bytes": 2432967
-// 				}]
-// 			}`)
+	gock.New("https://api.github.com").
+		Get("/repos/testOrg/testRepo/actions/caches").
+		Reply(200).
+		JSON(`{
+			"total_count": 1,
+			"actions_caches": [
+				{
+					"id": 29,
+					"ref": "refs/heads/master",
+					"key": "Linux-build-cache-node-modules-3fd22dd3a926d576e2562e8b76a5ff157cd3b986f3d44195acfe7efa6bc05919-8",
+					"version": "7fcda33c1e1d849a13bcc06f49b9ab64efc01ca9dabe4d7a8d0d387feef4fc88",
+					"last_accessed_at": "2022-06-22T20:32:45.550000000Z",
+					"created_at": "2022-06-22T20:32:45.550000000Z",
+					"size_in_bytes": 2432967
+				}]
+			}`)
 
-// 	cmd := NewCmdList()
-// 	cmd.SetArgs([]string{"--repo", "testOrg/testRepo"})
-// 	err := cmd.Execute()
+	cmd := NewCmdList()
+	cmd.SetArgs([]string{"--repo", "testOrg/testRepo"})
+	err := cmd.Execute()
 
-// 	assert.Nil(t, err)
-// 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
-// }
+	assert.Nil(t, err)
+	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
+}

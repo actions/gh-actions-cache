@@ -14,7 +14,7 @@ func NewCmdList() *cobra.Command {
 
 	f := types.InputFlags{}
 
-	var listCmd = &cobra.Command{
+	var listCmd = &cobra.Command {
 		Use:   "list",
 		Short: "Lists the actions cache",
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -37,10 +37,9 @@ func NewCmdList() *cobra.Command {
 
 			if f.Branch == "" && f.Key == "" {
 				totalCacheSize, err := artifactCache.GetCacheUsage()
-				if err != nil {
-					return err
+				if err == nil {
+					fmt.Printf("Total caches size %s\n\n", internal.FormatCacheSize(totalCacheSize))
 				}
-				fmt.Printf("Total caches size %s\n\n", internal.FormatCacheSize(totalCacheSize))
 			}
 
 			queryParams := internal.GenerateQueryParams(f.Branch, f.Limit, f.Key, f.Order, f.Sort, 1)
