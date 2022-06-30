@@ -1,6 +1,7 @@
 package service
 
 import (
+	"net/url"
 	"testing"
 
 	"github.com/actions/gh-actions-cache/internal"
@@ -78,9 +79,12 @@ func TestListCaches_Success(t *testing.T) {
 
 	repo, err := internal.GetRepo("testOrg/testRepo")
 	assert.Nil(t, err)
+	
+	f := types.ListOptions{BaseOptions: types.BaseOptions{Repo: "testOrg/testRepo"}, Limit: 30}
+	queryParams := url.Values{}
+	f.GenerateQueryParams(queryParams)
 
 	artifactCache := NewArtifactCache(repo, "list", VERSION)
-	queryParams := internal.GenerateQueryParams("", 30, "", "", "", 1)
 	listCacheResponse, err := artifactCache.ListCaches(queryParams)
 
 	assert.Nil(t, err)
@@ -105,8 +109,11 @@ func TestListCaches_Failure(t *testing.T) {
 	repo, err := internal.GetRepo("testOrg/testRepo")
 	assert.Nil(t, err)
 
+	f := types.ListOptions{BaseOptions: types.BaseOptions{Repo: "testOrg/testRepo"}, Limit: 30}
+	queryParams := url.Values{}
+	f.GenerateQueryParams(queryParams)
+
 	artifactCache := NewArtifactCache(repo, "list", VERSION)
-	queryParams := internal.GenerateQueryParams("", 30, "", "", "", 1)
 	listCacheResponse, err := artifactCache.ListCaches(queryParams)
 
 	assert.NotNil(t, err)
@@ -137,8 +144,11 @@ func TestDeleteCaches_Success(t *testing.T) {
 	repo, err := internal.GetRepo("testOrg/testRepo")
 	assert.Nil(t, err)
 
+	f := types.DeleteOptions{BaseOptions: types.BaseOptions{Repo: "testOrg/testRepo"}}
+	queryParams := url.Values{}
+	f.GenerateBaseQueryParams(queryParams)
+
 	artifactCache := NewArtifactCache(repo, "delete", VERSION)
-	queryParams := internal.GenerateQueryParams("", 30, "", "", "", 1)
 	deletedCache, err := artifactCache.DeleteCaches(queryParams)
 
 	assert.Nil(t, err)
@@ -160,8 +170,11 @@ func TestDeleteCaches_Failure(t *testing.T) {
 	repo, err := internal.GetRepo("testOrg/testRepo")
 	assert.Nil(t, err)
 
+	f := types.DeleteOptions{BaseOptions: types.BaseOptions{Repo: "testOrg/testRepo"}}
+	queryParams := url.Values{}
+	f.GenerateBaseQueryParams(queryParams)
+
 	artifactCache := NewArtifactCache(repo, "delete", VERSION)
-	queryParams := internal.GenerateQueryParams("", 30, "", "", "", 1)
 	deletedCache, err := artifactCache.DeleteCaches(queryParams)
 
 	assert.NotNil(t, err)

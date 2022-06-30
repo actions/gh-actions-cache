@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"log"
 	"net/url"
 
 	"github.com/actions/gh-actions-cache/internal"
