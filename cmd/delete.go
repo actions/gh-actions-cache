@@ -31,13 +31,19 @@ func NewCmdDelete() *cobra.Command {
 				return err
 			}
 
-			artifactCache := service.NewArtifactCache(repo, COMMAND, VERSION)
+			artifactCache, err := service.NewArtifactCache(repo, COMMAND, VERSION)
+			if err != nil {
+				fmt.Printf("error connecting to %s\n", repo.Host())
+				fmt.Println("check your internet connection or https://githubstatus.com")
+				return nil
+			}
+
 			queryParams := url.Values{}
 			f.GenerateBaseQueryParams(queryParams)
 
 			if !f.Confirm {
 				matchedCaches, err := getCacheListWithExactMatch(f, artifactCache)
-        if err != nil {
+				if err != nil {
 					return err
 				}
 				matchedCachesLen := len(matchedCaches)
@@ -110,7 +116,7 @@ func getCacheListWithExactMatch(f types.DeleteOptions, artifactCache service.Art
 
 	listOption.GenerateBaseQueryParams(queryParams)
 	caches, err := artifactCache.ListAllCaches(queryParams, f.Key)
-  if err != nil {
+	if err != nil {
 		return nil, err
 	}
 	var exactMatchedKeys []types.ActionsCache

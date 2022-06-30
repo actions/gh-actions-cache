@@ -90,7 +90,7 @@ func getFormattedCacheInfo(cache types.ActionsCache, keyWidth int, sizeWidth int
 	size := trimOrPad(fmt.Sprintf("[%s]", FormatCacheSize(cache.SizeInBytes)), sizeWidth)
 	ref := trimOrPad(cache.Ref, refWidth)
 	time := trimOrPad(lastAccessedTime(cache.LastAccessedAt), timeWidth)
-	return fmt.Sprintf(" %s    %s    %s    %s", key, size, ref, time)
+	return fmt.Sprintf("%s    %s    %s    %s", key, size, ref, time)
 }
 
 func RedTick() string {

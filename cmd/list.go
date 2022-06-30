@@ -1,12 +1,14 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"net/url"
 
 	"github.com/actions/gh-actions-cache/internal"
 	"github.com/actions/gh-actions-cache/service"
 	"github.com/actions/gh-actions-cache/types"
+	"github.com/cli/go-gh/pkg/api"
 	"github.com/spf13/cobra"
 )
 
@@ -33,7 +35,12 @@ func NewCmdList() *cobra.Command {
 				return err
 			}
 
-			artifactCache := service.NewArtifactCache(repo, COMMAND, VERSION)
+			artifactCache, err := service.NewArtifactCache(repo, COMMAND, VERSION)
+			if err != nil {
+				fmt.Printf("error connecting to %s\n", repo.Host())
+				fmt.Println("check your internet connection or https://githubstatus.com")
+				return nil
+			}
 
 			if f.Branch == "" && f.Key == "" {
 				totalCacheSize, err := artifactCache.GetCacheUsage()
@@ -46,7 +53,14 @@ func NewCmdList() *cobra.Command {
 			f.GenerateQueryParams(queryParams)
 			listCacheResponse, err := artifactCache.ListCaches(queryParams)
 			if err != nil {
-				return err
+				var httpError api.HTTPError
+				if errors.As(err, &httpError) && httpError.StatusCode == 404 {
+					fmt.Println("The given repo does not exist.")
+					return nil
+				} else {
+					fmt.Println("We could not process your request due to internal error.")
+					return nil
+				}
 			}
 
 			totalCaches := listCacheResponse.TotalCount

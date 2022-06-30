@@ -37,7 +37,7 @@ func TestListWithNegativeLimit(t *testing.T) {
 	t.Cleanup(gock.Off)
 
 	cmd := NewCmdList()
-	cmd.SetArgs([]string{"--limit", "-1","--repo", "testOrg/testRepo"})
+	cmd.SetArgs([]string{"--limit", "-1", "--repo", "testOrg/testRepo"})
 	err := cmd.Execute()
 
 	assert.NotNil(t, err)
@@ -95,7 +95,7 @@ func TestListWithIncorrectRepoForGetCacheUsage(t *testing.T) {
 	cmd.SetArgs([]string{"--repo", "testOrg/wrongRepo"})
 	err := cmd.Execute()
 
-	assert.NotNil(t, err)
+	assert.Nil(t, err)
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
@@ -122,7 +122,7 @@ func TestListWithIncorrectRepoForListCaches(t *testing.T) {
 	cmd.SetArgs([]string{"--repo", "testOrg/testRepo"})
 	err := cmd.Execute()
 
-	assert.NotNil(t, err)
+	assert.Nil(t, err)
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
