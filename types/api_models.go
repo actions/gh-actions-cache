@@ -25,13 +25,3 @@ type ActionsCache struct {
 	CreatedAt      string  `json:"created_at"`
 	SizeInBytes    float64 `json:"size_in_bytes"`
 }
-
-type InputFlags struct {
-	Repo    string
-	Branch  string
-	Limit   int
-	Key     string
-	Order   string
-	Sort    string
-	Confirm bool
-}

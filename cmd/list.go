@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"log"
+	"net/url"
 
 	"github.com/actions/gh-actions-cache/internal"
 	"github.com/actions/gh-actions-cache/service"
@@ -13,7 +14,7 @@ import (
 func NewCmdList() *cobra.Command {
 	COMMAND = "list"
 
-	f := types.InputFlags{}
+	f := types.ListOptions{}
 
 	var listCmd = &cobra.Command{
 		Use:   "list",
@@ -30,7 +31,10 @@ func NewCmdList() *cobra.Command {
 				log.Fatal(err)
 			}
 
-			validateInputs(f)
+			err = f.Validate()
+			if err != nil {
+				log.Fatal(err)
+			}
 
 			artifactCache := service.NewArtifactCache(repo, COMMAND, VERSION)
 
@@ -39,7 +43,8 @@ func NewCmdList() *cobra.Command {
 				fmt.Printf("Total caches size %s\n\n", internal.FormatCacheSize(totalCacheSize))
 			}
 
-			queryParams := internal.GenerateQueryParams(f.Branch, f.Limit, f.Key, f.Order, f.Sort, 1)
+			queryParams := url.Values{}
+			f.GenerateQueryParams(queryParams)
 			listCacheResponse := artifactCache.ListCaches(queryParams)
 
 			totalCaches := listCacheResponse.TotalCount
@@ -66,20 +71,6 @@ func displayedEntriesCount(totalCaches int, limit int) int {
 		return totalCaches
 	}
 	return limit
-}
-
-func validateInputs(input types.InputFlags) {
-	if input.Order != "" && input.Order != "asc" && input.Order != "desc" {
-		log.Fatal(fmt.Errorf(fmt.Sprintf("%s is not a valid value for order flag. Allowed values: asc/desc", input.Order)))
-	}
-
-	if input.Sort != "" && input.Sort != "last-used" && input.Sort != "size" && input.Sort != "created-at" {
-		log.Fatal(fmt.Errorf(fmt.Sprintf("%s is not a valid value for sort flag. Allowed values: last-used/size/created-at", input.Sort)))
-	}
-
-	if input.Limit < 1 || input.Limit > 100 {
-		log.Fatal(fmt.Errorf(fmt.Sprintf("%d is not a valid value for limit flag. Allowed values: 1-100", input.Limit)))
-	}
 }
 
 func getListHelp() string {
