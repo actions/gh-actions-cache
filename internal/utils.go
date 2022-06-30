@@ -3,9 +3,7 @@ package internal
 import (
 	"fmt"
 	"math"
-	"net/url"
 	"os"
-	"strconv"
 	"strings"
 	"unicode/utf8"
 
@@ -19,40 +17,8 @@ import (
 
 const MB_IN_BYTES = 1024 * 1024
 const GB_IN_BYTES = 1024 * 1024 * 1024
-
-var SORT_INPUT_TO_QUERY_MAP = map[string]string{
-	"created-at": "created_at",
-	"last-used":  "last_accessed_at",
-	"size":       "size_in_bytes",
-}
-
-func GenerateQueryParams(branch string, limit int, key string, order string, sort string, page int) url.Values {
-	query := url.Values{}
-	if branch != "" {
-		if strings.HasPrefix(branch, "refs/") {
-			query.Add("ref", branch)
-		} else {
-			query.Add("ref", fmt.Sprintf("refs/heads/%s", branch))
-		}
-	}
-	if limit != 30 {
-		query.Add("per_page", strconv.Itoa(limit))
-	}
-	if key != "" {
-		query.Add("key", key)
-	}
-	if order != "" {
-		query.Add("direction", order)
-	}
-	if sort != "" {
-		query.Add("sort", SORT_INPUT_TO_QUERY_MAP[sort])
-	}
-	if page > 1 {
-		query.Add("page", strconv.Itoa(page))
-	}
-
-	return query
-}
+const SIZE_COLUMN_WIDTH = 15
+const LAST_ACCESSED_AT_COLUMN_WIDTH = 20
 
 func GetRepo(r string) (ghRepo.Repository, error) {
 	if r != "" {
@@ -79,13 +45,15 @@ func FormatCacheSize(size_in_bytes float64) string {
 }
 
 func PrettyPrintCacheList(caches []types.ActionsCache) {
-	fd := os.Stdin.Fd()
+	fd := os.Stdout.Fd()
 	ws, _ := term.GetWinsize(fd)
 	width := math.Min(float64(ws.Width), 180)
-	keyWidth := int(math.Max(math.Floor(0.30 * width), 6))
-	sizeWidth := int(math.Max(math.Floor(0.12 * width), 3))
-	refWidth := int(math.Max(math.Floor(0.20 * width), 4))
-	timeWidth := int(math.Max(math.Floor(0.20 * width), 4))
+
+	sizeWidth := SIZE_COLUMN_WIDTH             // hard-coded size as the content is scoped
+	timeWidth := LAST_ACCESSED_AT_COLUMN_WIDTH // hard-coded size as the content is scoped
+	keyWidth := int(math.Floor(0.75 * (width - 15 - 20)))
+	refWidth := int(math.Floor(0.25 * (width - 15 - 20)))
+
 	for _, cache := range caches {
 		var formattedRow string = getFormattedCacheInfo(cache, keyWidth, sizeWidth, refWidth, timeWidth)
 		fmt.Println(formattedRow)
@@ -105,7 +73,7 @@ func PrettyPrintTrimmedCacheList(caches []types.ActionsCache) {
 
 func lastAccessedTime(lastAccessedAt string) string {
 	lastAccessed, _ := goment.New(lastAccessedAt)
-	return fmt.Sprintf("Used %s", lastAccessed.FromNow())
+	return fmt.Sprintf(" %s", lastAccessed.FromNow())
 }
 
 func trimOrPad(value string, maxSize int) string {
