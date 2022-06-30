@@ -10,7 +10,6 @@
             "request": "launch",
             "mode": "auto",
             "program": "main.go",
-            //"args": ["usage", "--repo", "bishal-pdMSFT/bishal-cache-test-nodejs"]
             "args": ["list", "-R", "cats-cache-testing-avacado-corp/bishal-cache-test-nodejs-1"]
         }
     ]

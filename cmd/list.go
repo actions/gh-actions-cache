@@ -70,20 +70,6 @@ func displayedEntriesCount(totalCaches int, limit int) int {
 	return limit
 }
 
-// func validateInputs(input types.InputFlags) {
-// 	if input.Order != "" && input.Order != "asc" && input.Order != "desc" {
-// 		log.Fatal(fmt.Errorf(fmt.Sprintf("%s is not a valid value for order flag. Allowed values: asc/desc", input.Order)))
-// 	}
-
-// 	if input.Sort != "" && input.Sort != "last-used" && input.Sort != "size" && input.Sort != "created-at" {
-// 		log.Fatal(fmt.Errorf(fmt.Sprintf("%s is not a valid value for sort flag. Allowed values: last-used/size/created-at", input.Sort)))
-// 	}
-
-// 	if input.Limit < 1 || input.Limit > 100 {
-// 		log.Fatal(fmt.Errorf(fmt.Sprintf("%d is not a valid value for limit flag. Allowed values: 1-100", input.Limit)))
-// 	}
-// }
-
 func getListHelp() string {
 	return `
 gh-actions-cache: Works with GitHub Actions Cache. 

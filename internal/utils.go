@@ -17,34 +17,8 @@ import (
 
 const MB_IN_BYTES = 1024 * 1024
 const GB_IN_BYTES = 1024 * 1024 * 1024
-
-// func GenerateQueryParams(branch string, limit int, key string, order string, sort string, page int) url.Values {
-// 	query := url.Values{}
-// 	if branch != "" {
-// 		if strings.HasPrefix(branch, "refs/") {
-// 			query.Add("ref", branch)
-// 		} else {
-// 			query.Add("ref", fmt.Sprintf("refs/heads/%s", branch))
-// 		}
-// 	}
-// 	if limit != 30 {
-// 		query.Add("per_page", strconv.Itoa(limit))
-// 	}
-// 	if key != "" {
-// 		query.Add("key", key)
-// 	}
-// 	if order != "" {
-// 		query.Add("direction", order)
-// 	}
-// 	if sort != "" {
-// 		query.Add("sort", SORT_INPUT_TO_QUERY_MAP[sort])
-// 	}
-// 	if page > 1 {
-// 		query.Add("page", strconv.Itoa(page))
-// 	}
-
-// 	return query
-// }
+const SIZE_COLUMN_WIDTH = 15
+const LAST_ACCESSED_AT_COLUMN_WIDTH = 20
 
 func GetRepo(r string) (ghRepo.Repository, error) {
 	if r != "" {
@@ -74,10 +48,12 @@ func PrettyPrintCacheList(caches []types.ActionsCache) {
 	fd := os.Stdout.Fd()
 	ws, _ := term.GetWinsize(fd)
 	width := math.Min(float64(ws.Width), 180)
-	keyWidth := int(math.Floor(0.75 * (width - 40)))
-	sizeWidth := 15
-	refWidth := int(math.Floor(0.25 * (width - 40)))
-	timeWidth := 20 //int(math.Floor(0.20 * width))
+
+	sizeWidth := SIZE_COLUMN_WIDTH             // hard-coded size as the content is scoped
+	timeWidth := LAST_ACCESSED_AT_COLUMN_WIDTH // hard-coded size as the content is scoped
+	keyWidth := int(math.Floor(0.75 * (width - 15 - 20)))
+	refWidth := int(math.Floor(0.25 * (width - 15 - 20)))
+
 	for _, cache := range caches {
 		var formattedRow string = getFormattedCacheInfo(cache, keyWidth, sizeWidth, refWidth, timeWidth)
 		fmt.Println(formattedRow)
