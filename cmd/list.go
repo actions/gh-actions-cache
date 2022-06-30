@@ -31,7 +31,10 @@ func NewCmdList() *cobra.Command {
 				log.Fatal(err)
 			}
 
-			f.Validate()
+			err = f.Validate()
+			if err != nil {
+				log.Fatal(err)
+			}
 
 			artifactCache := service.NewArtifactCache(repo, COMMAND, VERSION)
 

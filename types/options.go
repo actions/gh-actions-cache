@@ -62,8 +62,6 @@ func (o *BaseOptions) GenerateBaseQueryParams(query url.Values) {
 }
 
 func (o *ListOptions) GenerateQueryParams(query url.Values) {
-	//query := url.Values{}
-
 	if o.Limit != 30 {
 		query.Add("per_page", strconv.Itoa(o.Limit))
 	}
