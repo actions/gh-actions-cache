@@ -14,7 +14,7 @@ import (
 
 func NewCmdDelete() *cobra.Command {
 	COMMAND = "delete"
-	f := types.InputFlags{}
+	f := types.DeleteOptions{}
 
 	var deleteCmd = &cobra.Command{
 		Use:   "delete",
@@ -24,7 +24,8 @@ func NewCmdDelete() *cobra.Command {
 				fmt.Printf("accepts 1 arg(s), received %d\n", len(args))
 				return
 			}
-			key := args[0]
+
+			f.Key = args[0]
 
 			repo, err := internal.GetRepo(f.Repo)
 			if err != nil {
@@ -32,13 +33,14 @@ func NewCmdDelete() *cobra.Command {
 				return
 			}
 			artifactCache := service.NewArtifactCache(repo, COMMAND, VERSION)
-			queryParams := internal.GenerateQueryParams(f.Branch, 100, key, "", "", 1)
+			queryParams := url.Values{}
+			f.GenerateBaseQueryParams(queryParams)
 
 			if !f.Confirm {
-				var matchedCaches = getCacheListWithExactMatch(queryParams, key, artifactCache)
+				var matchedCaches = getCacheListWithExactMatch(f, artifactCache)
 				matchedCachesLen := len(matchedCaches)
 				if matchedCachesLen == 0 {
-					fmt.Printf("Cache with input key '%s' does not exist\n", key)
+					fmt.Printf("Cache with input key '%s' does not exist\n", f.Key)
 					return
 				}
 				fmt.Printf("You're going to delete %s", internal.PrintSingularOrPlural(matchedCachesLen, "cache entry\n\n", "cache entries\n\n"))
@@ -59,9 +61,9 @@ func NewCmdDelete() *cobra.Command {
 			if f.Confirm {
 				cachesDeleted := artifactCache.DeleteCaches(queryParams)
 				if cachesDeleted > 0 {
-					fmt.Printf("%s Deleted %s with key '%s'\n", internal.RedTick(), internal.PrintSingularOrPlural(cachesDeleted, "cache entry", "cache entries"), key)
+					fmt.Printf("%s Deleted %s with key '%s'\n", internal.RedTick(), internal.PrintSingularOrPlural(cachesDeleted, "cache entry", "cache entries"), f.Key)
 				} else {
-					fmt.Printf("Cache with input key '%s' does not exist\n", key)
+					fmt.Printf("Cache with input key '%s' does not exist\n", f.Key)
 				}
 			}
 		},
@@ -97,11 +99,16 @@ EXAMPLES:
 `
 }
 
-func getCacheListWithExactMatch(queryParams url.Values, key string, artifactCache service.ArtifactCacheService) []types.ActionsCache {
-	caches := artifactCache.ListAllCaches(queryParams, key)
+func getCacheListWithExactMatch(f types.DeleteOptions, artifactCache service.ArtifactCacheService) []types.ActionsCache {
+	listOption := types.ListOptions{BaseOptions: types.BaseOptions{Repo: f.Repo, Branch: f.Branch, Key: f.Key}, Limit: 100, Order: "", Sort: ""}
+	queryParams := url.Values{}
+
+	listOption.GenerateBaseQueryParams(queryParams)
+	caches := artifactCache.ListAllCaches(queryParams, f.Key)
+
 	var exactMatchedKeys []types.ActionsCache
 	for _, cache := range caches {
-		if strings.EqualFold(key, cache.Key) {
+		if strings.EqualFold(f.Key, cache.Key) {
 			exactMatchedKeys = append(exactMatchedKeys, cache)
 		}
 	}
