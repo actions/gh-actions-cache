@@ -54,7 +54,7 @@ func TestDeleteWithIncorrectRepoForDeleteCaches(t *testing.T) {
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
-func TestDeleteSuccessWithConfirm(t *testing.T) {
+func TestDeleteSuccessWithConfirmFlagProvided(t *testing.T) {
 	t.Cleanup(gock.Off)
 
 	gock.New("https://api.github.com").
