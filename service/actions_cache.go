@@ -3,7 +3,6 @@ package service
 import (
 	"errors"
 	"fmt"
-	"log"
 	"math"
 	"net/url"
 	"strconv"
@@ -26,16 +25,16 @@ type ArtifactCache struct {
 	repo       ghRepo.Repository
 }
 
-func NewArtifactCache(repo ghRepo.Repository, command string, version string) ArtifactCacheService {
+func NewArtifactCache(repo ghRepo.Repository, command string, version string) (ArtifactCacheService, error) {
 	opts := api.ClientOptions{
 		Host:    repo.Host(),
 		Headers: map[string]string{"User-Agent": fmt.Sprintf("gh-actions-cache/%s/%s", version, command)},
 	}
 	restClient, err := gh.RESTClient(&opts)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
-	return &ArtifactCache{HttpClient: restClient, repo: repo}
+	return &ArtifactCache{HttpClient: restClient, repo: repo}, nil
 }
 
 func (a *ArtifactCache) GetCacheUsage() (float64, error) {
@@ -53,6 +52,7 @@ func (a *ArtifactCache) ListCaches(queryParams url.Values) (types.ListApiRespons
 	pathComponent := fmt.Sprintf("repos/%s/%s/actions/caches", a.repo.Owner(), a.repo.Name())
 	var apiResults types.ListApiResponse
 	err := a.HttpClient.Get(pathComponent+"?"+queryParams.Encode(), &apiResults)
+
 	if err != nil {
 		return types.ListApiResponse{}, err
 	}
