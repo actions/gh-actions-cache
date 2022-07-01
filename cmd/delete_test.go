@@ -1,10 +1,13 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
+	"reflect"
 	"testing"
 
 	"github.com/actions/gh-actions-cache/internal"
+	"github.com/actions/gh-actions-cache/types"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/h2non/gock.v1"
 )
@@ -51,6 +54,9 @@ func TestDeleteWithIncorrectRepoForDeleteCaches(t *testing.T) {
 
 	assert.NotNil(t, err)
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
+	var customError types.HandledError
+	errors.As(err, &customError)
+	assert.Equal(t, customError.Message, "The given repo does not exist.")
 }
 
 func TestDeleteSuccessWithConfirmFlagProvided(t *testing.T) {
@@ -80,5 +86,55 @@ func TestDeleteSuccessWithConfirmFlagProvided(t *testing.T) {
 	err := cmd.Execute()
 
 	assert.Nil(t, err)
+	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
+}
+
+func TestDeleteWithUnauthorizedRequestForDeleteCaches(t *testing.T) {
+	t.Cleanup(gock.Off)
+
+	gock.New("https://api.github.com").
+		Delete("/repos/testOrg/testRepo/actions/caches").
+		Reply(401).
+		JSON(`{
+			"message": "Must have admin rights to Repository.",
+			"documentation_url": "https://docs.github.com/rest/actions/cache#delete-a-github-actions-cache-for-a-repository-using-a-cache-id"
+		}`)
+
+	cmd := NewCmdDelete()
+	cmd.SetArgs([]string{"--repo", "testOrg/testRepo", "cacheKey", "--confirm"})
+	err := cmd.Execute()
+
+	assert.NotNil(t, err)
+	assert.Equal(t, reflect.TypeOf(err), reflect.TypeOf(types.HandledError{}))
+
+	var customError types.HandledError
+	errors.As(err, &customError)
+	assert.Equal(t, customError.Message, "Must have admin rights to Repository.")
+
+	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
+}
+
+func TestDeleteWithInternalServerErrorForDeleteCaches(t *testing.T) {
+	t.Cleanup(gock.Off)
+
+	gock.New("https://api.github.com").
+		Delete("/repos/testOrg/testRepo/actions/caches").
+		Reply(500).
+		JSON(`{
+			"message": "Internal Server Error",
+			"documentation_url": "https://docs.github.com/rest/reference/actions#get-github-actions-cache-Delete-for-a-repository"
+		}`)
+
+	cmd := NewCmdDelete()
+	cmd.SetArgs([]string{"--repo", "testOrg/testRepo", "cacheKey", "--confirm"})
+	err := cmd.Execute()
+
+	assert.NotNil(t, err)
+	assert.Equal(t, reflect.TypeOf(err), reflect.TypeOf(types.HandledError{}))
+
+	var customError types.HandledError
+	errors.As(err, &customError)
+	assert.Equal(t, customError.Message, "We could not process your request due to internal error.")
+
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
