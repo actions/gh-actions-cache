@@ -39,7 +39,6 @@ func TestDeleteWithIncorrectRepoForDeleteCaches(t *testing.T) {
 	gock.New("https://api.github.com").
 		Get("/repos/testOrg/testRepo/actions/caches").
 		MatchParam("key", "cacheName").
-		MatchParam("per_page", "100").
 		Reply(404).
 		JSON(`{
 			"message": "Not Found",
