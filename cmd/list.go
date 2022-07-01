@@ -30,6 +30,9 @@ func NewCmdList() *cobra.Command {
 				return err
 			}
 
+			// This will silence the usage (help) message as they are not needed for errors beyond this point
+			cmd.SilenceUsage = true
+
 			err = f.Validate()
 			if err != nil {
 				return err
@@ -37,9 +40,7 @@ func NewCmdList() *cobra.Command {
 
 			artifactCache, err := service.NewArtifactCache(repo, COMMAND, VERSION)
 			if err != nil {
-				fmt.Printf("error connecting to %s\n", repo.Host())
-				fmt.Println("check your internet connection or https://githubstatus.com")
-				return nil
+				return types.HandledError{Message: fmt.Sprintf("error connecting to %s\ncheck your internet connection or https://githubstatus.com", repo.Host()), InnerError: err}
 			}
 
 			if f.Branch == "" && f.Key == "" {
@@ -55,11 +56,11 @@ func NewCmdList() *cobra.Command {
 			if err != nil {
 				var httpError api.HTTPError
 				if errors.As(err, &httpError) && httpError.StatusCode == 404 {
-					fmt.Println("The given repo does not exist.")
-					return nil
+					return types.HandledError{Message: "The given repo does not exist.", InnerError: err}
+				} else if errors.As(err, &httpError) && httpError.StatusCode >= 400 && httpError.StatusCode < 500 {
+					return types.HandledError{Message: httpError.Message, InnerError: err}
 				} else {
-					fmt.Println("We could not process your request due to internal error.")
-					return nil
+					return types.HandledError{Message: "We could not process your request due to internal error.", InnerError: err}
 				}
 			}
 
