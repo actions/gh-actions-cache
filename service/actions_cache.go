@@ -26,12 +26,12 @@ type ArtifactCache struct {
 
 func NewArtifactCache(repo ghRepo.Repository, command string, version string) (ArtifactCacheService, error) {
 	fmt.Println("HERE 1")
-	opts := api.ClientOptions{
-		Host:    repo.Host(),
-		Headers: map[string]string{"User-Agent": fmt.Sprintf("gh-actions-cache/%s/%s", version, command)},
-	}
+	// opts := api.ClientOptions{
+	// 	Host:    repo.Host(),
+	// 	Headers: map[string]string{"User-Agent": fmt.Sprintf("gh-actions-cache/%s/%s", version, command)},
+	// }
 	fmt.Println("HERE 2")
-	restClient, err := gh.RESTClient(&opts)
+	restClient, err := gh.RESTClient(nil)
 	fmt.Println("HERE 3")
 	if err != nil {
 		fmt.Println("HERE 4")
