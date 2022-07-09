@@ -14,7 +14,7 @@ import (
 
 func NewCmdDelete() *cobra.Command {
 	COMMAND = "delete"
-	f := types.InputFlags{}
+	f := types.DeleteOptions{}
 
 	var deleteCmd = &cobra.Command{
 		Use:   "delete <key>",
@@ -23,24 +23,32 @@ func NewCmdDelete() *cobra.Command {
 			if len(args) != 1 {
 				return fmt.Errorf(fmt.Sprintf("accepts 1 arg(s), received %d", len(args)))
 			}
-			key := args[0]
+
+			f.Key = args[0]
 
 			repo, err := internal.GetRepo(f.Repo)
 			if err != nil {
 				return err
 			}
 
-			artifactCache := service.NewArtifactCache(repo, COMMAND, VERSION)
-			queryParams := internal.GenerateQueryParams(f.Branch, 100, key, "", "", 1)
+			artifactCache, err := service.NewArtifactCache(repo, COMMAND, VERSION)
+			if err != nil {
+				fmt.Printf("error connecting to %s\n", repo.Host())
+				fmt.Println("check your internet connection or https://githubstatus.com")
+				return nil
+			}
+
+			queryParams := url.Values{}
+			f.GenerateBaseQueryParams(queryParams)
 
 			if !f.Confirm {
-				matchedCaches, err := getCacheListWithExactMatch(queryParams, key, artifactCache)
+				matchedCaches, err := getCacheListWithExactMatch(f, artifactCache)
 				if err != nil {
 					return err
 				}
 				matchedCachesLen := len(matchedCaches)
 				if matchedCachesLen == 0 {
-					return fmt.Errorf(fmt.Sprintf("Cache with input key '%s' does not exist", key))
+					return fmt.Errorf(fmt.Sprintf("Cache with input key '%s' does not exist\n", f.Key))
 				}
 				fmt.Printf("You're going to delete %s", internal.PrintSingularOrPlural(matchedCachesLen, "cache entry\n\n", "cache entries\n\n"))
 				internal.PrettyPrintTrimmedCacheList(matchedCaches)
@@ -63,9 +71,9 @@ func NewCmdDelete() *cobra.Command {
 				}
 
 				if cachesDeleted > 0 {
-					fmt.Printf("%s Deleted %s with key '%s'\n", internal.RedTick(), internal.PrintSingularOrPlural(cachesDeleted, "cache entry", "cache entries"), key)
+					fmt.Printf("%s Deleted %s with key '%s'\n", internal.RedTick(), internal.PrintSingularOrPlural(cachesDeleted, "cache entry", "cache entries"), f.Key)
 				} else {
-					fmt.Printf("Cache with input key '%s' does not exist\n", key)
+					fmt.Printf("Cache with input key '%s' does not exist\n", f.Key)
 				}
 			}
 			return nil
@@ -102,14 +110,18 @@ EXAMPLES:
 `
 }
 
-func getCacheListWithExactMatch(queryParams url.Values, key string, artifactCache service.ArtifactCacheService) ([]types.ActionsCache, error) {
-	caches, err := artifactCache.ListAllCaches(queryParams, key)
+func getCacheListWithExactMatch(f types.DeleteOptions, artifactCache service.ArtifactCacheService) ([]types.ActionsCache, error) {
+	listOption := types.ListOptions{BaseOptions: types.BaseOptions{Repo: f.Repo, Branch: f.Branch, Key: f.Key}, Limit: 100, Order: "", Sort: ""}
+	queryParams := url.Values{}
+
+	listOption.GenerateBaseQueryParams(queryParams)
+	caches, err := artifactCache.ListAllCaches(queryParams, f.Key)
 	if err != nil {
 		return nil, err
 	}
 	var exactMatchedKeys []types.ActionsCache
 	for _, cache := range caches {
-		if strings.EqualFold(key, cache.Key) {
+		if strings.EqualFold(f.Key, cache.Key) {
 			exactMatchedKeys = append(exactMatchedKeys, cache)
 		}
 	}

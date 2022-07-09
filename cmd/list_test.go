@@ -1,11 +1,14 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"testing"
+	"reflect"
 
 	"github.com/actions/gh-actions-cache/internal"
 	"github.com/stretchr/testify/assert"
+	"github.com/actions/gh-actions-cache/types"
 	"gopkg.in/h2non/gock.v1"
 )
 
@@ -37,7 +40,7 @@ func TestListWithNegativeLimit(t *testing.T) {
 	t.Cleanup(gock.Off)
 
 	cmd := NewCmdList()
-	cmd.SetArgs([]string{"--limit", "-1","--repo", "testOrg/testRepo"})
+	cmd.SetArgs([]string{"--limit", "-1", "--repo", "testOrg/testRepo"})
 	err := cmd.Execute()
 
 	assert.NotNil(t, err)
@@ -81,24 +84,6 @@ func TestListWithIncorrectSort(t *testing.T) {
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
-func TestListWithIncorrectRepoForGetCacheUsage(t *testing.T) {
-	t.Cleanup(gock.Off)
-	gock.New("https://api.github.com").
-		Get("/repos/testOrg/wrongRepo/actions/cache/usage").
-		Reply(404).
-		JSON(`{
-			"message": "Not Found",
-			"documentation_url": "https://docs.github.com/rest/reference/actions#get-github-actions-cache-usage-for-a-repository"
-		}`)
-
-	cmd := NewCmdList()
-	cmd.SetArgs([]string{"--repo", "testOrg/wrongRepo"})
-	err := cmd.Execute()
-
-	assert.NotNil(t, err)
-	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
-}
-
 func TestListWithIncorrectRepoForListCaches(t *testing.T) {
 	t.Cleanup(gock.Off)
 	gock.New("https://api.github.com").
@@ -123,6 +108,78 @@ func TestListWithIncorrectRepoForListCaches(t *testing.T) {
 	err := cmd.Execute()
 
 	assert.NotNil(t, err)
+	assert.Equal(t, reflect.TypeOf(err), reflect.TypeOf(types.HandledError{}))
+
+	var customError types.HandledError
+	errors.As(err, &customError)
+	assert.Equal(t, customError.Message, "The given repo does not exist.")
+
+	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
+}
+
+func TestListWithUnauthorizedRequestForListCaches(t *testing.T) {
+	t.Cleanup(gock.Off)
+	gock.New("https://api.github.com").
+		Get("/repos/testOrg/testRepo/actions/cache/usage").
+		Reply(200).
+		JSON(`{
+			"full_name": "t-dedah/vipul-bugbash",
+			"active_caches_size_in_bytes": 291205,
+			"active_caches_count": 12
+		}`)
+
+	gock.New("https://api.github.com").
+		Get("/repos/testOrg/testRepo/actions/caches").
+		Reply(401).
+		JSON(`{
+			"message": "Must have admin rights to Repository.",
+			"documentation_url": "https://docs.github.com/rest/actions/cache#delete-a-github-actions-cache-for-a-repository-using-a-cache-id"
+		}`)
+
+	cmd := NewCmdList()
+	cmd.SetArgs([]string{"--repo", "testOrg/testRepo"})
+	err := cmd.Execute()
+
+	assert.NotNil(t, err)
+	assert.Equal(t, reflect.TypeOf(err), reflect.TypeOf(types.HandledError{}))
+
+	var customError types.HandledError
+	errors.As(err, &customError)
+	assert.Equal(t, customError.Message, "Must have admin rights to Repository.")
+
+	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
+}
+
+func TestListWithInternalServerErrorForListCaches(t *testing.T) {
+	t.Cleanup(gock.Off)
+	gock.New("https://api.github.com").
+		Get("/repos/testOrg/testRepo/actions/cache/usage").
+		Reply(200).
+		JSON(`{
+			"full_name": "t-dedah/vipul-bugbash",
+			"active_caches_size_in_bytes": 291205,
+			"active_caches_count": 12
+		}`)
+
+	gock.New("https://api.github.com").
+		Get("/repos/testOrg/testRepo/actions/caches").
+		Reply(500).
+		JSON(`{
+			"message": "Internal Server Error",
+			"documentation_url": "https://docs.github.com/rest/reference/actions#get-github-actions-cache-list-for-a-repository"
+		}`)
+
+	cmd := NewCmdList()
+	cmd.SetArgs([]string{"--repo", "testOrg/testRepo"})
+	err := cmd.Execute()
+
+	assert.NotNil(t, err)
+	assert.Equal(t, reflect.TypeOf(err), reflect.TypeOf(types.HandledError{}))
+
+	var customError types.HandledError
+	errors.As(err, &customError)
+	assert.Equal(t, customError.Message, "We could not process your request due to internal error.")
+
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 

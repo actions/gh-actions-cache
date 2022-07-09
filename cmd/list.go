@@ -1,18 +1,21 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
+	"net/url"
 
 	"github.com/actions/gh-actions-cache/internal"
 	"github.com/actions/gh-actions-cache/service"
 	"github.com/actions/gh-actions-cache/types"
+	"github.com/cli/go-gh/pkg/api"
 	"github.com/spf13/cobra"
 )
 
 func NewCmdList() *cobra.Command {
 	COMMAND = "list"
 
-	f := types.InputFlags{}
+	f := types.ListOptions{}
 
 	var listCmd = &cobra.Command {
 		Use:   "list",
@@ -27,13 +30,18 @@ func NewCmdList() *cobra.Command {
 				return err
 			}
 
-			err = validateInputs(f)
+			// This will silence the usage (help) message as they are not needed for errors beyond this point
+			cmd.SilenceUsage = true
 
+			err = f.Validate()
 			if err != nil {
 				return err
 			}
 
-			artifactCache := service.NewArtifactCache(repo, COMMAND, VERSION)
+			artifactCache, err := service.NewArtifactCache(repo, COMMAND, VERSION)
+			if err != nil {
+				return types.HandledError{Message: fmt.Sprintf("error connecting to %s\ncheck your internet connection or https://githubstatus.com", repo.Host()), InnerError: err}
+			}
 
 			if f.Branch == "" && f.Key == "" {
 				totalCacheSize, err := artifactCache.GetCacheUsage()
@@ -42,10 +50,18 @@ func NewCmdList() *cobra.Command {
 				}
 			}
 
-			queryParams := internal.GenerateQueryParams(f.Branch, f.Limit, f.Key, f.Order, f.Sort, 1)
+			queryParams := url.Values{}
+			f.GenerateQueryParams(queryParams)
 			listCacheResponse, err := artifactCache.ListCaches(queryParams)
 			if err != nil {
-				return err
+				var httpError api.HTTPError
+				if errors.As(err, &httpError) && httpError.StatusCode == 404 {
+					return types.HandledError{Message: "The given repo does not exist.", InnerError: err}
+				} else if errors.As(err, &httpError) && httpError.StatusCode >= 400 && httpError.StatusCode < 500 {
+					return types.HandledError{Message: httpError.Message, InnerError: err}
+				} else {
+					return types.HandledError{Message: "We could not process your request due to internal error.", InnerError: err}
+				}
 			}
 
 			totalCaches := listCacheResponse.TotalCount
@@ -73,21 +89,6 @@ func displayedEntriesCount(totalCaches int, limit int) int {
 		return totalCaches
 	}
 	return limit
-}
-
-func validateInputs(input types.InputFlags) error {
-	if input.Order != "" && input.Order != "asc" && input.Order != "desc" {
-		return fmt.Errorf(fmt.Sprintf("%s is not a valid value for order flag. Allowed values: asc/desc", input.Order))
-	}
-
-	if input.Sort != "" && input.Sort != "last-used" && input.Sort != "size" && input.Sort != "created-at" {
-		return fmt.Errorf(fmt.Sprintf("%s is not a valid value for sort flag. Allowed values: last-used/size/created-at", input.Sort))
-	}
-
-	if input.Limit < 1 || input.Limit > 100 {
-		return fmt.Errorf(fmt.Sprintf("%d is not a valid value for limit flag. Allowed values: 1-100", input.Limit))
-	}
-	return nil
 }
 
 func getListHelp() string {

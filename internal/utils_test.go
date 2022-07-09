@@ -53,29 +53,3 @@ func TestFormatCacheSize_GB(t *testing.T) {
 	assert.NotNil(t, cacheSizeDetailString)
 	assert.Equal(t, cacheSizeDetailString, "1.50 GB")
 }
-
-func TestGenerateQueryParams_DefaultFlags(t *testing.T) {
-	branch := ""
-	limit := 30
-	key := ""
-	order := ""
-	sort := ""
-	page := 1
-
-	queryParams := GenerateQueryParams(branch, limit, key, order, sort, page)
-
-	assert.Equal(t, queryParams.Encode(), "")
-}
-
-func TestGenerateQueryParams_NonDefaultFlag(t *testing.T) {
-	branch := "main"
-	limit := 30
-	key := ""
-	order := ""
-	sort := ""
-	page := 1
-
-	queryParams := GenerateQueryParams(branch, limit, key, order, sort, page)
-
-	assert.Equal(t, queryParams.Encode(), "ref=refs%2Fheads%2Fmain")
-}
