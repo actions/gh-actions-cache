@@ -14,12 +14,69 @@
 
 ## Usage
 
-        gh actions-cache <command> [flags]
+    gh actions-cache <command> [flags]
 
-CORE COMMANDS:
+#### Commands:
 
-	list:		list caches with result length cap of 100
-	delete:		delete caches with a key
+S.No  | Commands | Description
+------------- | ------------- | -------------
+1  | list | list caches with result length cap of 100
+2  | delete | delete caches with a key
+
+### List
+
+``` 
+USAGE:
+	gh actions-cache list [flags]
+
+
+ARGUMENTS:
+	No Arguments
+
+
+FLAGS:
+	-R, --repo <[HOST/]owner/repo>		Select another repository using the [HOST/]OWNER/REPO format
+	-B, --branch <string>			Filter by branch
+	-L, --limit <int>			Maximum number of items to fetch (default is 30, max limit is 100)
+	--key <string>				Filter by key
+	--order <string>			Order of caches returned (asc/desc)
+	--sort <string>				Sort fetched caches (last-used/size/created-at)
+
+
+INHERITED FLAGS
+	--help		Show help for command
+
+
+EXAMPLES:
+	$ gh actions-cache list
+	$ gh actions-cache list --limit 100
+	$ gh actions-cache list --order desc
+```
+
+### Delete 
+
+```
+USAGE:
+	gh actions-cache delete <key> [flags]
+
+
+ARGUMENTS:
+	key		cache key which needs to be deleted
+
+	
+FLAGS:
+	-R, --repo <[HOST/]owner/repo>		Select another repository using the [HOST/]OWNER/REPO format
+	-B, --branch <string>			Filter by branch
+	--confirm				Confirm deletion without prompting
+
+
+INHERITED FLAGS
+	--help		Show help for command
+        
+
+EXAMPLES:
+	$ gh actions-cache delete Linux-node-f5dbf39c9d11eba80242ac13
+```
 
 
 ## Local Development

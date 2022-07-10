@@ -29,6 +29,7 @@ func NewArtifactCache(repo ghRepo.Repository, command string, version string) (A
 		Host:    repo.Host(),
 		Headers: map[string]string{"User-Agent": fmt.Sprintf("gh-actions-cache/%s/%s", version, command)},
 	}
+	fmt.Println(repo.Host())
 	restClient, err := gh.RESTClient(&opts)
 	if err != nil {
 		return nil, err
