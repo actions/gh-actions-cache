@@ -40,7 +40,7 @@ func NewCmdList() *cobra.Command {
 
 			artifactCache, err := service.NewArtifactCache(repo, COMMAND, VERSION)
 			if err != nil {
-				return types.HandledError{Message: fmt.Sprintf("error connecting to %s\ncheck your internet connection or https://githubstatus.com", repo.Host()), InnerError: err}
+				return types.HandledError{Message: err.Error(), InnerError: err}
 			}
 
 			if f.Branch == "" && f.Key == "" {
