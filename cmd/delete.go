@@ -14,6 +14,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var choice string = ""
+
 func NewCmdDelete() *cobra.Command {
 	COMMAND = "delete"
 	f := types.DeleteOptions{}
@@ -61,15 +63,13 @@ func NewCmdDelete() *cobra.Command {
 				}
 				fmt.Printf("You're going to delete %s", internal.PrintSingularOrPlural(matchedCachesLen, "cache entry\n\n", "cache entries\n\n"))
 				internal.PrettyPrintTrimmedCacheList(matchedCaches)
-				choice := ""
+
 				prompt := &survey.Select{
 					Message: "Are you sure you want to delete the cache entries?",
 					Options: []string{"Delete", "Cancel"},
 				}
-				err = survey.AskOne(prompt, &choice)
-				if err != nil {
-					return fmt.Errorf("error occured while taking input from user while trying to delete cache")
-				}
+				survey.AskOne(prompt, &choice)
+
 				f.Confirm = choice == "Delete"
 				fmt.Println()
 			}

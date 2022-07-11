@@ -8,7 +8,7 @@ require (
 	github.com/cli/go-gh v0.0.3
 	github.com/nleeper/goment v1.4.4
 	github.com/spf13/cobra v1.4.0
-	github.com/stretchr/testify v1.7.0
+	github.com/stretchr/testify v1.8.0
 )
 
 require github.com/pmezard/go-difflib v1.0.0 // indirect
@@ -33,5 +33,5 @@ require (
 	golang.org/x/term v0.0.0-20210503060354-a79de5458b56 // indirect
 	golang.org/x/text v0.3.6 // indirect
 	gopkg.in/h2non/gock.v1 v1.1.2
-	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
