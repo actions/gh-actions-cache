@@ -34,3 +34,5 @@ jobs:
 
       - name: Run tests
         run: go test -v ./...
+        env:
+          GH_TOKEN: dummy-token-to-facilitate-rest-client
