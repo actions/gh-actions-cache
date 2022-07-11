@@ -89,7 +89,7 @@ func TestDeleteSuccessWithConfirmFlagProvided(t *testing.T) {
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
-func TestDeleteSuccessWithoutConfirmFlagProvided(t *testing.T) {
+func TestDeleteFailureWhileTakingUserInput(t *testing.T) {
 	t.Cleanup(gock.Off)
 	choice = "Delete"
 
@@ -111,30 +111,12 @@ func TestDeleteSuccessWithoutConfirmFlagProvided(t *testing.T) {
 					}
 				]
 			}`)
-	gock.New("https://api.github.com").
-		Delete("/repos/testOrg/testRepo/actions/caches").
-		MatchParam("key", "2022-06-29T13:33:49").
-		Reply(200).
-		JSON(`{
-				"total_count": 1,
-				"actions_caches": [
-					{
-						"id": 1293,
-						"ref": "refs/heads/main",
-						"key": "2022-06-29T13:33:49",
-						"version": "803758043e242677f6b8650742372d82ded436d99b2a8a09bc3b6ed77cd6aec2",
-						"last_accessed_at": "2022-06-29T13:33:52.280000000Z",
-						"created_at": "2022-06-29T13:33:52.280000000Z",
-						"size_in_bytes": 29747
-					}
-				]
-			}`)
 
 	cmd := NewCmdDelete()
 	cmd.SetArgs([]string{"--repo", "testOrg/testRepo", "2022-06-29T13:33:49"})
 	err := cmd.Execute()
 
-	assert.Nil(t, err)
+	assert.NotNil(t, err)
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
