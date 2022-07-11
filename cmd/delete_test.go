@@ -6,7 +6,6 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/AlecAivazis/survey/v2"
 	"github.com/actions/gh-actions-cache/internal"
 	"github.com/actions/gh-actions-cache/types"
 	"github.com/stretchr/testify/assert"
@@ -187,8 +186,4 @@ func TestDeleteWithInternalServerErrorForDeleteCaches(t *testing.T) {
 	assert.Equal(t, customError.Message, "We could not process your request due to internal error.")
 
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
-}
-
-func surveyAskOneMock(p survey.Prompt, response interface{}) error {
-	return nil
 }
