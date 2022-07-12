@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"os/exec"
+	"strconv"
 	"strings"
 	"unicode/utf8"
 
@@ -11,8 +13,10 @@ import (
 	"github.com/actions/gh-actions-cache/types"
 	gh "github.com/cli/go-gh"
 	ghRepo "github.com/cli/go-gh/pkg/repository"
-	"github.com/moby/term"
+	"github.com/cli/safeexec"
+	"github.com/mattn/go-isatty"
 	"github.com/nleeper/goment"
+	"golang.org/x/term"
 )
 
 const MB_IN_BYTES = 1024 * 1024
@@ -45,14 +49,12 @@ func FormatCacheSize(size_in_bytes float64) string {
 }
 
 func PrettyPrintCacheList(caches []types.ActionsCache) {
-	fd := os.Stdout.Fd()
-	ws, _ := term.GetWinsize(fd)
-	width := math.Max(math.Min(float64(ws.Width), 180), 100)
-
+	width, _, _ := getTerminalWidth(os.Stdout)
+	width = int(math.Max(float64(width), 100))
 	sizeWidth := SIZE_COLUMN_WIDTH             // hard-coded size as the content is scoped
 	timeWidth := LAST_ACCESSED_AT_COLUMN_WIDTH // hard-coded size as the content is scoped
-	keyWidth := int(math.Floor(0.75 * (width - 15 - 20)))
-	refWidth := int(math.Floor(0.25 * (width - 15 - 20)))
+	keyWidth := int(math.Floor(0.60 * float64(width-15-20)))
+	refWidth := int(math.Floor(0.20 * float64(width-15-20)))
 
 	for _, cache := range caches {
 		var formattedRow string = getFormattedCacheInfo(cache, keyWidth, sizeWidth, refWidth, timeWidth)
@@ -105,4 +107,22 @@ func PrintSingularOrPlural(count int, singularStr string, pluralStr string) stri
 		return fmt.Sprintf("%d %s", count, singularStr)
 	}
 	return fmt.Sprintf("%d %s", count, pluralStr)
+}
+
+func getTerminalWidth(f *os.File) (int, int, error) {
+	if !isatty.IsCygwinTerminal(f.Fd()) {
+		return term.GetSize(int(f.Fd()))
+	}
+	tputExe, err := safeexec.LookPath("tput")
+	if err != nil {
+		return 100, 100, nil
+	}
+	tputCmd := exec.Command(tputExe, "cols")
+	tputCmd.Stdin = os.Stdin
+	if out, err := tputCmd.Output(); err == nil {
+		if w, err := strconv.Atoi(strings.TrimSpace(string(out))); err == nil {
+			return w, 100, nil
+		}
+	}
+	return 100, 100, nil
 }
