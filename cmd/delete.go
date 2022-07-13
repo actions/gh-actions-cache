@@ -84,8 +84,7 @@ func NewCmdDelete() *cobra.Command {
 				if err != nil {
 					var httpError api.HTTPError
 					if errors.As(err, &httpError) && httpError.StatusCode == 404 {
-						fmt.Printf("Cache with input key '%s' does not exist\n", f.Key)
-						return nil
+						return types.HandledError{Message: fmt.Sprintf("Cache with input key '%s' does not exist", f.Key), InnerError: err}
 					} else if errors.As(err, &httpError) && httpError.StatusCode >= 400 && httpError.StatusCode < 500 {
 						return types.HandledError{Message: httpError.Message, InnerError: err}
 					} else {
