@@ -35,11 +35,12 @@ func NewCmdDelete() *cobra.Command {
 				return err
 			}
 
+			// This will silence the usage (help) message as they are not needed for errors beyond this point
+			cmd.SilenceUsage = true
+
 			artifactCache, err := service.NewArtifactCache(repo, COMMAND, VERSION)
 			if err != nil {
-				fmt.Printf("error connecting to %s\n", repo.Host())
-				fmt.Println("check your internet connection or https://githubstatus.com")
-				return nil
+				return types.HandledError{Message: err.Error(), InnerError: err}
 			}
 
 			queryParams := url.Values{}
