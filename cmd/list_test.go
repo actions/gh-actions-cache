@@ -3,12 +3,12 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"testing"
 	"reflect"
+	"testing"
 
 	"github.com/actions/gh-actions-cache/internal"
-	"github.com/stretchr/testify/assert"
 	"github.com/actions/gh-actions-cache/types"
+	"github.com/stretchr/testify/assert"
 	"gopkg.in/h2non/gock.v1"
 )
 
@@ -44,7 +44,7 @@ func TestListWithNegativeLimit(t *testing.T) {
 	err := cmd.Execute()
 
 	assert.NotNil(t, err)
-	assert.Equal(t, err, fmt.Errorf("-1 is not a valid value for limit flag. Allowed values: 1-100"))
+	assert.Equal(t, err, fmt.Errorf("-1 is not a valid integer value for limit flag. Allowed values: 1-100"))
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
@@ -56,7 +56,7 @@ func TestListWithIncorrectLimit(t *testing.T) {
 	err := cmd.Execute()
 
 	assert.NotNil(t, err)
-	assert.Equal(t, err, fmt.Errorf("101 is not a valid value for limit flag. Allowed values: 1-100"))
+	assert.Equal(t, err, fmt.Errorf("101 is not a valid integer value for limit flag. Allowed values: 1-100"))
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
