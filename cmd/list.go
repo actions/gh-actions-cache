@@ -17,7 +17,7 @@ func NewCmdList() *cobra.Command {
 
 	f := types.ListOptions{}
 
-	var listCmd = &cobra.Command {
+	var listCmd = &cobra.Command{
 		Use:   "list",
 		Short: "Lists the actions cache",
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -66,16 +66,19 @@ func NewCmdList() *cobra.Command {
 
 			totalCaches := listCacheResponse.TotalCount
 			caches := listCacheResponse.ActionsCaches
-
-			fmt.Printf("Showing %d of %d cache entries in %s/%s\n\n", displayedEntriesCount(len(caches), f.Limit), totalCaches, repo.Owner(), repo.Name())
-			internal.PrettyPrintCacheList(caches)
-      		return nil
+			if len(caches) > 0 {
+				fmt.Printf("Showing %d of %d cache entries in %s/%s\n\n", displayedEntriesCount(len(caches), f.Limit), totalCaches, repo.Owner(), repo.Name())
+				internal.PrettyPrintCacheList(caches)
+			} else {
+				fmt.Printf("Cache with input key '%s' does not exist\n", f.Key)
+			}
+			return nil
 		},
 	}
 
 	listCmd.Flags().StringVarP(&f.Repo, "repo", "R", "", "Select another repository for finding actions cache.")
 	listCmd.Flags().StringVarP(&f.Branch, "branch", "B", "", "Filter by branch")
-	listCmd.Flags().IntVarP(&f.Limit, "limit", "", 30, "Maximum number of items to fetch (default is 30, max limit is 100)")
+	listCmd.Flags().IntVarP(&f.Limit, "limit", "", 30, "Number of items to fetch between 1 to 100")
 	listCmd.Flags().StringVarP(&f.Key, "key", "", "", "Filter by key")
 	listCmd.Flags().StringVarP(&f.Order, "order", "", "", "Order of caches returned (asc/desc)")
 	listCmd.Flags().StringVarP(&f.Sort, "sort", "", "", "Sort fetched caches (last-used/size/created-at)")

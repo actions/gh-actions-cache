@@ -41,7 +41,7 @@ func (o *ListOptions) Validate() error {
 	}
 
 	if o.Limit < 1 || o.Limit > 100 {
-		return fmt.Errorf(fmt.Sprintf("%d is not a valid value for limit flag. Allowed values: 1-100", o.Limit))
+		return fmt.Errorf(fmt.Sprintf("%d is not a valid integer value for limit flag. Allowed values: 1-100", o.Limit))
 	}
 
 	return nil
