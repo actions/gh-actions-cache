@@ -1,13 +1,14 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
-	"log"
 	"net/url"
 
 	"github.com/actions/gh-actions-cache/internal"
 	"github.com/actions/gh-actions-cache/service"
 	"github.com/actions/gh-actions-cache/types"
+	"github.com/cli/go-gh/pkg/api"
 	"github.com/spf13/cobra"
 )
 
@@ -16,42 +17,59 @@ func NewCmdList() *cobra.Command {
 
 	f := types.ListOptions{}
 
-	var listCmd = &cobra.Command{
+	var listCmd = &cobra.Command {
 		Use:   "list",
 		Short: "Lists the actions cache",
-		Run: func(cmd *cobra.Command, args []string) {
+		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) != 0 {
-				fmt.Printf("Invalid argument(s). Expected 0 received %d\n", len(args))
-				fmt.Println(getListHelp())
-				return
+				return fmt.Errorf(fmt.Sprintf("Invalid argument(s). Expected 0 received %d", len(args)))
 			}
 
 			repo, err := internal.GetRepo(f.Repo)
 			if err != nil {
-				log.Fatal(err)
+				return err
 			}
+
+			// This will silence the usage (help) message as they are not needed for errors beyond this point
+			cmd.SilenceUsage = true
 
 			err = f.Validate()
 			if err != nil {
-				log.Fatal(err)
+				return err
 			}
 
-			artifactCache := service.NewArtifactCache(repo, COMMAND, VERSION)
+			artifactCache, err := service.NewArtifactCache(repo, COMMAND, VERSION)
+			if err != nil {
+				return types.HandledError{Message: err.Error(), InnerError: err}
+			}
 
 			if f.Branch == "" && f.Key == "" {
-				totalCacheSize := artifactCache.GetCacheUsage()
-				fmt.Printf("Total caches size %s\n\n", internal.FormatCacheSize(totalCacheSize))
+				totalCacheSize, err := artifactCache.GetCacheUsage()
+				if err == nil {
+					fmt.Printf("Total caches size %s\n\n", internal.FormatCacheSize(totalCacheSize))
+				}
 			}
 
 			queryParams := url.Values{}
 			f.GenerateQueryParams(queryParams)
-			listCacheResponse := artifactCache.ListCaches(queryParams)
+			listCacheResponse, err := artifactCache.ListCaches(queryParams)
+			if err != nil {
+				var httpError api.HTTPError
+				if errors.As(err, &httpError) && httpError.StatusCode == 404 {
+					return types.HandledError{Message: "The given repo does not exist.", InnerError: err}
+				} else if errors.As(err, &httpError) && httpError.StatusCode >= 400 && httpError.StatusCode < 500 {
+					return types.HandledError{Message: httpError.Message, InnerError: err}
+				} else {
+					return types.HandledError{Message: "We could not process your request due to internal error.", InnerError: err}
+				}
+			}
 
 			totalCaches := listCacheResponse.TotalCount
 			caches := listCacheResponse.ActionsCaches
 
 			fmt.Printf("Showing %d of %d cache entries in %s/%s\n\n", displayedEntriesCount(len(caches), f.Limit), totalCaches, repo.Owner(), repo.Name())
 			internal.PrettyPrintCacheList(caches)
+      		return nil
 		},
 	}
 

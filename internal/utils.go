@@ -47,7 +47,7 @@ func FormatCacheSize(size_in_bytes float64) string {
 func PrettyPrintCacheList(caches []types.ActionsCache) {
 	fd := os.Stdout.Fd()
 	ws, _ := term.GetWinsize(fd)
-	width := math.Min(float64(ws.Width), 180)
+	width := math.Max(math.Min(float64(ws.Width), 180), 100)
 
 	sizeWidth := SIZE_COLUMN_WIDTH             // hard-coded size as the content is scoped
 	timeWidth := LAST_ACCESSED_AT_COLUMN_WIDTH // hard-coded size as the content is scoped
@@ -90,7 +90,7 @@ func getFormattedCacheInfo(cache types.ActionsCache, keyWidth int, sizeWidth int
 	size := trimOrPad(fmt.Sprintf("[%s]", FormatCacheSize(cache.SizeInBytes)), sizeWidth)
 	ref := trimOrPad(cache.Ref, refWidth)
 	time := trimOrPad(lastAccessedTime(cache.LastAccessedAt), timeWidth)
-	return fmt.Sprintf(" %s    %s    %s    %s", key, size, ref, time)
+	return fmt.Sprintf("%s    %s    %s    %s", key, size, ref, time)
 }
 
 func RedTick() string {
