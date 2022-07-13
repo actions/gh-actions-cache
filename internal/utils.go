@@ -51,6 +51,7 @@ func FormatCacheSize(size_in_bytes float64) string {
 func PrettyPrintCacheList(caches []types.ActionsCache) {
 	width, _, _ := getTerminalWidth(os.Stdout)
 	width = int(math.Max(float64(width), 100))
+  
 	sizeWidth := SIZE_COLUMN_WIDTH             // hard-coded size as the content is scoped
 	timeWidth := LAST_ACCESSED_AT_COLUMN_WIDTH // hard-coded size as the content is scoped
 	keyWidth := int(math.Floor(0.65 * float64(width-15-20)))

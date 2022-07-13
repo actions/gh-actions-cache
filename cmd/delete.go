@@ -70,7 +70,6 @@ func NewCmdDelete() *cobra.Command {
 					Options: []string{"Delete", "Cancel"},
 				}
 				err = survey.AskOne(prompt, &choice)
-
 				if err != nil {
 					fmt.Println("Error occured while taking input from user while trying to delete cache")
 					return types.HandledError{Message: "Error occured while taking input from user while trying to delete cache.", InnerError: err}
