@@ -63,6 +63,7 @@ func PrettyPrintCacheList(caches []types.ActionsCache) {
 		fmt.Println(formattedRow)
 	}
 }
+
 func PrettyPrintTrimmedCacheList(caches []types.ActionsCache) {
 	length := len(caches)
 	limit := 30
@@ -129,13 +130,13 @@ func getTerminalWidth(f *os.File) (int, int, error) {
 	return 100, 100, nil
 }
 
-func HttpErrorHandler(err error, errMsg404 string, errMsg5xx string) types.HandledError {
+func HttpErrorHandler(err error, errMsg404 string) types.HandledError {
 	var httpError api.HTTPError
 	if errors.As(err, &httpError) && httpError.StatusCode == 404 {
 		return types.HandledError{Message: errMsg404, InnerError: err}
 	} else if errors.As(err, &httpError) && httpError.StatusCode >= 400 && httpError.StatusCode < 500 {
 		return types.HandledError{Message: httpError.Message, InnerError: err}
 	} else {
-		return types.HandledError{Message: errMsg5xx, InnerError: err}
+		return types.HandledError{Message: "We could not process your request due to internal error.", InnerError: err}
 	}
 }

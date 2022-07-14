@@ -47,7 +47,7 @@ func NewCmdDelete() *cobra.Command {
 			if !f.Confirm {
 				matchedCaches, err := getCacheListWithExactMatch(f, artifactCache)
 				if err != nil {
-					return internal.HttpErrorHandler(err, "The given repo does not exist.", "We could not process your request due to internal error.")
+					return internal.HttpErrorHandler(err, "The given repo does not exist.")
 				}
 				matchedCachesLen := len(matchedCaches)
 				if matchedCachesLen == 0 {
@@ -72,7 +72,7 @@ func NewCmdDelete() *cobra.Command {
 			if f.Confirm {
 				cachesDeleted, err := artifactCache.DeleteCaches(queryParams)
 				if err != nil {
-					return internal.HttpErrorHandler(err, fmt.Sprintf("Cache with input key '%s' does not exist", f.Key), "We could not process your request due to internal error.")
+					return internal.HttpErrorHandler(err, fmt.Sprintf("Cache with input key '%s' does not exist", f.Key))
 				}
 
 				if cachesDeleted > 0 {
