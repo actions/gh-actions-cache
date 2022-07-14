@@ -3,12 +3,14 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"reflect"
+  
+  "reflect"
 	"testing"
 
 	"github.com/actions/gh-actions-cache/internal"
 	"github.com/actions/gh-actions-cache/types"
 	"github.com/stretchr/testify/assert"
+
 	"gopkg.in/h2non/gock.v1"
 )
 

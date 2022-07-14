@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"net/url"
 	"strings"
@@ -9,6 +10,7 @@ import (
 	"github.com/actions/gh-actions-cache/internal"
 	"github.com/actions/gh-actions-cache/service"
 	"github.com/actions/gh-actions-cache/types"
+	"github.com/cli/go-gh/pkg/api"
 	"github.com/spf13/cobra"
 )
 
@@ -48,7 +50,6 @@ func NewCmdDelete() *cobra.Command {
 				matchedCaches, err := getCacheListWithExactMatch(f, artifactCache)
 				if err != nil {
 					return internal.HttpErrorHandler(err, "The given repo does not exist.", "We could not process your request due to internal error.")
-
 				}
 				matchedCachesLen := len(matchedCaches)
 				if matchedCachesLen == 0 {
@@ -62,7 +63,6 @@ func NewCmdDelete() *cobra.Command {
 					Options: []string{"Delete", "Cancel"},
 				}
 				err = survey.AskOne(prompt, &choice)
-
 				if err != nil {
 					fmt.Println("Error occured while taking input from user while trying to delete cache")
 					return types.HandledError{Message: "Error occured while taking input from user while trying to delete cache.", InnerError: err}

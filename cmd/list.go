@@ -1,12 +1,14 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"net/url"
 
 	"github.com/actions/gh-actions-cache/internal"
 	"github.com/actions/gh-actions-cache/service"
 	"github.com/actions/gh-actions-cache/types"
+	"github.com/cli/go-gh/pkg/api"
 	"github.com/spf13/cobra"
 )
 
@@ -15,7 +17,7 @@ func NewCmdList() *cobra.Command {
 
 	f := types.ListOptions{}
 
-	var listCmd = &cobra.Command{
+	var listCmd = &cobra.Command {
 		Use:   "list",
 		Short: "Lists the actions cache",
 		RunE: func(cmd *cobra.Command, args []string) error {
