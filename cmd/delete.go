@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"net/url"
 	"strings"
@@ -10,7 +9,6 @@ import (
 	"github.com/actions/gh-actions-cache/internal"
 	"github.com/actions/gh-actions-cache/service"
 	"github.com/actions/gh-actions-cache/types"
-	"github.com/cli/go-gh/pkg/api"
 	"github.com/spf13/cobra"
 )
 
