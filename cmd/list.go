@@ -45,7 +45,7 @@ func NewCmdList() *cobra.Command {
 
 			if f.Branch == "" && f.Key == "" {
 				totalCacheSize, err := artifactCache.GetCacheUsage()
-				if err == nil {
+				if err == nil && totalCacheSize > 0 {
 					fmt.Printf("Total caches size %s\n\n", internal.FormatCacheSize(totalCacheSize))
 				}
 			}
@@ -69,8 +69,10 @@ func NewCmdList() *cobra.Command {
 			if len(caches) > 0 {
 				fmt.Printf("Showing %d of %d cache entries in %s/%s\n\n", displayedEntriesCount(len(caches), f.Limit), totalCaches, repo.Owner(), repo.Name())
 				internal.PrettyPrintCacheList(caches)
-			} else {
+			} else if f.Key != "" {
 				fmt.Printf("Cache with input key '%s' does not exist\n", f.Key)
+			} else {
+				fmt.Printf("There are no Actions caches currently present in this repo\n")
 			}
 			return nil
 		},
