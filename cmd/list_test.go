@@ -3,8 +3,8 @@ package cmd
 import (
 	"errors"
 	"fmt"
-  
-  "reflect"
+
+	"reflect"
 	"testing"
 
 	"github.com/actions/gh-actions-cache/internal"
