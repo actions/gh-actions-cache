@@ -52,7 +52,7 @@ func NewCmdList() *cobra.Command {
 			f.GenerateQueryParams(queryParams)
 			listCacheResponse, err := artifactCache.ListCaches(queryParams)
 			if err != nil {
-				return internal.HttpErrorHandler(err, "The given repo does not exist.", "We could not process your request due to internal error.")
+				return internal.HttpErrorHandler(err, "The given repo does not exist.")
 			}
 
 			totalCaches := listCacheResponse.TotalCount
