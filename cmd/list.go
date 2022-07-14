@@ -1,14 +1,12 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"net/url"
 
 	"github.com/actions/gh-actions-cache/internal"
 	"github.com/actions/gh-actions-cache/service"
 	"github.com/actions/gh-actions-cache/types"
-	"github.com/cli/go-gh/pkg/api"
 	"github.com/spf13/cobra"
 )
 
@@ -54,14 +52,7 @@ func NewCmdList() *cobra.Command {
 			f.GenerateQueryParams(queryParams)
 			listCacheResponse, err := artifactCache.ListCaches(queryParams)
 			if err != nil {
-				var httpError api.HTTPError
-				if errors.As(err, &httpError) && httpError.StatusCode == 404 {
-					return types.HandledError{Message: "The given repo does not exist.", InnerError: err}
-				} else if errors.As(err, &httpError) && httpError.StatusCode >= 400 && httpError.StatusCode < 500 {
-					return types.HandledError{Message: httpError.Message, InnerError: err}
-				} else {
-					return types.HandledError{Message: "We could not process your request due to internal error.", InnerError: err}
-				}
+				return internal.HttpErrorHandler(err, "The given repo does not exist.", "We could not process your request due to internal error.")
 			}
 
 			totalCaches := listCacheResponse.TotalCount
