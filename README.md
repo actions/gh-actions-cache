@@ -96,22 +96,5 @@ EXAMPLES:
 > ℹ️ There could be multiple caches in a repo with same key. This can happen when different caches with same key have been created for different branches. it may also happen if the `version` property of the cache is different which usually means that cache with same key was created for different OS or with different [paths](https://github.com/actions/cache#inputs).
 
 
-## Local Development
-
-1. Build the extension using 
-
-        go build
-
-2. Install the extension
-
-
-        gh extension install <filepath-to-build>
-
-
-    If you are already in the same directory use this `gh extension install .`
-
-3. Run the command
-
-        gh actions-cache <command> [Flags]
-
-4. Update the golang code and generate new binary using step 1. There is no need to install the binary again ie step 2.
+## Contributing
+If anything feels off, or if you feel that some functionality is missing, please check out the [contributing page](CONTRIBUTING.md). There you will find instructions for sharing your feedback, building the tool locally, and submitting pull requests to the project.
