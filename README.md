@@ -44,7 +44,7 @@ ARGUMENTS:
 
 FLAGS:
 	-R, --repo <[HOST/]owner/repo>		Select another repository using the [HOST/]OWNER/REPO format
-	-B, --branch <string>			Filter by branch. Use the full ref format e.g. refs/heads/main
+	-B, --branch <string>			Filter by branch
 	-L, --limit <int>			Maximum number of items to fetch (default is 30, max limit is 100)
 	--key <string>				Filter by a key or key prefix
 	--order <string>			Order of caches returned (asc/desc)
@@ -58,8 +58,9 @@ INHERITED FLAGS
 EXAMPLES:
 	$ gh actions-cache list
 	$ gh actions-cache list --key 564-node-a68c45df0f45f888039d32cd3a579992574e837406488e8904431197f20521d6
-	$ gh actions-cache list --key 564-node-   // key prefix match
-	$ gh actions-cache list -B refs/heads/main
+	$ gh actions-cache list --key 564-node-           // key prefix match
+	$ gh actions-cache list -B main
+	$ gh actions-cache list -B refs/pull/2/merge      // Use the full ref format for PR branches
 	$ gh actions-cache list --limit 100
 	$ gh actions-cache list --sort size --order desc  // biggest caches first
 ```
