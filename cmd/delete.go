@@ -15,7 +15,7 @@ import (
 var choice string = ""
 
 func NewCmdDelete() *cobra.Command {
-	COMMAND = "delete"
+	deleteCommand := "delete"
 	f := types.DeleteOptions{}
 
 	var deleteCmd = &cobra.Command{
@@ -36,7 +36,7 @@ func NewCmdDelete() *cobra.Command {
 			// This will silence the usage (help) message as they are not needed for errors beyond this point
 			cmd.SilenceUsage = true
 
-			artifactCache, err := service.NewArtifactCache(repo, COMMAND, VERSION)
+			artifactCache, err := service.NewArtifactCache(repo, deleteCommand, VERSION)
 			if err != nil {
 				return types.HandledError{Message: err.Error(), InnerError: err}
 			}

@@ -11,7 +11,7 @@ import (
 )
 
 func NewCmdList() *cobra.Command {
-	COMMAND = "list"
+	listCommand := "list"
 
 	f := types.ListOptions{}
 
@@ -36,7 +36,7 @@ func NewCmdList() *cobra.Command {
 				return err
 			}
 
-			artifactCache, err := service.NewArtifactCache(repo, COMMAND, VERSION)
+			artifactCache, err := service.NewArtifactCache(repo, listCommand, VERSION)
 			if err != nil {
 				return types.HandledError{Message: err.Error(), InnerError: err}
 			}
