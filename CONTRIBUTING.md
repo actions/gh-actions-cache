@@ -12,17 +12,17 @@ Please note that this project is released with a [Contributor Code of Conduct][c
 
 ## Submitting a pull request
 
-0. Make sure you have [GoLang](https://go.dev/dl/) installed in your machine.
-0. Make sure you have [GitHub CLI](https://cli.github.com/) installed in your machine as well.
-0. [Fork][fork] and clone the repository
-0. Create a new branch: `git checkout -b my-branch-name` and create a local build using `go build` to ensure your local workspace is set up properly.
-0. Make your changes, add tests, and make sure the tests still pass.
-0. Execute `go build` in your repo and ensure build is succeeding.
-0. Execute `gh extension install .` from the root folder of your repo.
-0. Test your changes by executing appropriate commands and filters for `list` and `delete`.
-0. Update README.md if needed.
-0. Push to your fork and [submit a pull request][pr]
-0. Pat your self on the back and wait for your pull request to be reviewed and merged.
+1. Make sure you have [GoLang](https://go.dev/dl/) installed in your machine.
+2. Make sure you have [GitHub CLI](https://cli.github.com/) installed in your machine as well.
+3. [Fork][fork] and clone the repository
+4. Create a new branch: `git checkout -b my-branch-name` and create a local build using `go build` to ensure your local workspace is set up properly.
+5. Make your changes, add tests, and make sure the tests still pass.
+6. Execute `go build` in your repo and ensure build is succeeding.
+7. Execute `gh extension install .` from the root folder of your repo.
+8. Test your changes by executing appropriate commands and filters for `list` and `delete`.
+9. Update README.md if needed.
+10. Push to your fork and [submit a pull request][pr]
+11. Pat your self on the back and wait for your pull request to be reviewed and merged.
 
 Here are a few things you can do that will increase the likelihood of your pull request being accepted:
 
