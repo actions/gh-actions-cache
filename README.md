@@ -4,7 +4,7 @@
 
 It enables listing of active caches in a repo along with capability to filter by cache key or branch. This brings transparency, for example by showing how much storage quota a cache is consuming or which branch a cache was created for etc or how recently was the cache used.
 
-It also allows deleting a corrupt or incomplete cache. A cache can be deleted by cache key. The cache key can be easily found either using the list capability or by looking at the cache action log in workflow run logs.
+It also allows deleting a corrupt, incomplete or dangling cache. A cache can be deleted by cache key. The key can be easily found either using the list capability or by looking at the cache action log in workflow run logs.
 
 This extension builds on top of [cache management](https://docs.github.com/en/actions/using-workflows/caching-dependencies-to-speed-up-workflows#managing-caches) capabilities exposed by GitHub [APIs](https://docs.github.com/en/rest/actions/cache).
 
