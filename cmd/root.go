@@ -6,9 +6,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const VERSION = "0.0.1"
-
-var COMMAND string = ""
+const VERSION = "1.0.0"
 
 var rootCmd = &cobra.Command{
 	Use:   "gh-actions-cache",

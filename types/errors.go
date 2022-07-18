@@ -5,7 +5,7 @@ import (
 )
 
 type HandledError struct {
-	Message string
+	Message    string
 	InnerError error
 }
 
@@ -13,4 +13,3 @@ type HandledError struct {
 func (err HandledError) Error() string {
 	return fmt.Sprintf(err.Message)
 }
-

@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"net/url"
 	"strings"
@@ -10,14 +9,13 @@ import (
 	"github.com/actions/gh-actions-cache/internal"
 	"github.com/actions/gh-actions-cache/service"
 	"github.com/actions/gh-actions-cache/types"
-	"github.com/cli/go-gh/pkg/api"
 	"github.com/spf13/cobra"
 )
 
 var choice string = ""
 
 func NewCmdDelete() *cobra.Command {
-	COMMAND = "delete"
+	deleteCommand := "delete"
 	f := types.DeleteOptions{}
 
 	var deleteCmd = &cobra.Command{
@@ -38,7 +36,7 @@ func NewCmdDelete() *cobra.Command {
 			// This will silence the usage (help) message as they are not needed for errors beyond this point
 			cmd.SilenceUsage = true
 
-			artifactCache, err := service.NewArtifactCache(repo, COMMAND, VERSION)
+			artifactCache, err := service.NewArtifactCache(repo, deleteCommand, VERSION)
 			if err != nil {
 				return types.HandledError{Message: err.Error(), InnerError: err}
 			}
@@ -49,14 +47,7 @@ func NewCmdDelete() *cobra.Command {
 			if !f.Confirm {
 				matchedCaches, err := getCacheListWithExactMatch(f, artifactCache)
 				if err != nil {
-					var httpError api.HTTPError
-					if errors.As(err, &httpError) && httpError.StatusCode == 404 {
-						return types.HandledError{Message: "The given repo does not exist.", InnerError: err}
-					} else if errors.As(err, &httpError) && httpError.StatusCode >= 400 && httpError.StatusCode < 500 {
-						return types.HandledError{Message: httpError.Message, InnerError: err}
-					} else {
-						return types.HandledError{Message: "We could not process your request due to internal error.", InnerError: err}
-					}
+					return internal.HttpErrorHandler(err, "The given repo does not exist.")
 				}
 				matchedCachesLen := len(matchedCaches)
 				if matchedCachesLen == 0 {
@@ -81,14 +72,7 @@ func NewCmdDelete() *cobra.Command {
 			if f.Confirm {
 				cachesDeleted, err := artifactCache.DeleteCaches(queryParams)
 				if err != nil {
-					var httpError api.HTTPError
-					if errors.As(err, &httpError) && httpError.StatusCode == 404 {
-						return types.HandledError{Message: fmt.Sprintf("Cache with input key '%s' does not exist", f.Key), InnerError: err}
-					} else if errors.As(err, &httpError) && httpError.StatusCode >= 400 && httpError.StatusCode < 500 {
-						return types.HandledError{Message: httpError.Message, InnerError: err}
-					} else {
-						return types.HandledError{Message: "We could not process your request due to internal error.", InnerError: err}
-					}
+					return internal.HttpErrorHandler(err, fmt.Sprintf("Cache with input key '%s' does not exist", f.Key))
 				}
 
 				if cachesDeleted > 0 {
