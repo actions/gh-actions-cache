@@ -12,7 +12,7 @@ import (
 	"gopkg.in/h2non/gock.v1"
 )
 
-const VERSION string = "0.0.1"
+const VERSION string = "1.0.0"
 
 func TestGetCacheUsage_CorrectRepo(t *testing.T) {
 	t.Cleanup(gock.Off)
