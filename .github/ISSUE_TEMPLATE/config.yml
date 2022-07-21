@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Ask a question on how to use GitHub CLI
+    about: For general-purpose questions and answers, see the Discussions section.
+    url: https://github.com/cli/cli/discussions
+  - name: Ask a question on how to use GitHub Actions Cache CLI extension
+    about: For general-purpose questions and answers for Cache CLI extension, see the Discussions section.
+    url: https://github.com/actions/gh-actions-cache/discussions #TODO - Enable discussions once went public.
+  - name: Ask a question about the GitHub Actions Cache API
+    about: Please check out the GitHub community forum for discussions about the GitHub Actions Cache API.
+    url: https://github.com/actions/cache/discussions
