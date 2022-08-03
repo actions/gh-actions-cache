@@ -45,7 +45,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.REPO_WRITE_TOKEN }}
         run: |
-          cache_found=$(gh actions-cache list --key $CacheKey --limit 100 --order desc --sort created-at | grep  $CacheKey)
+          cache_found=$(gh actions-cache list --key $CacheKey --limit 100 --branch $GITHUB_REF --order desc --sort created-at | grep  $CacheKey)
           echo $cache_found
           [[ -z "$cache_found" ]] && exit 1 || echo "Cache List Successful"
       - name: Delete Command
@@ -53,7 +53,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.REPO_WRITE_TOKEN }}
         run: |
-          cache_delete=$(gh actions-cache delete $CacheKey --confirm | grep "Deleted 1 cache entry with key")
+          cache_delete=$(gh actions-cache delete $CacheKey --branch $GITHUB_REF --confirm | grep "Deleted 1 cache entry with key")
           echo $cache_delete
           [[ -z "$cache_delete" ]] && exit 1 || echo "Cache Delete Successful"
       - name: Slack Notification on failure
