@@ -38,7 +38,7 @@ jobs:
         uses: actions/checkout@v2
       - name: Install extension
         env:
-          GITHUB_TOKEN: ${{ secrets.DASHBOARD_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.REPO_WRITE_TOKEN }}
         run: gh extensions install actions/gh-actions-cache
       - name: List Command
         shell: bash
