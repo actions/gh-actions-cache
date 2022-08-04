@@ -57,7 +57,7 @@ func PrettyPrintCacheList(caches []types.ActionsCache) {
 		tp.EndRow()
 	}
 
-	tp.Render()
+	_ := tp.Render()
 }
 
 func PrettyPrintTrimmedCacheList(caches []types.ActionsCache) {
@@ -75,15 +75,6 @@ func PrettyPrintTrimmedCacheList(caches []types.ActionsCache) {
 func lastAccessedTime(lastAccessedAt string) string {
 	lastAccessed, _ := goment.New(lastAccessedAt)
 	return fmt.Sprintf(" %s", lastAccessed.FromNow())
-}
-
-func trimOrPad(value string, maxSize int) string {
-	if len(value) > maxSize {
-		value = value[:maxSize-3] + "..."
-	} else {
-		value = value + strings.Repeat(" ", maxSize-len(value))
-	}
-	return value
 }
 
 func RedTick() string {
