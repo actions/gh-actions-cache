@@ -74,7 +74,7 @@ jobs:
         if: failure()
         uses: 8398a7/action-slack@a74b761b4089b5d730d813fbedcd2ec5d394f3af
         with:
-          text: actions/gh-actions-cache canary failure
+          text: actions/gh-actions-cache E2E test failure
           status: ${{ job.status }}
           fields: repo,workflow,message,author,action,ref
         env:
