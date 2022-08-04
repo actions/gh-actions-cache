@@ -5,13 +5,16 @@ go 1.18
 require (
 	github.com/AlecAivazis/survey/v2 v2.3.5
 	github.com/TwiN/go-color v1.1.0
-	github.com/cli/go-gh v0.0.4-0.20220623035622-91ca4ef447d4
+	github.com/cli/go-gh v0.0.4-0.20220803150914-dde6107d45b9
 	github.com/nleeper/goment v1.4.4
 	github.com/spf13/cobra v1.4.0
 	github.com/stretchr/testify v1.8.0
 )
 
-require github.com/pmezard/go-difflib v1.0.0 // indirect
+require (
+	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/thlib/go-timezone-local v0.0.0-20210907160436-ef149e42d28e // indirect
+)
 
 require (
 	github.com/cli/safeexec v1.0.0
