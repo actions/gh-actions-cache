@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"strings"
 	"unicode/utf8"
 
 	"github.com/TwiN/go-color"
@@ -57,7 +56,7 @@ func PrettyPrintCacheList(caches []types.ActionsCache) {
 		tp.EndRow()
 	}
 
-	_ := tp.Render()
+	_ = tp.Render()
 }
 
 func PrettyPrintTrimmedCacheList(caches []types.ActionsCache) {
