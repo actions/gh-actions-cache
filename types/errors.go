@@ -11,5 +11,5 @@ type HandledError struct {
 
 // Allow HandledError to satisfy error interface.
 func (err HandledError) Error() string {
-	return fmt.Sprintf(err.Message)
+	return err.Message
 }
