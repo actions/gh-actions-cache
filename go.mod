@@ -7,19 +7,15 @@ require (
 	github.com/TwiN/go-color v1.1.0
 	github.com/cli/go-gh v0.1.0
 	github.com/nleeper/goment v1.4.4
-	github.com/spf13/cobra v1.4.0
+	github.com/spf13/cobra v1.5.0
 	github.com/stretchr/testify v1.8.0
 )
 
 require (
-	github.com/MakeNowJust/heredoc v1.0.0 // indirect
-	github.com/cli/browser v1.1.0 // indirect
-	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
-	github.com/stretchr/objx v0.4.0 // indirect
 	github.com/thlib/go-timezone-local v0.0.0-20210907160436-ef149e42d28e // indirect
 )
 
