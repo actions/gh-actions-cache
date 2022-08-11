@@ -3,11 +3,7 @@ package internal
 import (
 	"errors"
 	"fmt"
-	"math"
 	"os"
-	"os/exec"
-	"strconv"
-	"strings"
 	"unicode/utf8"
 
 	"github.com/TwiN/go-color"
@@ -15,16 +11,13 @@ import (
 	gh "github.com/cli/go-gh"
 	"github.com/cli/go-gh/pkg/api"
 	ghRepo "github.com/cli/go-gh/pkg/repository"
-	"github.com/cli/safeexec"
-	"github.com/mattn/go-isatty"
+	ghTableprinter "github.com/cli/go-gh/pkg/tableprinter"
+	ghTerm "github.com/cli/go-gh/pkg/term"
 	"github.com/nleeper/goment"
-	"golang.org/x/term"
 )
 
 const MB_IN_BYTES = 1024 * 1024
 const GB_IN_BYTES = 1024 * 1024 * 1024
-const SIZE_COLUMN_WIDTH = 15
-const LAST_ACCESSED_AT_COLUMN_WIDTH = 20
 
 func GetRepo(r string) (ghRepo.Repository, error) {
 	if r != "" {
@@ -51,17 +44,19 @@ func FormatCacheSize(size_in_bytes float64) string {
 }
 
 func PrettyPrintCacheList(caches []types.ActionsCache) {
-	width, _, _ := getTerminalWidth(os.Stdout)
-	width = int(math.Max(float64(width), 100))
-	sizeWidth := SIZE_COLUMN_WIDTH             // hard-coded size as the content is scoped
-	timeWidth := LAST_ACCESSED_AT_COLUMN_WIDTH // hard-coded size as the content is scoped
-	keyWidth := int(math.Floor(0.65 * float64(width-SIZE_COLUMN_WIDTH-LAST_ACCESSED_AT_COLUMN_WIDTH)))
-	refWidth := int(math.Floor(0.20 * float64(width-SIZE_COLUMN_WIDTH-LAST_ACCESSED_AT_COLUMN_WIDTH)))
+	terminal := ghTerm.FromEnv()
+	w, _, _ := terminal.Size()
+	tp := ghTableprinter.New(os.Stdout, true, w)
 
 	for _, cache := range caches {
-		var formattedRow string = getFormattedCacheInfo(cache, keyWidth, sizeWidth, refWidth, timeWidth)
-		fmt.Println(formattedRow)
+		tp.AddField(cache.Key)
+		tp.AddField(FormatCacheSize(cache.SizeInBytes))
+		tp.AddField(cache.Ref)
+		tp.AddField(lastAccessedTime(cache.LastAccessedAt))
+		tp.EndRow()
 	}
+
+	_ = tp.Render()
 }
 
 func PrettyPrintTrimmedCacheList(caches []types.ActionsCache) {
@@ -78,24 +73,7 @@ func PrettyPrintTrimmedCacheList(caches []types.ActionsCache) {
 
 func lastAccessedTime(lastAccessedAt string) string {
 	lastAccessed, _ := goment.New(lastAccessedAt)
-	return fmt.Sprintf(" %s", lastAccessed.FromNow())
-}
-
-func trimOrPad(value string, maxSize int) string {
-	if len(value) > maxSize {
-		value = value[:maxSize-3] + "..."
-	} else {
-		value = value + strings.Repeat(" ", maxSize-len(value))
-	}
-	return value
-}
-
-func getFormattedCacheInfo(cache types.ActionsCache, keyWidth int, sizeWidth int, refWidth int, timeWidth int) string {
-	key := trimOrPad(cache.Key, keyWidth)
-	size := trimOrPad(fmt.Sprintf("[%s]", FormatCacheSize(cache.SizeInBytes)), sizeWidth)
-	ref := trimOrPad(cache.Ref, refWidth)
-	time := trimOrPad(lastAccessedTime(cache.LastAccessedAt), timeWidth)
-	return fmt.Sprintf("%s %s %s %s", key, size, ref, time)
+	return lastAccessed.FromNow()
 }
 
 func RedTick() string {
@@ -110,24 +88,6 @@ func PrintSingularOrPlural(count int, singularStr string, pluralStr string) stri
 		return fmt.Sprintf("%d %s", count, singularStr)
 	}
 	return fmt.Sprintf("%d %s", count, pluralStr)
-}
-
-func getTerminalWidth(f *os.File) (int, int, error) {
-	if !isatty.IsCygwinTerminal(f.Fd()) {
-		return term.GetSize(int(f.Fd()))
-	}
-	tputExe, err := safeexec.LookPath("tput")
-	if err != nil {
-		return 100, 100, nil
-	}
-	tputCmd := exec.Command(tputExe, "cols")
-	tputCmd.Stdin = os.Stdin
-	if out, err := tputCmd.Output(); err == nil {
-		if w, err := strconv.Atoi(strings.TrimSpace(string(out))); err == nil {
-			return w, 100, nil
-		}
-	}
-	return 100, 100, nil
 }
 
 func HttpErrorHandler(err error, errMsg404 string) types.HandledError {
