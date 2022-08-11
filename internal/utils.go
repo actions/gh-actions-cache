@@ -73,7 +73,7 @@ func PrettyPrintTrimmedCacheList(caches []types.ActionsCache) {
 
 func lastAccessedTime(lastAccessedAt string) string {
 	lastAccessed, _ := goment.New(lastAccessedAt)
-	return fmt.Sprintf(" %s", lastAccessed.FromNow())
+	return fmt.Sprintf("%s", lastAccessed.FromNow())
 }
 
 func RedTick() string {
