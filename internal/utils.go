@@ -3,7 +3,6 @@ package internal
 import (
 	"errors"
 	"fmt"
-	"os"
 	"unicode/utf8"
 
 	"github.com/TwiN/go-color"
