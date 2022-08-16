@@ -46,6 +46,8 @@ func FormatCacheSize(size_in_bytes float64) string {
 func PrettyPrintCacheList(caches []types.ActionsCache) {
 	terminal := ghTerm.FromEnv()
 	w, _, _ := terminal.Size()
+	// Checking w as its 0 if running non-interactively. 
+	// We need to set a default value in order to run e2e test workflow   
 	if w == 0 {
 		w = 300
 	}
