@@ -9,7 +9,7 @@ assignees: ''
 
 ### Describe the bug
 
-A clear and concise description of what the bug is. Include CLI version by typing `gh actions-cache --version` and extension version by typing `gh actions-cache --version`. <!--TODO: Implement version printing for the cache -->
+A clear and concise description of what the bug is. Include CLI version by typing `gh --version.
 
 ### Steps to reproduce the behavior
 
