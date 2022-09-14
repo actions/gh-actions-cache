@@ -66,6 +66,7 @@ EXAMPLES:
 	$ gh actions-cache list --limit 100
 	$ gh actions-cache list --sort size --order desc  // biggest caches first
 ```
+> ℹ️ While using the extension for GHES repositories, it is important to use the HOST name with the --repo flag. Not using HOST will treat the repository as a github.com repository.
 
 ### Delete 
 
