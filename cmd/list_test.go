@@ -62,7 +62,7 @@ func TestListWithIncorrectLimit(t *testing.T) {
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
-func TestListWithIncorrectLimit2(t *testing.T) {
+func TestListLimitShorthandUsingIncorrectLimit(t *testing.T) {
 	t.Cleanup(gock.Off)
 
 	cmd := NewCmdList()
