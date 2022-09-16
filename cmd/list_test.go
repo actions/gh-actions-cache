@@ -62,6 +62,18 @@ func TestListWithIncorrectLimit(t *testing.T) {
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
+func TestListWithIncorrectLimit2(t *testing.T) {
+	t.Cleanup(gock.Off)
+
+	cmd := NewCmdList()
+	cmd.SetArgs([]string{"-L", "102", "--repo", "testOrg/testRepo"})
+	err := cmd.Execute()
+
+	assert.NotNil(t, err)
+	assert.Equal(t, err, fmt.Errorf("102 is not a valid integer value for limit flag. Allowed values: 1-100"))
+	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
+}
+
 func TestListWithIncorrectOrder(t *testing.T) {
 	t.Cleanup(gock.Off)
 

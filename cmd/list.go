@@ -69,7 +69,7 @@ func NewCmdList() *cobra.Command {
 
 	listCmd.Flags().StringVarP(&f.Repo, "repo", "R", "", "Select another repository for finding actions cache.")
 	listCmd.Flags().StringVarP(&f.Branch, "branch", "B", "", "Filter by branch")
-	listCmd.Flags().IntVarP(&f.Limit, "limit", "", 30, "Number of items to fetch between 1 and 100")
+	listCmd.Flags().IntVarP(&f.Limit, "limit", "L", 30, "Number of items to fetch between 1 and 100")
 	listCmd.Flags().StringVarP(&f.Key, "key", "", "", "Filter by key")
 	listCmd.Flags().StringVarP(&f.Order, "order", "", "", "Order of caches returned (asc/desc)")
 	listCmd.Flags().StringVarP(&f.Sort, "sort", "", "", "Sort fetched caches (last-used/size/created-at)")
