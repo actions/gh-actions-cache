@@ -8,7 +8,7 @@ It also allows deleting a corrupt, incomplete or dangling cache. A cache can be 
 
 This extension builds on top of [cache management](https://docs.github.com/en/actions/using-workflows/caching-dependencies-to-speed-up-workflows#managing-caches) capabilities exposed by GitHub [APIs](https://docs.github.com/en/rest/actions/cache).
 
-**Note:** This extension currently supports github.com repositories only and will start supporting GHES (GitHub Enterprise Server) by the next ship version i.e. 3.7.
+**Note:** This extension currently supports github.com only, GitHub Enterprise Server is not supported currently.
 
 ## Installation
 
@@ -66,7 +66,6 @@ EXAMPLES:
 	$ gh actions-cache list --limit 100
 	$ gh actions-cache list --sort size --order desc  // biggest caches first
 ```
-> ℹ️ While using the extension for GHES repositories, it is important to use the HOST name with the --repo flag. Not using HOST will treat the repository as a github.com repository.
 
 ### Delete 
 
