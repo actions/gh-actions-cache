@@ -35,7 +35,7 @@ jobs:
       CacheKey: ${{ matrix.os }}-runner-${{ github.run_number }}-${{ github.run_attempt }}
     steps:
       - name: checkout repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Install extension
         env:
           GITHUB_TOKEN: ${{ secrets.REPO_WRITE_TOKEN }}
