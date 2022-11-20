@@ -8,6 +8,7 @@ import (
 	"github.com/actions/gh-actions-cache/service"
 	"github.com/actions/gh-actions-cache/types"
 	"github.com/spf13/cobra"
+	ghTerm "github.com/cli/go-gh/pkg/term"
 )
 
 func NewCmdList() *cobra.Command {
@@ -41,9 +42,13 @@ func NewCmdList() *cobra.Command {
 				return types.HandledError{Message: err.Error(), InnerError: err}
 			}
 
+			// This will be used to determine the if output is terminal
+			terminal := ghTerm.FromEnv()
+			isTerminalOutput := terminal.IsTerminalOutput()
+
 			if f.Branch == "" && f.Key == "" {
 				totalCacheSize, err := artifactCache.GetCacheUsage()
-				if err == nil && totalCacheSize > 0 {
+				if err == nil && totalCacheSize > 0 && isTerminalOutput {
 					fmt.Printf("Total caches size %s\n\n", internal.FormatCacheSize(totalCacheSize))
 				}
 			}
@@ -58,7 +63,9 @@ func NewCmdList() *cobra.Command {
 			totalCaches := listCacheResponse.TotalCount
 			caches := listCacheResponse.ActionsCaches
 			if len(caches) > 0 {
-				fmt.Printf("Showing %d of %d cache entries in %s/%s\n\n", displayedEntriesCount(len(caches), f.Limit), totalCaches, repo.Owner(), repo.Name())
+				if isTerminalOutput {
+					fmt.Printf("Showing %d of %d cache entries in %s/%s\n\n", displayedEntriesCount(len(caches), f.Limit), totalCaches, repo.Owner(), repo.Name())
+				}
 				internal.PrettyPrintCacheList(caches)
 			} else {
 				fmt.Printf("There are no Actions caches currently present in this repo or for the provided filters\n")
