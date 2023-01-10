@@ -67,7 +67,7 @@ func NewCmdList() *cobra.Command {
 					fmt.Printf("Showing %d of %d cache entries in %s/%s\n\n", displayedEntriesCount(len(caches), f.Limit), totalCaches, repo.Owner(), repo.Name())
 				}
 				internal.PrettyPrintCacheList(caches)
-			} else {
+			} else if isTerminalOutput {
 				fmt.Printf("There are no Actions caches currently present in this repo or for the provided filters\n")
 			}
 			return nil
