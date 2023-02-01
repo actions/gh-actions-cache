@@ -97,8 +97,14 @@ EXAMPLES:
 
 > ℹ️ There could be multiple caches in a repo with same key. This can happen when different caches with same key have been created for different branches. it may also happen if the `version` property of the cache is different which usually means that cache with same key was created for different OS or with different [paths](https://github.com/actions/cache#inputs).
 
-## How Repo is selected
-This extension currently uses the `go-gh` module's [`CurrentRepository` function](https://github.com/actions/gh-actions-cache/blob/d3293b69e1c5bc17686d815ab2c64618618c95df/internal/utils.go#L26) to determine the current repo. This function returns the first element of the list returned by the `git.Remotes()` internal function, which [sorts remotes such that `upstream` precedes `github`, which precedes `origin`](https://github.com/cli/go-gh/blob/c2fc965daac88a8a38dd8af02f236095b5dd48f1/internal/git/remote.go#L30). As such, if an `upstream` remote is present, this extension's default behavior is to return its caches. User's input `--repo <owner>/<name>` will override any current git repository and extension will fetch caches for the same.
+## FAQs
+
+### How Repo is selected
+
+This extension currently uses the `go-gh` module's [`CurrentRepository` function](https://github.com/actions/gh-actions-cache/blob/d3293b69e1c5bc17686d815ab2c64618618c95df/internal/utils.go#L26) to determine the current repo. This function returns the first element of the list returned by the `git.Remotes()` internal function, which [sorts remotes such that `upstream` precedes `github`, which precedes `origin`](https://github.com/cli/go-gh/blob/c2fc965daac88a8a38dd8af02f236095b5dd48f1/internal/git/remote.go#L30). As such, if an `upstream` remote is present, this extension's default behavior is to return its caches. 
+
+User's input `--repo <owner>/<name>` will override any current git repository and extension will fetch caches for the same.
+
 
 ## Contributing
 If anything feels off, or if you feel that some functionality is missing, please check out the [contributing page](CONTRIBUTING.md). There you will find instructions for sharing your feedback, building the tool locally, and submitting pull requests to the project.
