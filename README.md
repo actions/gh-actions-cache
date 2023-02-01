@@ -105,6 +105,17 @@ This extension currently uses the `go-gh` module's [`CurrentRepository` function
 
 User's input `--repo <owner>/<name>` will override any current git repository and extension will fetch caches for the same.
 
+### How to remove trimming in results
+
+We support a table printer that allows users to pipe output for further processing. If we want to list down certain columns without trimming then just selecting the column number in the below command will work.
+
+`gh actions-cache list -R <owner>/<repo_name> | cut -f 1,2,3`
+
+This will print columns 1,2 and 3 without any trimming.
+
+### Delete all caches for a branch
+
+Please refers to this doc - [Force deleting cache entries](https://docs.github.com/en/actions/using-workflows/caching-dependencies-to-speed-up-workflows#force-deleting-cache-entries)
 
 ## Contributing
 If anything feels off, or if you feel that some functionality is missing, please check out the [contributing page](CONTRIBUTING.md). There you will find instructions for sharing your feedback, building the tool locally, and submitting pull requests to the project.
