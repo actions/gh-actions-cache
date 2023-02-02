@@ -99,7 +99,7 @@ EXAMPLES:
 
 ## FAQs
 
-### How Repo is selected
+### How the current repository is selected?
 
 This extension currently uses the `go-gh` module's [`CurrentRepository` function](https://github.com/actions/gh-actions-cache/blob/d3293b69e1c5bc17686d815ab2c64618618c95df/internal/utils.go#L26) to determine the current repo. This function returns the first element of the list returned by the `git.Remotes()` internal function, which [sorts remotes such that `upstream` precedes `github`, which precedes `origin`](https://github.com/cli/go-gh/blob/c2fc965daac88a8a38dd8af02f236095b5dd48f1/internal/git/remote.go#L30). As such, if an `upstream` remote is present, this extension's default behavior is to return its caches. 
 
