@@ -97,6 +97,25 @@ EXAMPLES:
 
 > ℹ️ There could be multiple caches in a repo with same key. This can happen when different caches with same key have been created for different branches. it may also happen if the `version` property of the cache is different which usually means that cache with same key was created for different OS or with different [paths](https://github.com/actions/cache#inputs).
 
+## FAQs
+
+### How the current repository is selected?
+
+This extension currently uses the `go-gh` module's [`CurrentRepository` function](https://github.com/actions/gh-actions-cache/blob/d3293b69e1c5bc17686d815ab2c64618618c95df/internal/utils.go#L26) to determine the current repo. This function returns the first element of the list returned by the `git.Remotes()` internal function, which [sorts remotes such that `upstream` precedes `github`, which precedes `origin`](https://github.com/cli/go-gh/blob/c2fc965daac88a8a38dd8af02f236095b5dd48f1/internal/git/remote.go#L30). As such, if an `upstream` remote is present, this extension's default behavior is to return its caches. 
+
+User's input `--repo <owner>/<name>` will override any current git repository and extension will fetch caches for the same.
+
+### How to remove trimming in results
+
+We support a table printer that allows users to pipe output for further processing. If we want to list down certain columns without trimming then just selecting the column number in the below command will work.
+
+`gh actions-cache list -R <owner>/<repo_name> | cut -f 1,2,3`
+
+This will print columns 1,2 and 3 without any trimming.
+
+### Delete all caches for a branch
+
+Please refers to this doc - [Force deleting cache entries](https://docs.github.com/en/actions/using-workflows/caching-dependencies-to-speed-up-workflows#force-deleting-cache-entries)
 
 ## Contributing
 If anything feels off, or if you feel that some functionality is missing, please check out the [contributing page](CONTRIBUTING.md). There you will find instructions for sharing your feedback, building the tool locally, and submitting pull requests to the project.
