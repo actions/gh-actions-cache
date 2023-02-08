@@ -19,7 +19,7 @@ func TestDeleteWithIncorrectArguments(t *testing.T) {
 	cmd.SetArgs([]string{})
 	err := cmd.Execute()
 
-	assert.NotNil(t, err)
+	assert.Error(t, err)
 	assert.Equal(t, fmt.Errorf("accepts 1 arg(s), received 0"), err)
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
@@ -31,7 +31,7 @@ func TestDeleteWithIncorrectRepo(t *testing.T) {
 	cmd.SetArgs([]string{"--repo", "testOrg/testRepo/123/123", "cacheName"})
 	err := cmd.Execute()
 
-	assert.NotNil(t, err)
+	assert.Error(t, err)
 	assert.Equal(t, err, fmt.Errorf("expected the \"[HOST/]OWNER/REPO\" format, got \"testOrg/testRepo/123/123\""))
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
@@ -52,7 +52,7 @@ func TestDeleteWithIncorrectRepoForDeleteCaches(t *testing.T) {
 	cmd.SetArgs([]string{"--repo", "testOrg/testRepo", "cacheName"})
 	err := cmd.Execute()
 
-	assert.NotNil(t, err)
+	assert.Error(t, err)
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 	var customError types.HandledError
 	errors.As(err, &customError)
@@ -116,7 +116,7 @@ func TestDeleteFailureWhileTakingUserInput(t *testing.T) {
 	cmd.SetArgs([]string{"--repo", "testOrg/testRepo", "2022-06-29T13:33:49"})
 	err := cmd.Execute()
 
-	assert.NotNil(t, err)
+	assert.Error(t, err)
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
@@ -135,7 +135,7 @@ func TestDeleteWithUnauthorizedRequestForDeleteCaches(t *testing.T) {
 	cmd.SetArgs([]string{"--repo", "testOrg/testRepo", "cacheKey", "--confirm"})
 	err := cmd.Execute()
 
-	assert.NotNil(t, err)
+	assert.Error(t, err)
 	assert.Equal(t, reflect.TypeOf(types.HandledError{}), reflect.TypeOf(err))
 
 	var customError types.HandledError
@@ -160,7 +160,7 @@ func TestDeleteWithInternalServerErrorForDeleteCaches(t *testing.T) {
 	cmd.SetArgs([]string{"--repo", "testOrg/testRepo", "cacheKey", "--confirm"})
 	err := cmd.Execute()
 
-	assert.NotNil(t, err)
+	assert.Error(t, err)
 	assert.Equal(t, reflect.TypeOf(types.HandledError{}), reflect.TypeOf(err))
 
 	var customError types.HandledError

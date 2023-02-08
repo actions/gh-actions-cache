@@ -58,7 +58,7 @@ func TestGetCacheUsage_IncorrectRepo(t *testing.T) {
 	var httpError api.HTTPError
 	errors.As(err, &httpError)
 
-	assert.NotNil(t, err)
+	assert.Error(t, err)
 	assert.Equal(t, 404, httpError.StatusCode)
 	assert.Equal(t, "Not Found", httpError.Message)
 	assert.Equal(t, float64(-1), totalCacheSize)
@@ -128,7 +128,7 @@ func TestListCaches_Failure(t *testing.T) {
 	var httpError api.HTTPError
 	errors.As(err, &httpError)
 
-	assert.NotNil(t, err)
+	assert.Error(t, err)
 	assert.Equal(t, 404, httpError.StatusCode)
 	assert.Equal(t, "Not Found", httpError.Message)
 	assert.Equal(t, types.ListApiResponse{}, listCacheResponse)
@@ -193,7 +193,7 @@ func TestDeleteCaches_Failure(t *testing.T) {
 	assert.NoError(t, err)
 	deletedCache, err := artifactCache.DeleteCaches(queryParams)
 
-	assert.NotNil(t, err)
+	assert.Error(t, err)
 	assert.Equal(t, 0, deletedCache)
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
