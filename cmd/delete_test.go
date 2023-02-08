@@ -85,7 +85,7 @@ func TestDeleteSuccessWithConfirmFlagProvided(t *testing.T) {
 	cmd.SetArgs([]string{"--repo", "testOrg/testRepo", "2022-06-29T13:33:49", "--confirm"})
 	err := cmd.Execute()
 
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 

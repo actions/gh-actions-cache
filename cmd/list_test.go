@@ -229,6 +229,6 @@ func TestListSuccess(t *testing.T) {
 	cmd.SetArgs([]string{"--repo", "testOrg/testRepo"})
 	err := cmd.Execute()
 
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }

@@ -21,7 +21,7 @@ func TestGetRepo_CorrectRepoString(t *testing.T) {
 	repo, err := GetRepo(r)
 
 	assert.NotNil(t, repo)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.Equal(t, repo.Host(), "github.com")
 	assert.Equal(t, repo.Owner(), "testOrg")
 	assert.Equal(t, repo.Name(), "testRepo")
@@ -32,7 +32,7 @@ func TestGetRepo_CorrectRepoStringWithCustomHost(t *testing.T) {
 	repo, err := GetRepo(r)
 
 	assert.NotNil(t, repo)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.Equal(t, repo.Host(), "api.testEnterprise.com")
 	assert.Equal(t, repo.Owner(), "testOrg")
 	assert.Equal(t, repo.Name(), "testRepo")
