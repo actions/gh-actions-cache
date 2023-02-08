@@ -1,10 +1,6 @@
 package cmd
 
 import (
-	"errors"
-	"fmt"
-
-	"reflect"
 	"testing"
 
 	"github.com/actions/gh-actions-cache/internal"
@@ -21,8 +17,7 @@ func TestListWithIncorrectArguments(t *testing.T) {
 	cmd.SetArgs([]string{"keyValue"})
 	err := cmd.Execute()
 
-	assert.Error(t, err)
-	assert.Equal(t, fmt.Errorf("Invalid argument(s). Expected 0 received 1"), err)
+	assert.ErrorContains(t, err, "Invalid argument(s). Expected 0 received 1")
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
@@ -33,8 +28,7 @@ func TestListWithIncorrectRepo(t *testing.T) {
 	cmd.SetArgs([]string{"--repo", "testOrg/testRepo/123/123"})
 	err := cmd.Execute()
 
-	assert.Error(t, err)
-	assert.Equal(t, err, fmt.Errorf("expected the \"[HOST/]OWNER/REPO\" format, got \"testOrg/testRepo/123/123\""))
+	assert.ErrorContains(t, err, "expected the \"[HOST/]OWNER/REPO\" format, got \"testOrg/testRepo/123/123\"")
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
@@ -45,8 +39,7 @@ func TestListWithNegativeLimit(t *testing.T) {
 	cmd.SetArgs([]string{"--limit", "-1", "--repo", "testOrg/testRepo"})
 	err := cmd.Execute()
 
-	assert.Error(t, err)
-	assert.Equal(t, fmt.Errorf("-1 is not a valid integer value for limit flag. Allowed values: 1-100"), err)
+	assert.ErrorContains(t, err, "-1 is not a valid integer value for limit flag. Allowed values: 1-100")
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
@@ -57,8 +50,7 @@ func TestListWithIncorrectLimit(t *testing.T) {
 	cmd.SetArgs([]string{"--limit", "101", "--repo", "testOrg/testRepo"})
 	err := cmd.Execute()
 
-	assert.Error(t, err)
-	assert.Equal(t, fmt.Errorf("101 is not a valid integer value for limit flag. Allowed values: 1-100"), err)
+	assert.ErrorContains(t, err, "101 is not a valid integer value for limit flag. Allowed values: 1-100")
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
@@ -69,8 +61,7 @@ func TestListLimitShorthandUsingIncorrectLimit(t *testing.T) {
 	cmd.SetArgs([]string{"-L", "102", "--repo", "testOrg/testRepo"})
 	err := cmd.Execute()
 
-	assert.Error(t, err)
-	assert.Equal(t, fmt.Errorf("102 is not a valid integer value for limit flag. Allowed values: 1-100"), err)
+	assert.ErrorContains(t, err, "102 is not a valid integer value for limit flag. Allowed values: 1-100")
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
@@ -81,8 +72,7 @@ func TestListWithIncorrectOrder(t *testing.T) {
 	cmd.SetArgs([]string{"--order", "incorrectOrderValue", "--repo", "testOrg/testRepo"})
 	err := cmd.Execute()
 
-	assert.Error(t, err)
-	assert.Equal(t, fmt.Errorf("incorrectOrderValue is not a valid value for order flag. Allowed values: asc/desc"), err)
+	assert.ErrorContains(t, err, "incorrectOrderValue is not a valid value for order flag. Allowed values: asc/desc")
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
@@ -93,8 +83,7 @@ func TestListWithIncorrectSort(t *testing.T) {
 	cmd.SetArgs([]string{"--sort", "incorrectSortValue", "--repo", "testOrg/testRepo"})
 	err := cmd.Execute()
 
-	assert.Error(t, err)
-	assert.Equal(t, fmt.Errorf("incorrectSortValue is not a valid value for sort flag. Allowed values: last-used/size/created-at"), err)
+	assert.ErrorContains(t, err, "incorrectSortValue is not a valid value for sort flag. Allowed values: last-used/size/created-at")
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
@@ -121,13 +110,10 @@ func TestListWithIncorrectRepoForListCaches(t *testing.T) {
 	cmd.SetArgs([]string{"--repo", "testOrg/testRepo"})
 	err := cmd.Execute()
 
-	assert.Error(t, err)
-	assert.Equal(t, reflect.TypeOf(types.HandledError{}), reflect.TypeOf(err))
-
 	var customError types.HandledError
-	errors.As(err, &customError)
-	assert.Equal(t, "The given repo does not exist.", customError.Message)
-
+	if assert.ErrorAs(t, err, &customError) {
+		assert.Equal(t, "The given repo does not exist.", customError.Message)
+	}
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
@@ -154,13 +140,10 @@ func TestListWithUnauthorizedRequestForListCaches(t *testing.T) {
 	cmd.SetArgs([]string{"--repo", "testOrg/testRepo"})
 	err := cmd.Execute()
 
-	assert.Error(t, err)
-	assert.Equal(t, reflect.TypeOf(types.HandledError{}), reflect.TypeOf(err))
-
 	var customError types.HandledError
-	errors.As(err, &customError)
-	assert.Equal(t, "Must have admin rights to Repository.", customError.Message)
-
+	if assert.ErrorAs(t, err, &customError) {
+		assert.Equal(t, "Must have admin rights to Repository.", customError.Message)
+	}
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
@@ -187,13 +170,10 @@ func TestListWithInternalServerErrorForListCaches(t *testing.T) {
 	cmd.SetArgs([]string{"--repo", "testOrg/testRepo"})
 	err := cmd.Execute()
 
-	assert.Error(t, err)
-	assert.Equal(t, reflect.TypeOf(types.HandledError{}), reflect.TypeOf(err))
-
 	var customError types.HandledError
-	errors.As(err, &customError)
-	assert.Equal(t, "We could not process your request due to internal error.", customError.Message)
-
+	if assert.ErrorAs(t, err, &customError) {
+		assert.Equal(t, "We could not process your request due to internal error.", customError.Message)
+	}
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 

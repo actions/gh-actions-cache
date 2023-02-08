@@ -11,9 +11,8 @@ func TestGetRepo_IncorrectRepoString(t *testing.T) {
 	r := "testOrg/testRepo/123/123"
 	repo, err := GetRepo(r)
 
-	assert.Error(t, err)
+	assert.ErrorContains(t, err, fmt.Sprintf("expected the \"[HOST/]OWNER/REPO\" format, got \"%s\"", r))
 	assert.Nil(t, repo)
-	assert.Equal(t, err.Error(), fmt.Sprintf("expected the \"[HOST/]OWNER/REPO\" format, got \"%s\"", r))
 }
 
 func TestGetRepo_CorrectRepoString(t *testing.T) {

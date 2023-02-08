@@ -1,7 +1,6 @@
 package service
 
 import (
-	"errors"
 	"net/url"
 	"testing"
 
@@ -56,11 +55,10 @@ func TestGetCacheUsage_IncorrectRepo(t *testing.T) {
 	assert.NoError(t, err)
 	totalCacheSize, err := artifactCache.GetCacheUsage()
 	var httpError api.HTTPError
-	errors.As(err, &httpError)
-
-	assert.Error(t, err)
-	assert.Equal(t, 404, httpError.StatusCode)
-	assert.Equal(t, "Not Found", httpError.Message)
+	if assert.ErrorAs(t, err, &httpError) {
+		assert.Equal(t, 404, httpError.StatusCode)
+		assert.Equal(t, "Not Found", httpError.Message)
+	}
 	assert.Equal(t, float64(-1), totalCacheSize)
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
@@ -126,11 +124,10 @@ func TestListCaches_Failure(t *testing.T) {
 	assert.NoError(t, err)
 	listCacheResponse, err := artifactCache.ListCaches(queryParams)
 	var httpError api.HTTPError
-	errors.As(err, &httpError)
-
-	assert.Error(t, err)
-	assert.Equal(t, 404, httpError.StatusCode)
-	assert.Equal(t, "Not Found", httpError.Message)
+	if assert.ErrorAs(t, err, &httpError) {
+		assert.Equal(t, 404, httpError.StatusCode)
+		assert.Equal(t, "Not Found", httpError.Message)
+	}
 	assert.Equal(t, types.ListApiResponse{}, listCacheResponse)
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
