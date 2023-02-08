@@ -8,6 +8,7 @@ import (
 	"github.com/actions/gh-actions-cache/types"
 	"github.com/cli/go-gh/pkg/api"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"gopkg.in/h2non/gock.v1"
 )
 
@@ -26,14 +27,15 @@ func TestGetCacheUsage_CorrectRepo(t *testing.T) {
 		}`)
 
 	repo, err := internal.GetRepo("testOrg/testRepo")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	artifactCache, err := NewArtifactCache(repo, "list", VERSION)
-	assert.NoError(t, err)
+	require.NoError(t, err)
+	require.NotNil(t, artifactCache)
 	totalCacheSize, err := artifactCache.GetCacheUsage()
 
-	assert.Equal(t, float64(291205), totalCacheSize)
 	assert.NoError(t, err)
+	assert.Equal(t, float64(291205), totalCacheSize)
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
@@ -49,10 +51,11 @@ func TestGetCacheUsage_IncorrectRepo(t *testing.T) {
 		}`)
 
 	repo, err := internal.GetRepo("testOrg/wrongRepo")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	artifactCache, err := NewArtifactCache(repo, "list", VERSION)
-	assert.NoError(t, err)
+	require.NoError(t, err)
+	require.NotNil(t, artifactCache)
 	totalCacheSize, err := artifactCache.GetCacheUsage()
 	var httpError api.HTTPError
 	if assert.ErrorAs(t, err, &httpError) {
@@ -84,21 +87,23 @@ func TestListCaches_Success(t *testing.T) {
 			}`)
 
 	repo, err := internal.GetRepo("testOrg/testRepo")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	f := types.ListOptions{BaseOptions: types.BaseOptions{Repo: "testOrg/testRepo"}, Limit: 30}
 	queryParams := url.Values{}
 	f.GenerateQueryParams(queryParams)
 
 	artifactCache, err := NewArtifactCache(repo, "list", VERSION)
-	assert.NoError(t, err)
+	require.NoError(t, err)
+	require.NotNil(t, artifactCache)
 	listCacheResponse, err := artifactCache.ListCaches(queryParams)
 
 	assert.NoError(t, err)
-	assert.NotNil(t, listCacheResponse)
-	assert.Equal(t, 1, listCacheResponse.TotalCount)
-	assert.Equal(t, 1, len(listCacheResponse.ActionsCaches))
-	assert.Equal(t, 29, listCacheResponse.ActionsCaches[0].Id)
+	if assert.NotNil(t, listCacheResponse) {
+		assert.Equal(t, 1, listCacheResponse.TotalCount)
+		assert.Equal(t, 1, len(listCacheResponse.ActionsCaches))
+		assert.Equal(t, 29, listCacheResponse.ActionsCaches[0].Id)
+	}
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
@@ -114,14 +119,15 @@ func TestListCaches_Failure(t *testing.T) {
 		}`)
 
 	repo, err := internal.GetRepo("testOrg/testRepo")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	f := types.ListOptions{BaseOptions: types.BaseOptions{Repo: "testOrg/testRepo"}, Limit: 30}
 	queryParams := url.Values{}
 	f.GenerateQueryParams(queryParams)
 
 	artifactCache, err := NewArtifactCache(repo, "list", VERSION)
-	assert.NoError(t, err)
+	require.NoError(t, err)
+	require.NotNil(t, artifactCache)
 	listCacheResponse, err := artifactCache.ListCaches(queryParams)
 	var httpError api.HTTPError
 	if assert.ErrorAs(t, err, &httpError) {
@@ -153,14 +159,15 @@ func TestDeleteCaches_Success(t *testing.T) {
 			}`)
 
 	repo, err := internal.GetRepo("testOrg/testRepo")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	f := types.DeleteOptions{BaseOptions: types.BaseOptions{Repo: "testOrg/testRepo"}}
 	queryParams := url.Values{}
 	f.GenerateBaseQueryParams(queryParams)
 
 	artifactCache, err := NewArtifactCache(repo, "delete", VERSION)
-	assert.NoError(t, err)
+	require.NoError(t, err)
+	require.NotNil(t, artifactCache)
 	deletedCache, err := artifactCache.DeleteCaches(queryParams)
 
 	assert.NoError(t, err)
@@ -180,14 +187,15 @@ func TestDeleteCaches_Failure(t *testing.T) {
 		}`)
 
 	repo, err := internal.GetRepo("testOrg/testRepo")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	f := types.DeleteOptions{BaseOptions: types.BaseOptions{Repo: "testOrg/testRepo"}}
 	queryParams := url.Values{}
 	f.GenerateBaseQueryParams(queryParams)
 
 	artifactCache, err := NewArtifactCache(repo, "delete", VERSION)
-	assert.NoError(t, err)
+	require.NoError(t, err)
+	require.NotNil(t, artifactCache)
 	deletedCache, err := artifactCache.DeleteCaches(queryParams)
 
 	assert.Error(t, err)
