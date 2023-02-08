@@ -22,7 +22,7 @@ func TestListWithIncorrectArguments(t *testing.T) {
 	err := cmd.Execute()
 
 	assert.NotNil(t, err)
-	assert.Equal(t, err, fmt.Errorf("Invalid argument(s). Expected 0 received 1"))
+	assert.Equal(t, fmt.Errorf("Invalid argument(s). Expected 0 received 1"), err)
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
@@ -46,7 +46,7 @@ func TestListWithNegativeLimit(t *testing.T) {
 	err := cmd.Execute()
 
 	assert.NotNil(t, err)
-	assert.Equal(t, err, fmt.Errorf("-1 is not a valid integer value for limit flag. Allowed values: 1-100"))
+	assert.Equal(t, fmt.Errorf("-1 is not a valid integer value for limit flag. Allowed values: 1-100"), err)
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
@@ -58,7 +58,7 @@ func TestListWithIncorrectLimit(t *testing.T) {
 	err := cmd.Execute()
 
 	assert.NotNil(t, err)
-	assert.Equal(t, err, fmt.Errorf("101 is not a valid integer value for limit flag. Allowed values: 1-100"))
+	assert.Equal(t, fmt.Errorf("101 is not a valid integer value for limit flag. Allowed values: 1-100"), err)
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
@@ -70,7 +70,7 @@ func TestListLimitShorthandUsingIncorrectLimit(t *testing.T) {
 	err := cmd.Execute()
 
 	assert.NotNil(t, err)
-	assert.Equal(t, err, fmt.Errorf("102 is not a valid integer value for limit flag. Allowed values: 1-100"))
+	assert.Equal(t, fmt.Errorf("102 is not a valid integer value for limit flag. Allowed values: 1-100"), err)
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
@@ -82,7 +82,7 @@ func TestListWithIncorrectOrder(t *testing.T) {
 	err := cmd.Execute()
 
 	assert.NotNil(t, err)
-	assert.Equal(t, err, fmt.Errorf("incorrectOrderValue is not a valid value for order flag. Allowed values: asc/desc"))
+	assert.Equal(t, fmt.Errorf("incorrectOrderValue is not a valid value for order flag. Allowed values: asc/desc"), err)
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
@@ -94,7 +94,7 @@ func TestListWithIncorrectSort(t *testing.T) {
 	err := cmd.Execute()
 
 	assert.NotNil(t, err)
-	assert.Equal(t, err, fmt.Errorf("incorrectSortValue is not a valid value for sort flag. Allowed values: last-used/size/created-at"))
+	assert.Equal(t, fmt.Errorf("incorrectSortValue is not a valid value for sort flag. Allowed values: last-used/size/created-at"), err)
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
@@ -122,11 +122,11 @@ func TestListWithIncorrectRepoForListCaches(t *testing.T) {
 	err := cmd.Execute()
 
 	assert.NotNil(t, err)
-	assert.Equal(t, reflect.TypeOf(err), reflect.TypeOf(types.HandledError{}))
+	assert.Equal(t, reflect.TypeOf(types.HandledError{}), reflect.TypeOf(err))
 
 	var customError types.HandledError
 	errors.As(err, &customError)
-	assert.Equal(t, customError.Message, "The given repo does not exist.")
+	assert.Equal(t, "The given repo does not exist.", customError.Message)
 
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
@@ -155,11 +155,11 @@ func TestListWithUnauthorizedRequestForListCaches(t *testing.T) {
 	err := cmd.Execute()
 
 	assert.NotNil(t, err)
-	assert.Equal(t, reflect.TypeOf(err), reflect.TypeOf(types.HandledError{}))
+	assert.Equal(t, reflect.TypeOf(types.HandledError{}), reflect.TypeOf(err))
 
 	var customError types.HandledError
 	errors.As(err, &customError)
-	assert.Equal(t, customError.Message, "Must have admin rights to Repository.")
+	assert.Equal(t, "Must have admin rights to Repository.", customError.Message)
 
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
@@ -188,11 +188,11 @@ func TestListWithInternalServerErrorForListCaches(t *testing.T) {
 	err := cmd.Execute()
 
 	assert.NotNil(t, err)
-	assert.Equal(t, reflect.TypeOf(err), reflect.TypeOf(types.HandledError{}))
+	assert.Equal(t, reflect.TypeOf(types.HandledError{}), reflect.TypeOf(err))
 
 	var customError types.HandledError
 	errors.As(err, &customError)
-	assert.Equal(t, customError.Message, "We could not process your request due to internal error.")
+	assert.Equal(t, "We could not process your request due to internal error.", customError.Message)
 
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }

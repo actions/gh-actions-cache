@@ -20,11 +20,11 @@ func TestGetRepo_CorrectRepoString(t *testing.T) {
 	r := "testOrg/testRepo"
 	repo, err := GetRepo(r)
 
-	assert.NotNil(t, repo)
 	assert.NoError(t, err)
-	assert.Equal(t, repo.Host(), "github.com")
-	assert.Equal(t, repo.Owner(), "testOrg")
-	assert.Equal(t, repo.Name(), "testRepo")
+	assert.NotNil(t, repo)
+	assert.Equal(t, "github.com", repo.Host())
+	assert.Equal(t, "testOrg", repo.Owner())
+	assert.Equal(t, "testRepo", repo.Name())
 }
 
 func TestGetRepo_CorrectRepoStringWithCustomHost(t *testing.T) {
@@ -33,9 +33,9 @@ func TestGetRepo_CorrectRepoStringWithCustomHost(t *testing.T) {
 
 	assert.NotNil(t, repo)
 	assert.NoError(t, err)
-	assert.Equal(t, repo.Host(), "api.testEnterprise.com")
-	assert.Equal(t, repo.Owner(), "testOrg")
-	assert.Equal(t, repo.Name(), "testRepo")
+	assert.Equal(t, "api.testEnterprise.com", repo.Host())
+	assert.Equal(t, "testOrg", repo.Owner())
+	assert.Equal(t, "testRepo", repo.Name())
 }
 
 func TestFormatCacheSize_MB(t *testing.T) {
@@ -43,7 +43,7 @@ func TestFormatCacheSize_MB(t *testing.T) {
 	cacheSizeDetailString := FormatCacheSize(cacheSizeInBytes)
 
 	assert.NotNil(t, cacheSizeDetailString)
-	assert.Equal(t, cacheSizeDetailString, "1.50 MB")
+	assert.Equal(t, "1.50 MB", cacheSizeDetailString)
 }
 
 func TestFormatCacheSize_GB(t *testing.T) {
@@ -51,5 +51,5 @@ func TestFormatCacheSize_GB(t *testing.T) {
 	cacheSizeDetailString := FormatCacheSize(cacheSizeInBytes)
 
 	assert.NotNil(t, cacheSizeDetailString)
-	assert.Equal(t, cacheSizeDetailString, "1.50 GB")
+	assert.Equal(t, "1.50 GB", cacheSizeDetailString)
 }

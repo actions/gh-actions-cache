@@ -33,7 +33,7 @@ func TestGetCacheUsage_CorrectRepo(t *testing.T) {
 	assert.NoError(t, err)
 	totalCacheSize, err := artifactCache.GetCacheUsage()
 
-	assert.Equal(t, totalCacheSize, float64(291205))
+	assert.Equal(t, float64(291205), totalCacheSize)
 	assert.NoError(t, err)
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
@@ -59,9 +59,9 @@ func TestGetCacheUsage_IncorrectRepo(t *testing.T) {
 	errors.As(err, &httpError)
 
 	assert.NotNil(t, err)
-	assert.Equal(t, httpError.StatusCode, 404)
-	assert.Equal(t, httpError.Message, "Not Found")
-	assert.Equal(t, totalCacheSize, float64(-1))
+	assert.Equal(t, 404, httpError.StatusCode)
+	assert.Equal(t, "Not Found", httpError.Message)
+	assert.Equal(t, float64(-1), totalCacheSize)
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
@@ -98,9 +98,9 @@ func TestListCaches_Success(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.NotNil(t, listCacheResponse)
-	assert.Equal(t, listCacheResponse.TotalCount, 1)
-	assert.Equal(t, len(listCacheResponse.ActionsCaches), 1)
-	assert.Equal(t, listCacheResponse.ActionsCaches[0].Id, 29)
+	assert.Equal(t, 1, listCacheResponse.TotalCount)
+	assert.Equal(t, 1, len(listCacheResponse.ActionsCaches))
+	assert.Equal(t, 29, listCacheResponse.ActionsCaches[0].Id)
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
@@ -129,9 +129,9 @@ func TestListCaches_Failure(t *testing.T) {
 	errors.As(err, &httpError)
 
 	assert.NotNil(t, err)
-	assert.Equal(t, httpError.StatusCode, 404)
-	assert.Equal(t, httpError.Message, "Not Found")
-	assert.Equal(t, listCacheResponse, types.ListApiResponse{})
+	assert.Equal(t, 404, httpError.StatusCode)
+	assert.Equal(t, "Not Found", httpError.Message)
+	assert.Equal(t, types.ListApiResponse{}, listCacheResponse)
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
@@ -167,7 +167,7 @@ func TestDeleteCaches_Success(t *testing.T) {
 	deletedCache, err := artifactCache.DeleteCaches(queryParams)
 
 	assert.NoError(t, err)
-	assert.Equal(t, deletedCache, 1)
+	assert.Equal(t, 1, deletedCache)
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
@@ -194,6 +194,6 @@ func TestDeleteCaches_Failure(t *testing.T) {
 	deletedCache, err := artifactCache.DeleteCaches(queryParams)
 
 	assert.NotNil(t, err)
-	assert.Equal(t, deletedCache, 0)
+	assert.Equal(t, 0, deletedCache)
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }

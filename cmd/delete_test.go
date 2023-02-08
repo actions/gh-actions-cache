@@ -20,7 +20,7 @@ func TestDeleteWithIncorrectArguments(t *testing.T) {
 	err := cmd.Execute()
 
 	assert.NotNil(t, err)
-	assert.Equal(t, err, fmt.Errorf("accepts 1 arg(s), received 0"))
+	assert.Equal(t, fmt.Errorf("accepts 1 arg(s), received 0"), err)
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
@@ -56,7 +56,7 @@ func TestDeleteWithIncorrectRepoForDeleteCaches(t *testing.T) {
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 	var customError types.HandledError
 	errors.As(err, &customError)
-	assert.Equal(t, customError.Message, "The given repo does not exist.")
+	assert.Equal(t, "The given repo does not exist.", customError.Message)
 }
 
 func TestDeleteSuccessWithConfirmFlagProvided(t *testing.T) {
@@ -136,11 +136,11 @@ func TestDeleteWithUnauthorizedRequestForDeleteCaches(t *testing.T) {
 	err := cmd.Execute()
 
 	assert.NotNil(t, err)
-	assert.Equal(t, reflect.TypeOf(err), reflect.TypeOf(types.HandledError{}))
+	assert.Equal(t, reflect.TypeOf(types.HandledError{}), reflect.TypeOf(err))
 
 	var customError types.HandledError
 	errors.As(err, &customError)
-	assert.Equal(t, customError.Message, "Must have admin rights to Repository.")
+	assert.Equal(t, "Must have admin rights to Repository.", customError.Message)
 
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
@@ -161,11 +161,11 @@ func TestDeleteWithInternalServerErrorForDeleteCaches(t *testing.T) {
 	err := cmd.Execute()
 
 	assert.NotNil(t, err)
-	assert.Equal(t, reflect.TypeOf(err), reflect.TypeOf(types.HandledError{}))
+	assert.Equal(t, reflect.TypeOf(types.HandledError{}), reflect.TypeOf(err))
 
 	var customError types.HandledError
 	errors.As(err, &customError)
-	assert.Equal(t, customError.Message, "We could not process your request due to internal error.")
+	assert.Equal(t, "We could not process your request due to internal error.", customError.Message)
 
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
