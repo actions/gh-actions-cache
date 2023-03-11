@@ -1,9 +1,6 @@
 package cmd
 
 import (
-	"errors"
-	"fmt"
-	"reflect"
 	"testing"
 
 	"github.com/actions/gh-actions-cache/internal"
@@ -19,8 +16,7 @@ func TestDeleteWithIncorrectArguments(t *testing.T) {
 	cmd.SetArgs([]string{})
 	err := cmd.Execute()
 
-	assert.NotNil(t, err)
-	assert.Equal(t, err, fmt.Errorf("accepts 1 arg(s), received 0"))
+	assert.ErrorContains(t, err, "accepts 1 arg(s), received 0")
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
@@ -31,8 +27,7 @@ func TestDeleteWithIncorrectRepo(t *testing.T) {
 	cmd.SetArgs([]string{"--repo", "testOrg/testRepo/123/123", "cacheName"})
 	err := cmd.Execute()
 
-	assert.NotNil(t, err)
-	assert.Equal(t, err, fmt.Errorf("expected the \"[HOST/]OWNER/REPO\" format, got \"testOrg/testRepo/123/123\""))
+	assert.ErrorContains(t, err, "expected the \"[HOST/]OWNER/REPO\" format, got \"testOrg/testRepo/123/123\"")
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
@@ -52,11 +47,11 @@ func TestDeleteWithIncorrectRepoForDeleteCaches(t *testing.T) {
 	cmd.SetArgs([]string{"--repo", "testOrg/testRepo", "cacheName"})
 	err := cmd.Execute()
 
-	assert.NotNil(t, err)
-	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 	var customError types.HandledError
-	errors.As(err, &customError)
-	assert.Equal(t, customError.Message, "The given repo does not exist.")
+	if assert.ErrorAs(t, err, &customError) {
+		assert.Equal(t, "The given repo does not exist.", customError.Message)
+	}
+	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
 func TestDeleteSuccessWithConfirmFlagProvided(t *testing.T) {
@@ -85,7 +80,7 @@ func TestDeleteSuccessWithConfirmFlagProvided(t *testing.T) {
 	cmd.SetArgs([]string{"--repo", "testOrg/testRepo", "2022-06-29T13:33:49", "--confirm"})
 	err := cmd.Execute()
 
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
@@ -116,7 +111,7 @@ func TestDeleteFailureWhileTakingUserInput(t *testing.T) {
 	cmd.SetArgs([]string{"--repo", "testOrg/testRepo", "2022-06-29T13:33:49"})
 	err := cmd.Execute()
 
-	assert.NotNil(t, err)
+	assert.Error(t, err)
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
@@ -135,13 +130,10 @@ func TestDeleteWithUnauthorizedRequestForDeleteCaches(t *testing.T) {
 	cmd.SetArgs([]string{"--repo", "testOrg/testRepo", "cacheKey", "--confirm"})
 	err := cmd.Execute()
 
-	assert.NotNil(t, err)
-	assert.Equal(t, reflect.TypeOf(err), reflect.TypeOf(types.HandledError{}))
-
 	var customError types.HandledError
-	errors.As(err, &customError)
-	assert.Equal(t, customError.Message, "Must have admin rights to Repository.")
-
+	if assert.ErrorAs(t, err, &customError) {
+		assert.Equal(t, "Must have admin rights to Repository.", customError.Message)
+	}
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
 
@@ -160,12 +152,9 @@ func TestDeleteWithInternalServerErrorForDeleteCaches(t *testing.T) {
 	cmd.SetArgs([]string{"--repo", "testOrg/testRepo", "cacheKey", "--confirm"})
 	err := cmd.Execute()
 
-	assert.NotNil(t, err)
-	assert.Equal(t, reflect.TypeOf(err), reflect.TypeOf(types.HandledError{}))
-
 	var customError types.HandledError
-	errors.As(err, &customError)
-	assert.Equal(t, customError.Message, "We could not process your request due to internal error.")
-
+	if assert.ErrorAs(t, err, &customError) {
+		assert.Equal(t, "We could not process your request due to internal error.", customError.Message)
+	}
 	assert.True(t, gock.IsDone(), internal.PrintPendingMocks(gock.Pending()))
 }
