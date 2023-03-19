@@ -8,7 +8,7 @@ It also allows deleting a corrupt, incomplete or dangling cache. A cache can be 
 
 This extension builds on top of [cache management](https://docs.github.com/en/actions/using-workflows/caching-dependencies-to-speed-up-workflows#managing-caches) capabilities exposed by GitHub [APIs](https://docs.github.com/en/rest/actions/cache).
 
-**Note:** This extension currently supports github.com only, GitHub Enterprise Server is not supported currently.
+**Note:** This extension only supports github.com and GitHub Enterprise Server 3.7 & above.
 
 ## Installation
 
