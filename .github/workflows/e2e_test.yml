@@ -43,7 +43,7 @@ jobs:
           restore-keys: |
             go-${{ runner.os }}-
       - name: Build the project
-        run: go build
+        run: CGO_ENABLED=0 go build
       - name: Install extension
         env:
           GITHUB_TOKEN: ${{ secrets.REPO_WRITE_TOKEN }}
