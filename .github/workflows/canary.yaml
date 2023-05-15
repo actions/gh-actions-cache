@@ -38,12 +38,12 @@ jobs:
         uses: actions/checkout@v3
       - name: Install extension
         env:
-          GITHUB_TOKEN: ${{ secrets.REPO_WRITE_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh extensions install actions/gh-actions-cache
       - name: List Command
         shell: bash
         env:
-          GITHUB_TOKEN: ${{ secrets.REPO_WRITE_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cache_found=$(gh actions-cache list --key $CacheKey --limit 100 --branch $GITHUB_REF --order desc --sort created-at | grep  $CacheKey)
           echo $cache_found
@@ -51,7 +51,7 @@ jobs:
       - name: Delete Command
         shell: bash
         env:
-          GITHUB_TOKEN: ${{ secrets.REPO_WRITE_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cache_delete=$(gh actions-cache delete $CacheKey --branch $GITHUB_REF --confirm | grep "Deleted 1 cache entry with key")
           echo $cache_delete
