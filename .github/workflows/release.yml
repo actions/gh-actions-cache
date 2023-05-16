@@ -37,5 +37,7 @@ jobs:
           GH_TOKEN: dummy-token-to-facilitate-rest-client
 
       - uses: cli/gh-extension-precompile@v1
+        env:
+          CGO_ENABLED: 0
         with:
           go_version: "1.18"
