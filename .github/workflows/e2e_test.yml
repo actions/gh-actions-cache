@@ -80,7 +80,7 @@ jobs:
           echo $cache_delete
           [[ -z "$cache_delete" ]] && exit 1 || echo "Cache Delete Successful"
       - name: Slack Notification on failure
-        if: failure()
+        if: failure() && env.SLACK_WEBHOOK_URL != ''
         uses: 8398a7/action-slack@a74b761b4089b5d730d813fbedcd2ec5d394f3af
         with:
           text: actions/gh-actions-cache E2E test failure
