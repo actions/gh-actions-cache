@@ -14,7 +14,7 @@ This extension builds on top of [cache management](https://docs.github.com/en/ac
 
 1. Install the `gh` CLI - see the [installation](https://github.com/cli/cli#installation)
    
-   _Installation requires a minimum version (2.0.0) of the the GitHub CLI that supports extensions._
+   _Installation requires a minimum version (2.0.0) of the GitHub CLI that supports extensions._
 
 2. Install this extension:
 
