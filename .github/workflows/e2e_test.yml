@@ -28,6 +28,10 @@ jobs:
         key: ${{ matrix.os }}-runner-${{ github.run_number }}-${{ github.run_attempt }}
   canary:
     needs: upload
+    permissions:
+      contents: read
+      packages: read
+      actions: write
     strategy:
       fail-fast: false
       matrix:
@@ -51,18 +55,18 @@ jobs:
         run: go build
       - name: Install extension
         env:
-          GITHUB_TOKEN: ${{ secrets.REPO_WRITE_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: gh extensions install .
       - name: Print help
         shell: bash
         env:
-          GITHUB_TOKEN: ${{ secrets.REPO_WRITE_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           gh actions-cache --help
       - name: List Command
         shell: bash
         env:
-          GITHUB_TOKEN: ${{ secrets.REPO_WRITE_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           cache_found=$(gh actions-cache list --key $CacheKey --limit 100 --branch $GITHUB_REF --order desc --sort created-at | grep  $CacheKey)
           echo $cache_found
@@ -70,13 +74,13 @@ jobs:
       - name: Delete Command
         shell: bash
         env:
-          GITHUB_TOKEN: ${{ secrets.REPO_WRITE_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           cache_delete=$(gh actions-cache delete $CacheKey --branch $GITHUB_REF --confirm | grep "Deleted 1 cache entry with key")
           echo $cache_delete
           [[ -z "$cache_delete" ]] && exit 1 || echo "Cache Delete Successful"
       - name: Slack Notification on failure
-        if: failure()
+        if: failure() && env.SLACK_WEBHOOK_URL != ''
         uses: 8398a7/action-slack@a74b761b4089b5d730d813fbedcd2ec5d394f3af
         with:
           text: actions/gh-actions-cache E2E test failure
