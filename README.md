@@ -1,3 +1,12 @@
+> [!IMPORTANT]
+> This functionality has been integrated directly into the `gh` CLI
+>
+> https://cli.github.com/manual/gh_cache
+>
+> This extension should be removed and replaced with usage of `gh cache` directly
+>
+> `gh extension remove actions-cache`
+
 # gh-actions-cache
 
 ✨ A GitHub (`gh`) [CLI](https://cli.github.com/) extension to manage the GitHub Actions [caches](https://docs.github.com/en/actions/using-workflows/caching-dependencies-to-speed-up-workflows) being used in a GitHub repository. 
